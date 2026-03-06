@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragment/frag :: head}"></head>
+<body>
+
+<div class="page-header">
+    <div class="dashboard-header">
+
+        <div class="dashboard-title">
+            <h1>Academic Management Dashboard</h1>
+            <p>
+                Comprehensive overview of courses, student progress,
+                and academic performance metrics.
+            </p>
+        </div>
+
+        <div class="dashboard-actions">
+            <a th:href="@{/semester/list}" class="btn btn-light">
+                <i class="bx bx-calendar"></i>
+                Academic Calendar
+            </a>
+
+            <a th:href="@{/semester/add}" class="btn btn-primary">
+                <i class="bx bx-plus"></i>
+                New Semester
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= STAT CARDS ================= -->
+<div class="stat-card-grid">
+
+    <div class="stat-card">
+        <div class="icon-wrapper green">
+            <i class='bx bxs-book-content'></i>
+        </div>
+        <div class="stat-info">
+            <h3 th:text="${totalCourses}">0</h3>
+            <p>Active Courses</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper cyan">
+            <i class='bx bxs-group'></i>
+        </div>
+        <div class="stat-info">
+            <h3 th:text="${totalStudents}">0</h3>
+            <p>Enrolled Students</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper orange">
+            <i class='bx bxs-user-badge'></i>
+        </div>
+        <div class="stat-info">
+            <h3 th:text="${totalLecturers}">0</h3>
+            <p>Total Lecturers</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper red">
+            <i class='bx bxs-building-house'></i>
+        </div>
+        <div class="stat-info">
+            <h3 th:text="${totalDepartment}">0</h3>
+            <p>Total Departments</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= WIDGET GRID ================= -->
+<div class="widget-grid">
+
+    <!-- QUICK ACTIONS -->
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Quick Actions</h3>
+        </div>
+        <div class="widget-body">
+            <a th:href="@{/course/create}" class="quick-action-btn blue">
+                <i class='bx bx-plus-circle'></i> Create Course
+            </a>
+            <a th:href="@{/student/add}" class="quick-action-btn green">
+                <i class='bx bx-user-plus'></i> Add New Student
+            </a>
+            <a th:href="@{/lecturer/add}" class="quick-action-btn orange">
+                <i class='bx bxs-user-plus'></i> Add New Lecturer
+            </a>
+        </div>
+    </div>
+
+    <!-- ACADEMIC CALENDAR -->
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Academic Calendar</h3>
+            <a th:href="@{/semester/list}" class="widget-link">View All</a>
+        </div>
+        <div class="widget-body">
+            <ul class="calendar-list">
+                <li th:each="sem : ${semesterList}">
+                    <div class="calendar-icon yellow">
+                        <i class='bx bx-calendar-event'></i>
+                    </div>
+                    <div class="calendar-info">
+                        <p th:text="${sem.code + ' - ' + sem.year}"></p>
+                        <small th:text="'Starts: ' + ${sem.beginDate}"></small>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= BOTTOM WIDGET GRID ================= -->
+<div class="widget-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
+
+    <!-- RECENT STUDENTS -->
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Recent Students</h3>
+            <a th:href="@{/student/list}" class="widget-link">View All</a>
+        </div>
+        <div class="widget-body">
+            <ul class="widget-list">
+                <li class="widget-list-item"
+                    th:each="student, loop : ${Studentlist}"
+                    th:if="${loop.count <= 3}">
+                    <div class="item-avatar blue">
+                        <span th:text="${#strings.substring(student.name,0,1)}"></span>
+                    </div>
+                    <div class="item-info">
+                        <p th:text="${student.name}"></p>
+                        <small th:text="${student.department.name}"></small>
+                    </div>
+                    <span class="item-status active">Active</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- POPULAR COURSES -->
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Popular Courses</h3>
+            <a th:href="@{/course/list}" class="widget-link">View All</a>
+        </div>
+        <div class="widget-body">
+            <ul class="widget-list">
+                <li class="widget-list-item"
+                    th:each="course, loop : ${listCourse}"
+                    th:if="${loop.count <= 3}">
+                    <div class="item-avatar gray">
+                        <i class='bx bx-book'></i>
+                    </div>
+                    <div class="item-info">
+                        <p th:text="${course.title}"></p>
+                        <small th:text="'Department: ' + ${course.department.name}"></small>
+                    </div>
+                    <div class="item-progress">
+                        <span th:text="${course.credits + ' Credits'}"></span>
+                        <div class="progress-bar">
+                            <div class="progress-fill"
+                                 th:style="'width:' + ${course.credits * 20} + '%'">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

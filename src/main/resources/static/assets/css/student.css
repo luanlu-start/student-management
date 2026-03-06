@@ -1,0 +1,208 @@
+/* ================= STUDENT LIST ================= */
+
+html, body {
+    overflow-x: hidden;
+}
+
+.dashboard-content {
+    padding: 24px;
+}
+
+/* ---------- FILTER BAR ---------- */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.filter-bar form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.filter-bar input,
+.filter-bar select {
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.filter-bar button {
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 6px;
+    border: none;
+    background: #2563eb;
+    color: #fff;
+}
+
+/* ---------- GRID (FIX CỐT LÕI) ---------- */
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* ---------- CARD ---------- */
+.user-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+}
+
+/* ---------- AVATAR ---------- */
+.card-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* ---------- INFO ---------- */
+.card-info h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.card-info p {
+    margin: 2px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.card-info small {
+    font-size: 13px;
+    color: #777;
+}
+
+/* ---------- BUTTONS ---------- */
+.card-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
+
+.btn-edit {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.btn-delete {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+/* HEADER */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+/* FILTER BAR */
+.filter-bar {
+    margin-bottom: 24px;
+}
+
+.filter-bar form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-bar input,
+.filter-bar select {
+    height: 40px;
+    min-width: 220px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.filter-bar button {
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    font-weight: 500;
+}
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.filter-inline {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-inline input,
+.filter-inline select {
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.filter-inline button {
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: #fff;
+}
+
+/* ================= FIX ADD NEW STUDENT BUTTON ================= */
+.btn-add-rect {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 16px;
+    background-color: #2563eb; /* xanh dương giống Department */
+    color: #fff;
+
+    border-radius: 8px; /* chữ nhật, KHÔNG pill */
+    font-weight: 500;
+    font-size: 14px;
+
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    transition: all 0.2s ease;
+}
+
+/* hover giống admin template */
+.btn-add-rect:hover {
+    background-color: #1e4ed8;
+    transform: translateY(-1px);
+}
+
+/* icon trong nút */
+.btn-add-rect i {
+    font-size: 16px;
+}
