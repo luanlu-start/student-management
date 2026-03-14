@@ -68,6 +68,10 @@ html, body {
     font-weight: 600;
 }
 
+.btn-view {
+    padding-top: 5px
+}
+
 /* ---------- INFO ---------- */
 .card-info h3 {
     margin: 0;

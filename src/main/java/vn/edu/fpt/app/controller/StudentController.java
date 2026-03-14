@@ -1,8 +1,11 @@
 package vn.edu.fpt.app.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.fpt.app.entities.Lecturer;
 import vn.edu.fpt.app.entities.Student;
 import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.service.StudentService;
@@ -21,11 +24,18 @@ public class StudentController {
         this.departmentService = departmentService;
     }
 
-    // ========= LIST =========
+
+
     @GetMapping("/list")
-    public String list(Model model) {
-        model.addAttribute("listStd", studentService.getAll());
+    public String list(@RequestParam(defaultValue = "0") int page,
+                       Model model) {
+
+        Page<Student> StudentPage =
+                studentService.getAllStudents(PageRequest.of(page, 12));
+
+        model.addAttribute("studentPage", StudentPage);
         model.addAttribute("view", "dashboard/student/list");
+
         return "layout/dashboard";
     }
 

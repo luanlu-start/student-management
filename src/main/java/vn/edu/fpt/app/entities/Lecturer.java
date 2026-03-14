@@ -1,17 +1,13 @@
 package vn.edu.fpt.app.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@Table(name = "Lecturer")
-@Getter
-@Setter
-@NoArgsConstructor
+@Table(name = "Lecturers")
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Lecturer {
 
     @Id
@@ -31,7 +27,7 @@ public class Lecturer {
     private String title;
 
     @ManyToOne
-    @JoinColumn(name = "department_code")
+    @JoinColumn(name = "departmentCode")
     private Department department;
 
 

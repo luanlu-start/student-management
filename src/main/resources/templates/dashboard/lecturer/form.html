@@ -1,10 +1,9 @@
-
 <div class="page-header">
     <div>
         <h1 class="title"
-            th:text="${student.id == 0 || student.id == null
-              ? 'Add New Student'
-              : 'Edit Student'}">
+            th:text="${lecturer.id == null || lecturer.id == 0
+      ? 'Add New Lecturer'
+      : 'Edit Lecturer'}">
         </h1>
 
         <ul class="breadcrumbs">
@@ -15,17 +14,17 @@
             <li>
                 <a href="#"
                    class="active"
-                   th:text="${student.id == 0 || student.id == null
-                 ? 'Add New Student'
-                 : 'Edit Student'}">
+                   th:text="${lecturer.id == 0 || lecturer.id == null
+                 ? 'Add New Lecturer'
+                 : 'Edit Lecturer'}">
                 </a>
             </li>
 
         </ul>
     </div>
 
-    <a th:href="@{/student/list}" class="btn btn-back">
-        <i class='bx bx-arrow-back'></i> Back to Students
+    <a th:href="@{/lecturer/list}" class="btn btn-back">
+        <i class='bx bx-arrow-back'></i> Back to Lecturers
     </a>
 
 </div>
@@ -37,67 +36,73 @@
 
         <p class="form-title">Student Information</p>
 
-        <form th:action="@{/student/save}"
-              th:object="${student}"
+        <form th:action="@{/lecturer/save}"
+              th:object="${lecturer}"
               method="post"
               class="form-body">
 
-            <!-- QUAN TRỌNG: GIỮ ID KHI EDIT -->
             <input type="hidden" th:field="*{id}" />
 
-            <!-- ROW 1 -->
             <div class="form-row">
+
                 <div class="form-group">
                     <label>Name</label>
-                    <input type="text" th:field="*{name}" placeholder="Enter student name">
+                    <input type="text" th:field="*{name}" placeholder="Enter lecturer name">
                 </div>
 
                 <div class="form-group">
                     <label>Email</label>
                     <input type="email" th:field="*{email}" placeholder="Enter email">
                 </div>
+
             </div>
 
-            <!-- ROW 2 -->
             <div class="form-row">
+
                 <div class="form-group">
-                    <label>Gender</label>
-                    <select th:field="*{gender}">
-                        <option value="">-- Select Gender --</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                    </select>
+                    <label>Title</label>
+                    <input type="text" th:field="*{title}">
                 </div>
 
                 <div class="form-group">
                     <label>Department</label>
-                    <select th:field="*{department}">
+
+                    <select th:field="*{department.code}">
+
                         <option value="">-- Select Department --</option>
+
                         <option th:each="dept : ${listDepartments}"
                                 th:value="${dept.code}"
                                 th:text="${dept.name}">
                         </option>
+
                     </select>
+
                 </div>
+
             </div>
 
-            <!-- ROW 3 -->
             <div class="form-row">
+
                 <div class="form-group">
                     <label>Phone</label>
-                    <input type="text" th:field="*{phone}" placeholder="Enter phone number">
+                    <input type="text" th:field="*{phone}">
                 </div>
-                <div class="form-group"></div>
+
             </div>
 
-            <!-- BUTTONS -->
             <div class="form-buttons">
-                <a th:href="@{/student/list}" class="btn btn-cancel">Cancel</a>
+
+                <a th:href="@{/lecturer/list}" class="btn btn-cancel">
+                    Cancel
+                </a>
+
                 <button type="submit" class="btn btn-save">
+
                     <i class='bx bx-save'></i>
-                    <span th:text="${student.id == 0 || student.id == null
-                     ? 'Save'
-                     : 'Update'}"></span>
+
+                    <span th:text="${lecturer.id == null ? 'Save' : 'Update'}"></span>
+
                 </button>
 
             </div>

@@ -451,7 +451,7 @@ nav .form-group input {
 .form-page {
     display: flex;
     justify-content: center;
-    margin: 32px 0 60px;
+    margin: 0px 0 60px;
 }
 
 .form-container {

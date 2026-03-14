@@ -3,6 +3,8 @@ package vn.edu.fpt.app.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.app.entities.Lecturer;
 import vn.edu.fpt.app.repository.LecturerReposity;
@@ -12,61 +14,31 @@ import java.util.Optional;
 
 @Service
 public class LecturerService {
-    @Autowired
-    private LecturerReposity lecturerReposity;
+   private final LecturerReposity lecturerReposity;
+
 
     public LecturerService(LecturerReposity lecturerReposity) {
         this.lecturerReposity = lecturerReposity;
     }
 
-    public List<Lecturer> findAll() {
+    public List<Lecturer> getAll() {
         return lecturerReposity.findAll();
     }
 
-
     public Lecturer getById(int id) {
-        Optional<Lecturer> opt = lecturerReposity.findById(id);
-
-        return opt.orElse(null);
+        return lecturerReposity.findById(id).orElse(null);
     }
 
-    public Lecturer findLecturer(int id) {
-        Optional<Lecturer> opt = lecturerReposity.findById(id);
-        return opt.orElse(null);
+    public void save (Lecturer lecturer) {
+        lecturerReposity.save(lecturer);
     }
 
-    public Lecturer createLecturer(Lecturer lecturer) {
-        return lecturerReposity.save(lecturer);
-    }
-
-
-    @Transactional
-    public Lecturer updateLecturer(int id, Lecturer newLecturer) {
-        Optional<Lecturer> opt = lecturerReposity.findById(id);
-        if (opt.isEmpty()) {
-            return null;
-        }
-
-
-        Lecturer oldLecturer = opt.get();
-        oldLecturer.setTitle(newLecturer.getTitle());
-        oldLecturer.setName(newLecturer.getName());
-        oldLecturer.setEmail(newLecturer.getEmail());
-        oldLecturer.setPhone(newLecturer.getPhone());
-        oldLecturer.setDepartment(newLecturer.getDepartment());
-
-        return lecturerReposity.save(oldLecturer);
-
-
-    }
-
-    @Transactional
-    public boolean deleteLecturer(int id) {
-        if (!lecturerReposity.existsById(id)) {
-            return false;
-        }
+    public void delete(int id) {
         lecturerReposity.deleteById(id);
-        return true;
+    }
+
+    public Page<Lecturer> getAllLecturers(Pageable pageable) {
+        return lecturerReposity.findAll(pageable);
     }
 
 }

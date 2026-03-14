@@ -12,20 +12,20 @@ import lombok.*;
 public class Department {
 
     @Id
-    @Column(name = "code", length = 10)
+    @Column(name = "Code", length = 10)
     private String code;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "Name", nullable = false)
     private String name;
 
     @Column(name = "DepartmentHead")
     private String departmentHead;
 
 
-    @Column(name = "phone")
+    @Column(name = "Phone")
     private String phone;
 
-    @Column(name = "email")
+    @Column(name = "Email")
     private String email;
 
 
