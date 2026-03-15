@@ -1,0 +1,97 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Edit Class</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="classes?action=all">Classes</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Edit Class</a></li>
+        </ul>
+    </div>
+    <a href="classes?action=all" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Classes
+    </a>
+</div>
+
+<div class="form-container">
+    <p class="form-title">Edit Class Information</p>
+    
+    <form action="classes" method="POST" class="form-body">
+        
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" name="classId" value="" th:value="${classInfo.id}">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Class Code</label>
+                <input type="text" value="" th:value="${classInfo.code}" readonly>
+            </div>
+            <div class="form-group">
+                <label>Course</label>
+                <input type="text" value="" th:value="${classInfo.course.title}" readonly>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="lecturerId">Lecturer <span>*</span></label>
+                <select id="lecturerId" name="lecturerId" class="form-select" required>
+                    <th:block th:each="lec : ${lecturerList}">
+                        <option value="" th:value="${lec.id}"
+                                <th:block th:if="${lec.id == classInfo.lecturer.id}">selected</th:block> >
+                            [[${lec.name}]]
+                        </option>
+                    </th:block>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="semesterId">Semester <span>*</span></label>
+                <select id="semesterId" name="semesterId" class="form-select" required>
+                    <th:block th:each="sem : ${semesterList}">
+                        <option value="" th:value="${sem.id}"
+                                <th:block th:if="${sem.id == classInfo.semester.id}">selected</th:block> >
+                            [[${sem.code}]] - [[${sem.year}]]
+                        </option>
+                    </th:block>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="room">Room <span>*</span></label>
+                
+                <input type="text" id="room" name="room" value="" th:value="${classInfo.room}" 
+                       placeholder="E.g: BE.301"
+                       pattern="[A-Z]{2}\.[0-9]{3}"
+                       title="Must match format: XX.123 (e.g., BE.301)"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="schedule">Schedule <span>*</span></label>
+                
+                <input type="text" id="schedule" name="schedule" value="" th:value="${classInfo.schedule}" 
+                       placeholder="E.g: Mon(7-9), Wed(7-9)"
+                       pattern="[A-Za-z0-9(),\- ]+"
+                       title="Can only contain letters, numbers, commas, hyphens, and parentheses ( )"
+                       required>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a href="classes?action=all" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Update Class
+            </button>
+        </div>
+    </form>
+</div>
+</th:block>
+
+
+
+
+
+

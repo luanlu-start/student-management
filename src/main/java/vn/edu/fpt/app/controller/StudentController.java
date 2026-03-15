@@ -1,87 +1,263 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package vn.edu.fpt.app.controller;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import vn.edu.fpt.app.entities.Department;
+import vn.edu.fpt.app.entities.Student;
+import vn.edu.fpt.app.service.DepartmentService;
+import vn.edu.fpt.app.service.StudentService;
+import jakarta.servlet.http.HttpSession;
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import vn.edu.fpt.app.entities.Lecturer;
-import vn.edu.fpt.app.entities.Student;
-import vn.edu.fpt.app.entities.Department;
-import vn.edu.fpt.app.service.StudentService;
-import vn.edu.fpt.app.service.DepartmentService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/student")
 public class StudentController {
 
     private final StudentService studentService;
-    private final DepartmentService departmentService;
+    private final DepartmentService depService;
 
-    public StudentController(StudentService studentService,
-                             DepartmentService departmentService) {
+    @Autowired
+    public StudentController(StudentService studentService, DepartmentService depService) {
         this.studentService = studentService;
-        this.departmentService = departmentService;
+        this.depService = depService;
     }
 
+    @GetMapping
+    public String list(@RequestParam(name = "i", required = false) String i, Model model) {
+        int pagSize = 10;
+        int pagIndex = 1;
 
-
-    @GetMapping("/list")
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       Model model) {
-
-        Page<Student> StudentPage =
-                studentService.getAllStudents(PageRequest.of(page, 12));
-
-        model.addAttribute("studentPage", StudentPage);
-        model.addAttribute("view", "dashboard/student/list");
-
-        return "layout/dashboard";
-    }
-
-    // ========= ADD FORM =========
-    @GetMapping("/add")
-    public String addForm(Model model) {
-
-        Student student = new Student();
-        student.setDepartment(new Department()); // ⭐ bắt buộc
-
-        model.addAttribute("student", student);
-        model.addAttribute("listDepartments", departmentService.getAll());
-        model.addAttribute("view", "dashboard/student/form");
-
-        return "layout/dashboard";
-    }
-
-
-    // ========= SAVE =========
-    @PostMapping("/save")
-    public String save(@ModelAttribute Student student) {
-        studentService.save(student);
-        return "redirect:/student/list";
-    }
-
-    // ========= EDIT =========
-    @GetMapping("/edit/{id}")
-    public String edit(@PathVariable int id, Model model) {
-
-        Student student = studentService.getById(id);
-
-        if (student.getDepartment() == null) {
-            student.setDepartment(new Department());
+        if (i != null) {
+            try {
+                pagIndex = Integer.parseInt(i);
+            } catch (NumberFormatException e) {
+                pagIndex = 1;
+            }
         }
 
-        model.addAttribute("student", student);
-        model.addAttribute("listDepartments", departmentService.getAll());
-        model.addAttribute("view", "dashboard/student/form");
+        model.addAttribute("filter", false);
+        List<Student> list = studentService.getAllStudents();
+        List<Student> listPag = pagination(list, pagIndex, pagSize);
 
-        return "layout/dashboard";
+        model.addAttribute("listStd", listPag);
+        model.addAttribute("page", pagIndex);
+        model.addAttribute("totalPage", (list.size() + pagSize - 1) / pagSize);
+        model.addAttribute("listDepartmet", depService.getAllDepartments());
+        model.addAttribute("home_view", "student.html");
+        return "dashboard";
     }
 
-    // ========= DELETE =========
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable int id) {
-        studentService.delete(id);
-        return "redirect:/student/list";
+    @GetMapping(params = "action=edit")
+    public String showEdit(@RequestParam(name = "id") Integer id, Model model) {
+        model.addAttribute("departmentList", depService.getAllDepartments());
+        model.addAttribute("student", studentService.getStudentById(id));
+        model.addAttribute("home_view", "editStudent.html");
+        return "dashboard";
+    }
+
+    @GetMapping(params = "action=delete")
+    public String showDelete(@RequestParam(name = "id") Integer id, Model model) {
+        model.addAttribute("student", studentService.getStudentById(id));
+        model.addAttribute("home_view", "deleteStudent.html");
+        return "dashboard";
+    }
+
+    @GetMapping(params = "action=add")
+    public String showAdd(Model model) {
+        model.addAttribute("depList", depService.getAllDepartments());
+        model.addAttribute("home_view", "createStudent.html");
+        return "dashboard";
+    }
+
+    @GetMapping(params = "action=view")
+    public String showView(@RequestParam(name = "id") Integer id, Model model) {
+        model.addAttribute("student", studentService.getStudentById(id));
+        model.addAttribute("home_view", "viewStudent.html");
+        return "dashboard";
+    }
+
+    @GetMapping(params = "action=fillter")
+    public String filter(
+            @RequestParam(name = "i", required = false) String i,
+            @RequestParam(name = "nameStudent", required = false) String studentName,
+            @RequestParam(name = "departmentname", required = false) String departmentName,
+            Model model) {
+        int pagSize = 10;
+        int pagIndex = 1;
+        if (i != null) {
+            try {
+                pagIndex = Integer.parseInt(i);
+            } catch (NumberFormatException e) {
+                pagIndex = 1;
+            }
+        }
+
+        model.addAttribute("filter", true);
+        model.addAttribute("listDepartmet", depService.getAllDepartments());
+
+        if (studentName == null || studentName.trim().isEmpty()) {
+            studentName = "";
+        }
+        if (departmentName == null || departmentName.equalsIgnoreCase("all")) {
+            departmentName = "";
+        }
+
+        List<Student> filteredList;
+        if (!departmentName.isEmpty() && !studentName.isEmpty()) {
+            filteredList = studentService.filterByBoth(departmentName, studentName);
+        } else if (!departmentName.isEmpty()) {
+            filteredList = studentService.filterByDepartmentCode(departmentName);
+        } else if (!studentName.isEmpty()) {
+            filteredList = studentService.filterByName(studentName);
+        } else {
+            filteredList = studentService.getAllStudents();
+        }
+
+        int totalPageFilter = (filteredList.size() + pagSize - 1) / pagSize;
+        List<Student> listPagF = pagination(filteredList, pagIndex, pagSize);
+
+        model.addAttribute("listStd", listPagF);
+        model.addAttribute("page", pagIndex);
+        model.addAttribute("totalPage", totalPageFilter);
+        model.addAttribute("nameStudent", studentName);
+        model.addAttribute("departmentname", departmentName);
+        model.addAttribute("home_view", "student.html");
+        return "dashboard";
+    }
+
+    @PostMapping(params = "action=edit")
+    public String edit(@ModelAttribute("studentForm") StudentForm form, Model model) {
+        if (form.getStudentId() == null || form.getBirthday() == null) {
+            return "redirect:/student";
+        }
+        Department department = depService.getDepartmentByCode(form.getDepCode());
+        Student updatedStudent = new Student(
+                form.getStudentId(),
+                form.getStudentName(),
+                Date.valueOf(form.getBirthday()),
+                form.getGender(),
+                form.getAddress(),
+                form.getCity(),
+                department,
+                form.getEmail(),
+                form.getPhone());
+        boolean update = studentService.updateStudent(updatedStudent);
+
+        if (update) {
+            return "redirect:/student";
+        }
+        model.addAttribute("ErrorMsg", "Fail to update student!");
+        model.addAttribute("editStudent", studentService.getStudentById(form.getStudentId()));
+        model.addAttribute("home_view", "student.html");
+        return "dashboard";
+    }
+
+    @PostMapping(params = "action=delete")
+    public String delete(@ModelAttribute("studentForm") StudentForm form, HttpSession session) {
+        if (form.getStudentId() == null) {
+            return "redirect:/student";
+        }
+        Boolean deleteSuccess = studentService.deleteStudentById(form.getStudentId());
+        if (deleteSuccess) {
+            session.setAttribute("message", "Student deleted successfully!");
+            session.setAttribute("messageType", "success");
+        } else {
+            session.setAttribute("message", "Failed to delete student!");
+            session.setAttribute("messageType", "error");
+        }
+        return "redirect:/student";
+    }
+
+    @PostMapping(params = "action=add")
+    public String add(@ModelAttribute("studentForm") StudentForm form, HttpSession session) {
+        if (form.getBirthdate() == null) {
+            return "redirect:/student";
+        }
+        Department department = depService.getDepartmentByCode(form.getDepartment());
+        Student newStudent = new Student(
+                form.getStudentName(),
+                Date.valueOf(form.getBirthdate()),
+                form.getGender(),
+                form.getAddress(),
+                form.getCity(),
+                department,
+                form.getEmail(),
+                form.getPhone());
+        boolean addSuccess = studentService.insertNewStudent(newStudent);
+
+        if (addSuccess) {
+            session.setAttribute("message", "Student add successfully!");
+            session.setAttribute("messageType", "success");
+        } else {
+            session.setAttribute("message", "Failed to add student!");
+            session.setAttribute("messageType", "error");
+        }
+        return "redirect:/student";
+    }
+
+    public static class StudentForm {
+        private Integer studentId;
+        private String studentName;
+        private String birthday;
+        private String birthdate;
+        private String gender;
+        private String address;
+        private String city;
+        private String depCode;
+        private String department;
+        private String email;
+        private String phone;
+
+        public Integer getStudentId() { return studentId; }
+        public void setStudentId(Integer studentId) { this.studentId = studentId; }
+        public String getStudentName() { return studentName; }
+        public void setStudentName(String studentName) { this.studentName = studentName; }
+        public String getBirthday() { return birthday; }
+        public void setBirthday(String birthday) { this.birthday = birthday; }
+        public String getBirthdate() { return birthdate; }
+        public void setBirthdate(String birthdate) { this.birthdate = birthdate; }
+        public String getGender() { return gender; }
+        public void setGender(String gender) { this.gender = gender; }
+        public String getAddress() { return address; }
+        public void setAddress(String address) { this.address = address; }
+        public String getCity() { return city; }
+        public void setCity(String city) { this.city = city; }
+        public String getDepCode() { return depCode; }
+        public void setDepCode(String depCode) { this.depCode = depCode; }
+        public String getDepartment() { return department; }
+        public void setDepartment(String department) { this.department = department; }
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getPhone() { return phone; }
+        public void setPhone(String phone) { this.phone = phone; }
+    }
+
+    public List<Student> pagination(List<Student> list, int pageIndex, int pageSize) {
+        if (list == null || list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        int begin = (pageIndex - 1) * pageSize;
+        if (begin >= list.size()) {
+            return new ArrayList<>();
+        }
+        int end = pageIndex * pageSize;
+        if (end > list.size()) {
+            end = list.size();
+        }
+        return list.subList(begin, end);
     }
 }
+
+

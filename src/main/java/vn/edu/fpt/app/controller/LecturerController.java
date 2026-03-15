@@ -1,85 +1,254 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package vn.edu.fpt.app.controller;
 
-
-import jakarta.annotation.Nonnull;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.entities.Lecturer;
 import vn.edu.fpt.app.service.DepartmentService;
 import vn.edu.fpt.app.service.LecturerService;
+import jakarta.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.awt.print.Pageable;
-
+/**
+ *
+ * @author Legion
+ */
 @Controller
 @RequestMapping("/lecturer")
 public class LecturerController {
+
     private final LecturerService lecturerService;
     private final DepartmentService departmentService;
 
+    @Autowired
     public LecturerController(LecturerService lecturerService, DepartmentService departmentService) {
         this.lecturerService = lecturerService;
         this.departmentService = departmentService;
     }
 
-    //list lecturer
-    @GetMapping("/list")
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       Model model) {
+    @GetMapping
+    public String list(
+            @RequestParam(name = "i", required = false) String i,
+            Model model) {
+        int pagSize = 10;
+        int pagIndex = 1;
 
-        Page<Lecturer> lecturerPage =
-                lecturerService.getAllLecturers(PageRequest.of(page, 12));
-
-        model.addAttribute("lecturerPage", lecturerPage);
-        model.addAttribute("view", "dashboard/lecturer/list");
-
-        return "layout/dashboard";
-    }
-
-    //add form
-    @GetMapping("/add")
-    public String addForm(Model model) {
-        Lecturer lecturer = new Lecturer();
-        lecturer.setDepartment(new Department());
-
-        model.addAttribute("lecturer", lecturer);
-        model.addAttribute("listDepartments", departmentService.getAll());
-        model.addAttribute("view", "dashboard/lecturer/form");
-        return "layout/dashboard";
-    }
-
-
-    //save
-    @PostMapping("save")
-    public String save(@ModelAttribute("lecturer") Lecturer lecturer) {
-        lecturerService.save(lecturer);
-        return "redirect:/lecturer/list";
-    }
-
-    //edit
-    @GetMapping("edit/{id}")
-    public String editForm(@PathVariable("id") int id, Model model) {
-        Lecturer lecturer = lecturerService.getById(id);
-
-        if (lecturer.getDepartment() == null) {
-            lecturer.setDepartment(new Department());
+        if (i != null) {
+            try {
+                pagIndex = Integer.parseInt(i);
+            } catch (NumberFormatException e) {
+                pagIndex = 1;
+            }
         }
-        System.out.println(departmentService.getAll());
-        model.addAttribute("lecturer", lecturer);
-        model.addAttribute("listDepartments", departmentService.getAll());
-        model.addAttribute("view", "dashboard/lecturer/form");
-        return "layout/dashboard";
+
+        List<Lecturer> list = lecturerService.getAllLecturers();
+        int totalPage = (list.size() + pagSize - 1) / pagSize;
+        List<Lecturer> listPag = pagnigation(list, pagIndex, pagSize);
+
+        model.addAttribute("filter", false);
+        model.addAttribute("listLecturer", listPag);
+        model.addAttribute("page", pagIndex);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("listDepartments", departmentService.getAllDepartments());
+        model.addAttribute("home_view", "lecturer.html");
+        return "dashboard";
     }
 
+    @GetMapping(params = "action=delete")
+    public String showDelete(@RequestParam(name = "id") Integer id, Model model) {
+        model.addAttribute("lecturer", lecturerService.getLecturerById(id));
+        model.addAttribute("home_view", "deleteLecturer.html");
+        return "dashboard";
+    }
 
-    //delete
-    @GetMapping("delete/{id}")
-    public String delete(@PathVariable("id") int id) {
-        lecturerService.delete(id);
-        return "redirect:/lecturer/list";
+    @GetMapping(params = "action=edit")
+    public String showEdit(@RequestParam(name = "id") Integer id, Model model) {
+        model.addAttribute("departmentList", departmentService.getAllDepartments());
+        model.addAttribute("lecturer", lecturerService.getLecturerById(id));
+        model.addAttribute("home_view", "editLecturer.html");
+        return "dashboard";
+    }
+
+    @GetMapping(params = "action=view")
+    public String showView(@RequestParam(name = "id") Integer id, Model model) {
+        model.addAttribute("lecturer", lecturerService.getLecturerById(id));
+        model.addAttribute("home_view", "viewLecturer.html");
+        return "dashboard";
+    }
+
+    @GetMapping(params = "action=add")
+    public String showAdd(Model model) {
+        model.addAttribute("departmentList", departmentService.getAllDepartments());
+        model.addAttribute("home_view", "createLecturer.html");
+        return "dashboard";
+    }
+
+    @GetMapping(params = "action=fillter")
+    public String filter(
+            @RequestParam(name = "i", required = false) String i,
+            @RequestParam(name = "nameLecturer", required = false) String lecturerName,
+            @RequestParam(name = "departmentCode", required = false) String depCode,
+            Model model) {
+        int pagSize = 10;
+        int pagIndex = 1;
+        if (i != null) {
+            try {
+                pagIndex = Integer.parseInt(i);
+            } catch (NumberFormatException e) {
+                pagIndex = 1;
+            }
+        }
+
+        model.addAttribute("filter", true);
+        model.addAttribute("listDepartments", departmentService.getAllDepartments());
+
+        if (lecturerName == null || lecturerName.trim().isEmpty()) {
+            lecturerName = "";
+        }
+        if (depCode == null || depCode.equalsIgnoreCase("all") || depCode.isEmpty()) {
+            depCode = "";
+        }
+
+        List<Lecturer> filteredList;
+        if (!depCode.isEmpty() && !lecturerName.isEmpty()) {
+            filteredList = lecturerService.filterByBoth(depCode, lecturerName);
+        } else if (!depCode.isEmpty()) {
+            filteredList = lecturerService.filterByDepartmentCode(depCode);
+        } else if (!lecturerName.isEmpty()) {
+            filteredList = lecturerService.filterByName(lecturerName);
+        } else {
+            filteredList = lecturerService.getAllLecturers();
+            model.addAttribute("filter", false);
+        }
+
+        int totalPage = (filteredList.size() + pagSize - 1) / pagSize;
+        List<Lecturer> listPagF = pagnigation(filteredList, pagIndex, pagSize);
+
+        model.addAttribute("listLecturer", listPagF);
+        model.addAttribute("page", pagIndex);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("nameLecturer", lecturerName);
+        model.addAttribute("departmentCode", depCode);
+        model.addAttribute("home_view", "lecturer.html");
+        return "dashboard";
+    }
+
+    @PostMapping(params = "action=delete")
+    public String delete(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
+        if (form.getLecturerId() == null) {
+            return "redirect:/lecturer";
+        }
+        try {
+            boolean deleteSuccess = lecturerService.deleteLecturerById(form.getLecturerId());
+            if (deleteSuccess) {
+                session.setAttribute("message", "Lecturer deleted successfully!");
+                session.setAttribute("messageType", "success");
+            } else {
+                session.setAttribute("message", "Failed to delete lecturer!");
+                session.setAttribute("messageType", "error");
+            }
+        } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("FK_Classes_Lecturer")) {
+                session.setAttribute("message", "Cannot delete lecturer. They are still assigned to a class.");
+            } else {
+                session.setAttribute("message", "Failed to delete lecturer: " + e.getMessage());
+            }
+            session.setAttribute("messageType", "error");
+        }
+        return "redirect:/lecturer";
+    }
+
+    @PostMapping(params = "action=edit")
+    public String edit(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
+        if (form.getLecturerID() == null) {
+            return "redirect:/lecturer";
+        }
+        Department dep = departmentService.getDepartmentByCode(form.getDepCode());
+        Lecturer eLecturer = new Lecturer(form.getLecturerID(), form.getLecturerName(), form.getEmail(), form.getPhone(), form.getTitle(), dep);
+        boolean updateSuccess = lecturerService.updateLecturer(eLecturer);
+        if (updateSuccess) {
+            session.setAttribute("message", "Lecturer update successfully!");
+            session.setAttribute("messageType", "success");
+        } else {
+            session.setAttribute("message", "Failed to update lecturer!");
+            session.setAttribute("messageType", "error");
+        }
+        return "redirect:/lecturer";
+    }
+
+    @PostMapping(params = "action=add")
+    public String add(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
+        Department dep = departmentService.getDepartmentByCode(form.getDepartment());
+        Lecturer newLecturer = new Lecturer(form.getLecturerName(), form.getEmail(), form.getPhone(), form.getTitle(), dep);
+        boolean addSuccess = lecturerService.addNewLecturer(newLecturer);
+        if (addSuccess) {
+            session.setAttribute("message", "Lecturer added successfully!");
+            session.setAttribute("messageType", "success");
+        } else {
+            session.setAttribute("message", "Failed to add new lecturer!");
+            session.setAttribute("messageType", "error");
+        }
+        return "redirect:/lecturer";
+    }
+
+    public static class LecturerForm {
+        private Integer lecturerId;
+        private Integer lecturerID;
+        private String lecturerName;
+        private String email;
+        private String depCode;
+        private String department;
+        private String title;
+        private String phone;
+
+        public Integer getLecturerId() { return lecturerId; }
+        public void setLecturerId(Integer lecturerId) { this.lecturerId = lecturerId; }
+        public Integer getLecturerID() { return lecturerID; }
+        public void setLecturerID(Integer lecturerID) { this.lecturerID = lecturerID; }
+        public String getLecturerName() { return lecturerName; }
+        public void setLecturerName(String lecturerName) { this.lecturerName = lecturerName; }
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getDepCode() { return depCode; }
+        public void setDepCode(String depCode) { this.depCode = depCode; }
+        public String getDepartment() { return department; }
+        public void setDepartment(String department) { this.department = department; }
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public String getPhone() { return phone; }
+        public void setPhone(String phone) { this.phone = phone; }
+    }
+
+    public List<Lecturer> pagnigation(List<Lecturer> list, int pageIndex, int pagsize) {
+        if (list == null || list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        int begin = (pageIndex - 1) * pagsize;
+
+        if (begin >= list.size()) {
+            return new ArrayList<>();
+        }
+
+        int end = pageIndex * pagsize;
+
+        if (end > list.size()) {
+            end = list.size();
+        }
+
+        return list.subList(begin, end);
     }
 
 }
+
+

@@ -18,7 +18,7 @@ public class UniversityApplication {
 
         DepartmentService service = context.getBean(DepartmentService.class);
 
-        List<Department> list = service.getAll();
+        List<Department> list = service.getAllDepartments();
 
         System.out.println("Departments: " + list.size());
 

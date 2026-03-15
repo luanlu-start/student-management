@@ -1,44 +1,76 @@
 package vn.edu.fpt.app.service;
 
-
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import vn.edu.fpt.app.entities.Lecturer;
-import vn.edu.fpt.app.repository.LecturerReposity;
+import vn.edu.fpt.app.repository.LecturerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class LecturerService {
-   private final LecturerReposity lecturerReposity;
 
+    @Autowired
+    private LecturerRepository lecturerRepository;
 
-    public LecturerService(LecturerReposity lecturerReposity) {
-        this.lecturerReposity = lecturerReposity;
+    public List<Lecturer> getAllLecturers() {
+        return lecturerRepository.findAll();
     }
 
-    public List<Lecturer> getAll() {
-        return lecturerReposity.findAll();
+    public Lecturer getLecturerById(int id) {
+        return lecturerRepository.findById(id).orElse(null);
     }
 
-    public Lecturer getById(int id) {
-        return lecturerReposity.findById(id).orElse(null);
+    @Transactional
+    public boolean addNewLecturer(Lecturer lecturer) {
+        try {
+            lecturerRepository.save(lecturer);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Fail to add new lecturer: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void save (Lecturer lecturer) {
-        lecturerReposity.save(lecturer);
+    @Transactional
+    public boolean updateLecturer(Lecturer lecturer) {
+        if (!lecturerRepository.existsById(lecturer.getId())) return false;
+        try {
+            lecturerRepository.save(lecturer);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Fail to update lecturer: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void delete(int id) {
-        lecturerReposity.deleteById(id);
+    @Transactional
+    public boolean deleteLecturerById(int id) {
+        if (!lecturerRepository.existsById(id)) return false;
+        try {
+            lecturerRepository.deleteById(id);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Fail to delete lecturer: " + e.getMessage());
+            return false;
+        }
     }
 
-    public Page<Lecturer> getAllLecturers(Pageable pageable) {
-        return lecturerReposity.findAll(pageable);
+    /** Lá»c theo tÃªn */
+    public List<Lecturer> filterByName(String name) {
+        return lecturerRepository.findByNameContainingIgnoreCase(name);
     }
 
+    /** Lá»c theo mÃ£ khoa */
+    public List<Lecturer> filterByDepartmentCode(String departmentCode) {
+        return lecturerRepository.findByDepartment_Code(departmentCode);
+    }
+
+    /** Lá»c theo cáº£ tÃªn vÃ  mÃ£ khoa */
+    public List<Lecturer> filterByBoth(String departmentCode, String name) {
+        return lecturerRepository.findByDepartment_CodeAndNameContainingIgnoreCase(departmentCode, name);
+    }
 }
+
+

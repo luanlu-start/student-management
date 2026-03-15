@@ -1,0 +1,150 @@
+﻿<th:block th:fragment="content">
+<style>
+  /* áº¨n nÃºt tÄƒng giáº£m á»Ÿ input number */
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+  input[type=number] { -moz-appearance:textfield; }
+</style>
+
+<div class="page-header">
+  <div>
+    <h1 class="title">Add New Semester</h1>
+    <ul class="breadcrumbs">
+      <li><a href="home">Home</a></li>
+      <li class="divider">/</li>
+      <li><a href="semester?action=all">Semester</a></li>
+      <li class="divider">/</li>
+      <li><a href="#" class="active">Add New Semester</a></li>
+    </ul>
+  </div>
+  <a href="semester" class="btn-secondary"><i class='bx bx-arrow-back'></i> Back to Semester</a>
+</div>
+
+<div class="form-container">
+  <p class="form-title">Semester Information</p>
+
+  <form action="semester?action=add" method="POST" class="form-body" id="semesterForm">
+    <div class="form-row">
+      <!-- Prefix -->
+      <div class="form-group">
+        <label for="codePrefix">Semester Prefix</label>
+        <select id="codePrefix" name="codePrefix" required>
+          <option value="">-- Select --</option>
+          <option value="SP">SP</option>
+          <option value="SU">SU</option>
+          <option value="FA">FA</option>
+        </select>
+      </div>
+
+      <!-- Year -->
+      <div class="form-group">
+        <label for="semesterYear">Year</label>
+        <input type="number" id="semesterYear" name="semesterYear"
+               min="1997" max="2100" step="1" required placeholder="e.g. 2025">
+      </div>
+    </div>
+
+    <!-- Hidden code field -->
+    <input type="hidden" id="semesterCode" name="semesterCode">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="semesterBegin">Begin Date</label>
+        <input type="text" id="semesterBegin" name="semesterBegin"
+               placeholder="MM-DD" required
+               pattern="\d{1,2}-\d{1,2}"
+               oninput="autoFormatDate(this)">
+      </div>
+
+      <div class="form-group">
+        <label for="semesterEnd">End Date</label>
+        <input type="text" id="semesterEnd" name="semesterEnd"
+               placeholder="MM-DD" required
+               pattern="\d{1,2}-\d{1,2}"
+               oninput="autoFormatDate(this)">
+      </div>
+    </div>
+
+    <div class="form-buttons">
+      <a href="semester?action=all" class="btn btn-cancel">Cancel</a>
+      <button type="submit" class="btn btn-save">
+        <i class='bx bx-save'></i> Add New Semester
+      </button>
+    </div>
+
+    <th:block th:if="${not empty ErrorMsg}">
+      <div class="alert alert-danger" style="margin-bottom:16px;">
+        [[${ErrorMsg}]]
+      </div>
+    </th:block>
+  </form>
+</div>
+
+<script>
+function autoFormatDate(input) {
+  input.value = input.value.replace(/[^0-9-]/g, '');
+  if (input.value === '-' || input.value === '--') {
+    input.value = '';
+    return;
+  }
+  const parts = input.value.split('-').filter(Boolean);
+  if (parts.length > 2) {
+    input.value = parts[0] + '-' + parts[1];
+    return;
+  }
+  if (parts.length === 2) {
+    const mm = parts[0].slice(0, 2);
+    const dd = parts[1].slice(0, 2);
+    input.value = mm + '-' + dd;
+  }
+}
+
+document.getElementById("semesterForm").addEventListener("submit", function(e) {
+  const prefix = document.getElementById("codePrefix").value.trim();
+  const year = document.getElementById("semesterYear").value.trim();
+  const beginI = document.getElementById("semesterBegin");
+  const endI = document.getElementById("semesterEnd");
+  const begin = beginI.value.trim();
+  const end = endI.value.trim();
+
+  if (!/^\d{4}$/.test(year)) {
+    e.preventDefault();
+    alert("Please enter a valid 4-digit year.");
+    return;
+  }
+
+  if (begin === '-' || end === '-') {
+    e.preventDefault();
+    alert("Dates cannot be just '-'. Please enter MM-DD (e.g. 05-10).");
+    return;
+  }
+
+  const md = /^\d{1,2}-\d{1,2}$/;
+  if (!md.test(begin) || !md.test(end)) {
+    e.preventDefault();
+    alert("Dates must be in MM-DD format (e.g. 05-10).");
+    return;
+  }
+
+  function pad2(n){ return n.length===1 ? '0'+n : n; }
+  const [bm, bd] = begin.split('-');
+  const [em, ed] = end.split('-');
+  beginI.value = year + '-' + pad2(bm) + '-' + pad2(bd);
+  endI.value   = year + '-' + pad2(em) + '-' + pad2(ed);
+
+  document.getElementById("semesterCode").value = prefix + year.slice(-2);
+
+  console.log("[SUBMIT]", {
+    code: document.getElementById("semesterCode").value,
+    begin: beginI.value,
+    end: endI.value
+  });
+});
+</script>
+</th:block>
+
+
+
+
+
+

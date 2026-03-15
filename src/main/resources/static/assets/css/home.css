@@ -1,0 +1,187 @@
+.widget-grid {
+    display: grid;
+    
+    grid-template-columns: 1fr 2fr; 
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.widget-card {
+    background: var(--light);
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.widget-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+.widget-header .widget-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue);
+}
+
+.widget-body .quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+.quick-action-btn i {
+    font-size: 20px;
+}
+.quick-action-btn.blue {
+    background: var(--light-blue);
+    color: var(--dark-blue);
+}
+.quick-action-btn.blue:hover { background: var(--blue); color: var(--light); }
+
+.quick-action-btn.green {
+    background: var(--light-green);
+    color: var(--green);
+}
+.quick-action-btn.green:hover { background: var(--green); color: var(--light); }
+
+.quick-action-btn.orange {
+    background: #FFF3E0;
+    color: #F57C00;
+}
+.quick-action-btn.orange:hover { background: #F57C00; color: var(--light); }
+
+/* Widget 2: Academic Calendar */
+.calendar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.calendar-list li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.calendar-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+.calendar-icon.yellow {
+    background: #FEF3C7;
+    color: #D97706;
+}
+.calendar-info p {
+    font-weight: 600;
+    color: var(--dark);
+}
+.calendar-info small {
+    color: var(--dark-grey);
+}
+
+.stat-card .icon-wrapper.red {
+    background: #FEE2E2;
+    color: #EF4444;
+}
+
+
+.widget-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    list-style: none; 
+}
+.widget-list-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.widget-list-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.item-avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+.item-avatar.blue {
+    background: var(--light-blue);
+    color: var(--dark-blue);
+}
+.item-avatar.gray {
+    background: var(--grey);
+    color: var(--dark-grey);
+}
+
+.item-info {
+    flex-grow: 1; 
+}
+.item-info p {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 15px;
+}
+.item-info small {
+    color: var(--dark-grey);
+    font-size: 13px;
+}
+
+.item-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.item-status.active { background: var(--light-green); color: var(--green); }
+.item-status.pending { background: #FEF3C7; color: #D97706; }
+
+
+.item-progress {
+    width: 100px; 
+    text-align: right;
+}
+.item-progress span {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dark-grey);
+}
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--grey);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+.progress-fill {
+    height: 100%;
+    width: 75%; 
+    background: var(--blue);
+    border-radius: 10px;
+}
+

@@ -1,0 +1,86 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Delete Mark</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="mark?action=all">Marks</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Delete Mark</a></li>
+        </ul>
+    </div>
+    
+        <th:block th:if="${not empty classId}">
+            <a href="mark?action=viewByClass&classId=${classId}" th:href="@{|mark?action=viewByClass&classId=${classId}|}" class="btn-secondary">
+                <i class'bx bx-arrow-back'></i> Back to Gradebook
+            </a>
+        </th:block>
+        <th:block>
+            <a href="mark?action=all" class="btn-secondary">
+                <i class='bx bx-arrow-back'></i> Back to Marks
+            </a>
+        </th:block>
+    
+</div>
+
+<div class="form-container">
+    <p class="form-title" style="color: var(--red);">Are you sure you want to delete this mark?</p>
+    
+    <form action="mark" method="POST" class="form-body">
+        <input type="hidden" name="action" value="delete">
+        
+        <th:block th:if="${not empty classId}">
+            <input type="hidden" name="classId" value="" th:value="${classId}">
+        </th:block>
+        <input type="hidden" name="enrollId" value="" th:value="${mark.enrollment.id}">
+        <input type="hidden" name="assessmentId" value="" th:value="${mark.assessment.id}">
+
+        <div class="alert-box info" style="background-color: #f8d7da; border-color: #f5c2c7; color: #842029;">
+            This action cannot be undone. Please confirm the details below.
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Student</label>
+                <input type="text" value="" th:value="${mark.enrollment.student.name}" readonly>
+            </div>
+            <div class="form-group">
+                <label>Course</label>
+                <input type="text" value="" th:value="${mark.enrollment.cls.course.title}" readonly>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Assessment</label>
+                <input type="text" value="${mark.assessment.type} (${mark.assessment.weight}%)" readonly>
+            </div>
+            <div class="form-group">
+                <label>Mark</label>
+                <input type="text" value="" th:value="${mark.mark}" readonly>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            
+                <th:block th:if="${not empty classId}">
+                    <a href="mark?action=viewByClass&classId=${classId}" th:href="@{|mark?action=viewByClass&classId=${classId}|}" class="btn btn-cancel">Cancel</a>
+                </th:block>
+                <th:block>
+                    <a href="mark?action=all" class="btn btn-cancel">Cancel</a>
+                </th:block>
+            
+            <button type="submit" class="btn btn-save" style="background-color: var(--red);">
+                <i class='bx bx-trash'></i> Yes, Delete This Mark
+            </button>
+        </div>
+    </form>
+</div>
+</th:block>
+
+
+
+
+
+

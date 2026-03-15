@@ -1,0 +1,123 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">All Lecturers</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">All Lecturers</a></li>
+        </ul>
+    </div>
+    <a href="lecturer?action=add" class="btn-add-new">
+        <i class='bx bx-plus'></i> 
+        Add New Lecturer
+    </a>
+</div>
+
+<th:block th:if="${not empty session.message}">
+    <div class="alert" th:classappend="' alert-' + ${session.messageType}">
+        [[${session.message}]]
+    </div>
+
+    </th:block>
+
+<div class="filter-bar">
+    <form action="lecturer" method="GET">
+        <input type="hidden" name="action" value="fillter"> 
+
+        <input type="text" name="nameLecturer" placeholder="Search lecturer..." >
+
+        <select name="departmentCode">
+            <option value="all">All Departments</option>
+            <th:block th:each="p : ${listDepartments}">
+                <option value="" th:value="${p.code}" ${departmentCode == p.code ? 'selected' : ''}>
+                    [[${p.name}]]
+                </option>
+            </th:block>
+        </select>
+        <input type="submit" value="Search" ... />
+    </form>
+</div>
+
+<div class="user-grid">
+
+    <th:block th:each="lecturer : ${listLecturer}">
+
+        <div class="user-card">
+
+            <div class="card-avatar" style="background-color: #${colorCode}">
+                <span><span th:text="${#strings.substring(lecturer.name, 0, 1).toUpperCase()}"></span></span>
+            </div>
+
+            <div class="card-info">
+
+                <h3 class="card-name">[[${lecturer.title}]] [[${lecturer.name}]]</h3>
+
+                
+                    <th:block th:if="${not empty lecturer.department.name}">
+                        <p class="card-detail">[[${lecturer.department.name}]]</p>
+                    </th:block>
+                    <th:block>
+                        <p class="card-detail">(No Department)</p>
+                    </th:block>
+                
+
+                <p class="card-detail-role">Email [[${lecturer.email}]]</p>
+            </div>
+
+            <div class="card-buttons">
+                <a href="lecturer?action=view&id=${lecturer.id}" th:href="@{|lecturer?action=view&id=${lecturer.id}|}" class="btn-card btn-view">
+                    <i class='bx bx-show'></i> View
+                </a>
+                <a href="lecturer?action=edit&id=${lecturer.id}" th:href="@{|lecturer?action=edit&id=${lecturer.id}|}" class="btn-card btn-edit">
+                    <i class='bx bx-edit'></i> Edit
+                </a>
+
+                <a href="lecturer?action=delete&id=${lecturer.id}" th:href="@{|lecturer?action=delete&id=${lecturer.id}|}" class="btn-card btn-edit">
+                    <i class='bx bx-trash'></i> Delete
+                </a>
+            </div>
+        </div>
+
+    </th:block>
+
+    <th:block th:if="${empty listLecturer}">
+        <p style="text-align: center; grid-column: 1 / -1; padding: 20px;">
+            No lecturers found matching your criteria.
+        </p>
+    </th:block>
+
+</div>
+
+<nav class="pag">
+    <th:block th:if="${!filter}">
+        <ul class="pagination">
+            <th:block th:if="${page-1 != 0}">
+                <li class="page-item"><a class="page-link" href="lecturer?action=all&i=${page - 1}" th:href="@{|lecturer?action=all&i=${page - 1}|}">&laquo; Prev</a></li>
+                </th:block>
+            <li class="page-item"><a class="page-link active" href="lecturer?action=all&i=${page}" th:href="@{|lecturer?action=all&i=${page}|}">[[${page}]]</a></li>
+                <th:block th:if="${page+1 <= totalPage}">
+                <li class="page-item"><a class="page-link" href="lecturer?action=all&i=${page + 1}" th:href="@{|lecturer?action=all&i=${page + 1}|}">Next &raquo;</a></li>
+                </th:block>
+        </ul>
+    </th:block>
+
+    <th:block th:if="${filter}">
+        <ul class="pagination">
+            <th:block th:if="${page-1 != 0}">
+                <li class="page-item"><a class="page-link" href="lecturer?action=fillter&i=${page - 1}&nameLecturer=${nameLecturer}&departmentCode=${departmentCode}" th:href="@{|lecturer?action=fillter&i=${page - 1}&nameLecturer=${nameLecturer}&departmentCode=${departmentCode}|}">&laquo; Prev</a></li>
+                </th:block>
+            <li class="page-item"><a class="page-link active" href="lecturer?action=fillter&i=${page}&nameLecturer=${nameLecturer}&departmentCode=${departmentCode}" th:href="@{|lecturer?action=fillter&i=${page}&nameLecturer=${nameLecturer}&departmentCode=${departmentCode}|}">[[${page}]]</a></li>
+                <th:block th:if="${page+1 <= totalPage}">
+                <li class="page-item"><a class="page-link" href="lecturer?action=fillter&i=${page + 1}&nameLecturer=${nameLecturer}&departmentCode=${departmentCode}" th:href="@{|lecturer?action=fillter&i=${page + 1}&nameLecturer=${nameLecturer}&departmentCode=${departmentCode}|}">Next &raquo;</a></li>
+                </th:block>
+        </ul>
+    </th:block>
+</nav>
+</th:block>
+
+
+
+
+
+
