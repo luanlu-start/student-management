@@ -2,7 +2,11 @@
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+<<<<<<< HEAD
+    margin-top: 24px;
+=======
     /*margin-top: 24px;*/
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 }
 
 .form-tabs {
@@ -29,11 +33,21 @@
 .form-title {
     font-size: 18px;
     font-weight: 600;
+<<<<<<< HEAD
+    padding: 20px 24px 0 24px;
+    margin-bottom: -10px;
+}
+
+.form-body {
+    padding: 24px;
+}
+=======
 
     margin-bottom: 10px;
 }
 
 
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 
 
 .form-row {
@@ -49,7 +63,11 @@
 }
 
 .form-group.full-width {
+<<<<<<< HEAD
+    grid-column: 1 / -1; 
+=======
     grid-column: 1 / -1;
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 }
 
 .form-group {
@@ -141,7 +159,11 @@
     padding: 16px 20px;
     border-radius: 10px;
     font-size: 14px;
+<<<<<<< HEAD
+    margin: 0 24px 24px 24px; 
+=======
     margin: 0 24px 24px 24px;
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 }
 .alert-box.info {
     background-color: var(--light-blue);
@@ -153,3 +175,12 @@
     text-decoration: underline;
 }
 
+<<<<<<< HEAD
+.form-title {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 20px 24px 0 24px;
+    margin-bottom: -10px;
+}
+=======
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2

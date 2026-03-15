@@ -1,46 +1,76 @@
 package vn.edu.fpt.app.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import vn.edu.fpt.app.entities.Lecturer;
 import vn.edu.fpt.app.entities.Student;
 import vn.edu.fpt.app.repository.StudentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class StudentService {
 
+    @Autowired
+    private StudentRepository studentRepository;
 
-    private final StudentRepository repo;
-
-    public StudentService(StudentRepository repo) {
-        this.repo = repo;
+    public List<Student> getAllStudents() {
+        return studentRepository.findAll();
     }
 
-    public List<Student> getAll() {
-        return repo.findAll();
+    public Student getStudentById(int id) {
+        return studentRepository.findById(id).orElse(null);
     }
 
-    public Student getById(int id) {
-        Optional<Student> opt = repo.findById(id);
-        return opt.orElse(null);
+    @Transactional
+    public boolean insertNewStudent(Student student) {
+        try {
+            studentRepository.save(student);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Fail to insert new student: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void save(Student s) {
-        repo.save(s);
+    @Transactional
+    public boolean updateStudent(Student student) {
+        if (!studentRepository.existsById(student.getId())) return false;
+        try {
+            studentRepository.save(student);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Fail to update student: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void delete(int id) {
-        repo.deleteById(id);
+    @Transactional
+    public boolean deleteStudentById(int id) {
+        if (!studentRepository.existsById(id)) return false;
+        try {
+            studentRepository.deleteById(id);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Fail to delete student: " + e.getMessage());
+            return false;
+        }
     }
 
-
-    public Page<Student> getAllStudents(Pageable pageable) {
-        return repo.findAll(pageable);
+    /** Lá»c theo tÃªn */
+    public List<Student> filterByName(String name) {
+        return studentRepository.findByNameContainingIgnoreCase(name);
     }
 
+    /** Lá»c theo mÃ£ khoa */
+    public List<Student> filterByDepartmentCode(String departmentCode) {
+        return studentRepository.findByDepartment_Code(departmentCode);
+    }
+
+    /** Lá»c theo cáº£ tÃªn vÃ  mÃ£ khoa */
+    public List<Student> filterByBoth(String departmentCode, String name) {
+        return studentRepository.findByDepartment_CodeAndNameContainingIgnoreCase(departmentCode, name);
+    }
 }
+
+

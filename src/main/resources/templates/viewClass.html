@@ -1,0 +1,230 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Class Details</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="classes?action=all">Classes</a></li>
+            <li class="divider">/</li>
+            <li class="active">[[${classInfo.code}]]</li>
+        </ul>
+    </div>
+
+    <div class="header-buttons">
+        <a href="classes?action=all" class="btn-secondary">
+            <i class='bx bx-arrow-back'></i> Back to All Classes
+        </a>
+        
+        <a href="mark?action=viewByClass&classId=${classInfo.id}" th:href="@{|mark?action=viewByClass&classId=${classInfo.id}|}" class="btn-add-new" style="background-color: #198754;">
+            <i class='bx bxs-spreadsheet'></i> Manage Grades
+        </a>
+        <a href="enrollment?action=addStudent&classId=${classInfo.id}" th:href="@{|enrollment?action=addStudent&classId=${classInfo.id}|}" class="btn-add-new">
+            <i class='bx bx-plus'></i> Enroll new students
+        </a>
+    </div>          
+
+</div>
+
+<div class="stat-card-grid" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="stat-card">
+        <div class="icon-wrapper cyan">
+            <i class='bx bxs-group'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${classInfo.studentCount}]]</h3>
+            <p>Enrolled Students</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper green">
+            <i class='bx bxs-book-open'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${classInfo.course.credits}]]</h3> 
+            <p>Course Credits</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper orange">
+            <i class='bx bxs-building'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${classInfo.room}]]</h3>
+            <p>Room</p>
+        </div>
+    </div>
+</div>
+
+<div class="form-container">
+    <p class="form-title">Class Information</p>
+    <div class="form-body">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Class Code</label>
+                <input type="text" value="" th:value="${classInfo.code}" readonly>
+            </div>
+            <div class="form-group">
+                <label>Semester</label>
+                <input type="text" value="${classInfo.semester.code} - ${classInfo.semester.year}" readonly>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Course</label>
+                <input type="text" value="${classInfo.course.title} (${classInfo.course.code})" readonly>
+            </div>
+            <div class="form-group">
+                <label>Department</label>
+                <input type="text" value="" th:value="${classInfo.course.department.name}" readonly>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Lecturer</label>
+                <input type="text" value="${classInfo.lecturer.name} (${classInfo.lecturer.email})" readonly>
+            </div>
+            <div class="form-group">
+                <label>Schedule</label>
+                <input type="text" value="" th:value="${classInfo.schedule}" readonly>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-container" style="margin-top: 24px;">
+    <div class="table-header">
+        <h3>Enrolled Students (<span id="studentCount">[[${classInfo.studentCount}]]</span>)</h3>
+        <div class="table-filters">
+            <div class="search-wrapper">
+                <i class='bx bx-search'></i>
+                <input type="text" id="searchStudent" placeholder="Search students by name, email, or phone...">
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Student Name</th>
+                <th>Department</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="studentTableBody">
+            <th:block th:each="student, loop : ${studentList}">
+                <tr class="student-row" 
+                    data-name="${student.name}" 
+                    data-email="${student.email}" 
+                    data-phone="${student.phone}"
+                    data-department="${student.department.name}">
+                    <td>[[${loop.count}]]</td>
+                    <td>
+                        <div class="head-info">
+                            <div class="avatar">
+                                <span>[[${#strings.substring(student.name, 0, 1)}]]</span>
+                            </div>
+                            <div class="head-name">
+                                <p>[[${student.name}]]</p>
+                                <small>[[${student.city}]]</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>[[${student.department.name}]]</td>
+                    <td>
+                        <div class="contact-info">
+                            <p>[[${student.email}]]</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="contact-info">
+                            <p>[[${student.phone}]]</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <form method="POST" action="enrollment" style="display: inline;">
+                                <input type="hidden" name="action" value="deleteStudent">
+                                <input type="hidden" name="studentId" value="" th:value="${student.id}">
+                                <input type="hidden" name="classId" value="" th:value="${classInfo.id}">
+                                <button type="submit" class="btn-action delete" title="Remove Student">
+                                    <i class='bx bx-user-minus'></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+            <th:block th:if="${empty studentList}">
+                <tr id="noStudentsRow">
+                    <td colspan="6" style="text-align: center; padding: 20px;">No students are enrolled in this class.</td>
+                </tr>
+            </th:block>
+        </tbody>
+    </table>
+    
+    <div id="noResultsMessage" style="display: none; text-align: center; padding: 40px; color: #7f8c8d;">
+        <i class='bx bx-search-alt' style='font-size: 48px; opacity: 0.3;'></i>
+        <p style="margin-top: 10px; font-size: 16px;">No students found matching your search.</p>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchStudent');
+    const studentRows = document.querySelectorAll('.student-row');
+    const studentCount = document.getElementById('studentCount');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+    const tableBody = document.getElementById('studentTableBody');
+    const totalStudents = [[${classInfo.studentCount}]];
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        let visibleCount = 0;
+        
+        studentRows.forEach(row => {
+            const name = row.getAttribute('data-name').toLowerCase();
+            const email = row.getAttribute('data-email').toLowerCase();
+            const phone = row.getAttribute('data-phone').toLowerCase();
+            const department = row.getAttribute('data-department').toLowerCase();
+            
+            if (name.includes(searchTerm) || 
+                email.includes(searchTerm) || 
+                phone.includes(searchTerm) ||
+                department.includes(searchTerm)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Cáº­p nháº­t sá»‘ lÆ°á»£ng
+        studentCount.textContent = visibleCount;
+        
+        // --- ÄÃƒ Sá»¬A Lá»–I ---
+        // Chá»‰ áº©n/hiá»‡n thÃ´ng bÃ¡o "No results"
+        // KhÃ´ng Ä‘á»¥ng Ä‘áº¿n tableBody.parentElement
+        if (visibleCount === 0) {
+            noResultsMessage.style.display = 'block';
+        } else {
+            noResultsMessage.style.display = 'none';
+        }
+        
+        // Reset count náº¿u search rá»—ng
+        if (searchTerm === '') {
+            studentCount.textContent = totalStudents;
+            // Äáº£m báº£o thÃ´ng bÃ¡o "No results" cÅ©ng bá»‹ áº©n Ä‘i
+            noResultsMessage.style.display = 'none'; 
+        }
+    });
+</script>
+</th:block>
+
+
+
+
+
+

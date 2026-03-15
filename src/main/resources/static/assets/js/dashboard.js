@@ -107,7 +107,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const lecturerSelect = document.getElementById('lecturerSelect');
         const naOption = document.getElementById('na_option');
 
+<<<<<<< HEAD
+   
+=======
 
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
         if (!roleSelect || !lecturerGroup || !lecturerSelect || !naOption) {
             return;
         }
@@ -133,11 +137,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const mainContent = document.getElementById('dardboard-main');
     if (mainContent) {
         mainContent.addEventListener('change', function(e) {
+<<<<<<< HEAD
+           
+=======
 
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
             if (e.target.id === 'roleSelect') {
                 toggleLecturerSelect();
             }
         });
     }
+<<<<<<< HEAD
+    
+=======
 
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 });

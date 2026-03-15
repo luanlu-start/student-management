@@ -2,7 +2,11 @@
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
 Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
 */
+<<<<<<< HEAD
+/* 
+=======
 /*
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
     Created on : 3 thg 10, 2025, 19:25:58
     Author     : ASUS
 */
@@ -29,6 +33,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     --red: #FC3B56;
 }
 
+<<<<<<< HEAD
+=======
 .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -60,6 +66,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 }
 
 
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 html {
     overflow-x: hidden;
 }
@@ -278,14 +285,22 @@ nav {
     display: flex;
     align-items: center;
     grid-gap: 28px;
+<<<<<<< HEAD
+    /*    justify-content: space-evenly;*/
+    position: sticky;
+=======
     justify-content: space-evenly;
     position: sticky;
     border-radius: 10px;
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
     top: 0;
     left: 0;
     z-index: 100;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.105);
+<<<<<<< HEAD
+=======
     margin-top: 15px;
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 }
 
 nav .toggle-sidebar {
@@ -985,11 +1000,20 @@ tr:hover {
 }
 .text-center p {
     text-align: center;
+<<<<<<< HEAD
+    justify-content: center; 
+=======
     justify-content: center;
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 }
 
 table thead th {
     text-align: center;
+<<<<<<< HEAD
+    vertical-align: middle; 
+}
+
+=======
     vertical-align: middle;
 }
 
@@ -1266,3 +1290,4 @@ table thead th {
 /*.btn-add-rect i {*/
 /*    font-size: 16px;*/
 /*}*/
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2

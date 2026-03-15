@@ -1,0 +1,106 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Edit Student</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="department?action=list">Students</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Edit Student</a></li>
+        </ul>
+    </div>
+    <a href="department" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Students
+    </a>
+</div>
+
+<div class="form-container">
+
+    <p class="form-title">Student Information</p>
+
+    <form action="student?action=edit" method="POST" class="form-body">
+
+        <!--        <input type="hidden" name="action" value="edit">-->
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="studentID">Student ID <span>*</span></label>
+                <input type="text" name="studentId" id="studentID" value="" th:value="${student.id}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="studentName">Full Name</label>
+                <input type="text" name="studentName" id="studentName" value="" th:value="${student.name}" required>
+            </div>
+
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="birthdate">Date of birth</label>
+                <input type="text" id="birthdate" name="birthday" value="" th:value="${student.birthdate}"   pattern="^\d{4}-\d{2}-\d{2}$"> 
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <input type="text" id="gender" name="gender" value="" th:value="${student.gender}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" value="" th:value="${student.address}">
+            </div>
+
+            <div class="form-group">
+                <label for="address">City</label>
+                <input type="text" id="city" name="city" value="" th:value="${student.city}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="" th:value="${student.email}">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                   <input type="text" id="phone" name="phone"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
+                       pattern="^\d{10,11}$"
+                       placeholder="Nháº­p 10â€“11 sá»‘"
+                       value="" th:value="${student.phone}"
+                       required>
+            </div>
+        </div>
+            
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Department</label>
+                <select class="form-select" aria-label="Default select example" name="depCode">
+                    <th:block th:each="dep : ${departmentList}">
+                        <option value="" th:value="${dep.code}" <th:block th:if="${student.department.code == dep.code}">selected</th:block>>[[${dep.name}]]</option>
+                    </th:block>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a href="student?action=all" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Update Student
+            </button>
+        </div>
+
+    </form>
+</div>
+</th:block>
+
+
+
+
+
+

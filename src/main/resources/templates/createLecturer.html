@@ -1,0 +1,75 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Add New Lecturer</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="lecturer?action=all">Lecturers</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Add New Lecturer</a></li>
+        </ul>
+    </div>
+    <a href="department" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Lecturers
+    </a>
+</div>
+
+<div class="form-container">
+
+    <p class="form-title">Lecturer Information</p>
+
+    <form action="lecturer?action=add" method="POST" class="form-body">
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label for="lecturerName">Full Name</label>
+                <input type="text" name="lecturerName" id="lecturerName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="department" class="form-label">Department</label>
+                <select class="form-select" aria-label="Default select example" name="department">
+                    <th:block th:each="dep : ${departmentList}">
+                        <option value="" th:value="${dep.code}">[[${dep.name}]]</option>
+                    </th:block>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email">
+            </div>
+
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title"> 
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="number" id="phone" name="phone">
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a href="lecturer?action=all" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Add New Lecturer
+            </button>
+        </div>
+
+    </form>
+</div>
+</th:block>
+
+
+
+
+
+

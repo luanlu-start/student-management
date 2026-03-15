@@ -1,0 +1,165 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Academic Management Dashboard</h1>
+        <p class="subtitle">Comprehensive overview of courses, student progress, and academic performance metrics.</p>
+    </div>
+    <div class="header-buttons">
+        <a href="#" class="btn-secondary">
+            <i class='bx bx-calendar'></i> Academic Calendar
+        </a>
+        <a href="semester?action=add" class="btn-add-new">
+            <i class='bx bx-plus'></i> New Semester
+        </a>
+    </div>
+</div>
+
+<div class="stat-card-grid">
+    <div class="stat-card">
+        <div class="icon-wrapper green">
+            <i class='bx bxs-book-content'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalCourses}]]</h3>
+            <p>Active Courses</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper cyan">
+            <i class='bx bxs-group'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalStudents}]]</h3>
+            <p>Enrolled Students</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper orange">
+            <i class='bx bxs-user-badge'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalLecturers}]]</h3>
+            <p>Total Lecturers</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper red">
+            <i class='bx bxs-building-house'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalDepartment}]]</h3>
+            <p>Total Departments</p>
+        </div>
+    </div>
+</div>
+
+<div class="widget-grid">
+
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Quick Actions</h3>
+        </div>
+        <div class="widget-body">
+            <a href="course?action=create" class="quick-action-btn blue">
+                <i class='bx bx-plus-circle'></i> Create Course
+            </a>
+            <a href="student?action=add" class="quick-action-btn green">
+                <i class='bx bx-user-plus'></i> Add New Student
+            </a>
+            <a href="lecturer?action=add" class="quick-action-btn orange">
+                <i class='bx bxs-user-plus'></i> Add New Lecturer
+            </a>
+        </div>
+    </div>
+
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Academic Calendar</h3>
+            <a href="semester?action=all" class="widget-link">View All</a>
+        </div>
+        <div class="widget-body">
+            <ul class="calendar-list">
+                <th:block th:each="sem : ${semesterList}">
+                    <li>
+                        <div class="calendar-icon yellow">
+                            <i class='bx bx-calendar-event'></i>
+                        </div>
+                        <div class="calendar-info">
+                            <p>[[${sem.code}]] - [[${sem.year}]]</p>
+                            <small>Starts: [[${sem.beginDate}]]</small>
+                        </div>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="widget-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
+
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Recent Students</h3>
+            <a href="student?action=all" class="widget-link">View All</a>
+        </div>
+        <div class="widget-body">
+            <ul class="widget-list">
+
+                <th:block th:each="student, loop : ${Studentlist}">
+                    <th:block th:if="${loop.count <= 3}">
+                        <li class="widget-list-item">
+                            <div class="item-avatar blue">
+                                <span>[[${#strings.substring(student.name, 0, 1)}]]</span>
+                            </div>
+                            <div class="item-info">
+                                <p>[[${student.name}]]</p>
+                                <small>[[${student.department.name}]]</small>
+                            </div>
+                            <span class="status-pill active">Active</span>
+                        </li>
+                    </th:block>
+                </th:block>
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Popular Courses</h3>
+            <a href="course?action=all" class="widget-link">View All</a>
+        </div>
+        <div class="widget-body">
+            <ul class="widget-list">
+
+                <th:block th:each="course, loop : ${listCourse}">
+                    <th:block th:if="${loop.count <= 3}">
+                        <li class="widget-list-item">
+                            <div class="item-avatar gray">
+                                <i class='bx bx-book'></i>
+                            </div>
+                            <div class="item-info">
+                                <p>[[${course.title}]]</p>
+                                <small>Department: [[${course.department.name}]]</small>
+                            </div>
+                            <div class="item-progress">
+                                <span>[[${course.credits}]] Credits</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${course.credits * 20}%"></div>
+                                </div>
+                            </div>
+                        </li>
+                    </th:block>
+                </th:block>
+
+            </ul>
+        </div>
+    </div>
+</div>
+</th:block>
+
+
+
+
+
+

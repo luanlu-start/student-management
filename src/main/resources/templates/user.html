@@ -1,0 +1,87 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">All Users</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">All Users</a></li>
+        </ul>
+    </div>
+
+    <th:block th:if="${session.user.role == 'admin'}">
+        <a href="user?action=add" class="btn-add-new">
+            <i class='bx bx-plus'></i> Add New User
+        </a>
+    </th:block>
+</div>
+
+<div class="filter-bar">
+    <input type="text" placeholder="Search users...">
+    <select>
+        <option value="">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="teacher">Teacher</option>
+    </select>
+    <select>
+        <option value="">All Departments</option>
+    </select>
+</div>
+
+<div class="user-grid">
+
+    <th:block th:each="user : ${listUser}">
+
+        <div class="user-card">
+
+            <div class="card-avatar" th:style="|background-color: #${T(java.lang.Math).abs(user.username.hashCode() % 999999)}|">
+                <span><span th:text="${user.username.substring(0, 1).toUpperCase()}"></span></span>
+            </div>
+
+            <div class="card-info">
+                
+                    <th:block th:if="${not empty user.lecturer}">
+                        <h3 class="card-name">[[${user.lecturer.name}]]</h3>
+                    </th:block>
+                    <th:block>
+                        <h3 class="card-name">[[${user.username}]]</h3>
+                    </th:block>
+                
+
+                
+                    <th:block th:if="${not empty user.lecturer.department.name}">
+                        <p class="card-detail">[[${user.lecturer.department.name}]]</p>
+                    </th:block>
+                    <th:block>
+                        <p class="card-detail">[[${user.role}]]</p>
+                    </th:block>
+                
+
+                <p class="card-detail-role">Role: [[${user.role}]]</p>
+            </div>
+
+            <div class="card-buttons">
+
+                
+                <th:block th:if="${session.user.role == 'admin'}">               
+
+                    
+                    <th:block th:if="${session.user.id != user.id}">
+                        <a href="user?action=delete&id=${user.id}" th:href="@{|user?action=delete&id=${user.id}|}" class="btn-card btn-view">
+                            <i class='bx bx-trash'></i> Delete
+                        </a>
+                    </th:block>
+                </th:block>
+            </div>
+        </div>
+
+    </th:block>
+
+</div>
+</th:block>
+
+
+
+
+
+

@@ -1,3 +1,63 @@
+<<<<<<< HEAD
+.pag {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.page-item {
+  margin: 0;
+}
+
+.page-link {
+  display: block;
+  padding: 10px 16px;
+  color: #007bff;
+  text-decoration: none;
+  border-right: 1px solid #eee;
+  transition: all 0.2s ease;
+}
+
+.page-link:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-item:first-child .page-link {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.page-item:last-child .page-link {
+  border-right: none;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.page-link[disabled],
+.page-link:disabled {
+  color: #999;
+  pointer-events: none;
+  background-color: #f8f9fa;
+}
+
+.page-link.active {
+  background-color: #007bff;
+  color: #fff;
+  cursor: default;
+}
+=======
 /* ================= STUDENT LIST ================= */
 
 html, body {
@@ -210,3 +270,4 @@ html, body {
 .btn-add-rect i {
     font-size: 16px;
 }
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2

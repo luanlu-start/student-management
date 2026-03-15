@@ -1,0 +1,147 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Gradebook: [[${classInfo.code}]]</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="classes?action=all">Classes</a></li>
+            <li class="divider">/</li>
+            <li><a href="classes?action=view&id=${classInfo.id}" th:href="@{|classes?action=view&id=${classInfo.id}|}">View Class</a></li>
+            <li class="divider">/</li>
+            <li class="active">Manage Grades</li>
+        </ul>
+    </div>
+    <div class="header-buttons">
+        <a href="mark?action=create&classId=${classInfo.id}" th:href="@{|mark?action=create&classId=${classInfo.id}|}" class="btn-add-new">
+            <i class='bx bx-plus'></i> Add New Mark
+        </a>
+        <a href="classes?action=view&id=${classInfo.id}" th:href="@{|classes?action=view&id=${classInfo.id}|}" class="btn-secondary">
+            <i class='bx bx-arrow-back'></i> Back to Class Details
+        </a>
+    </div>       
+</div>
+
+<th:block th:if="${not empty session.success}">
+    <div class="alert alert-success">[[${session.success}]]</div>
+    </th:block>
+<th:block th:if="${not empty session.error}">
+    <div class="alert alert-error">[[${session.error}]]</div>
+    </th:block>
+
+<div class="table-container">
+    <div class="table-header">
+        <h3>Grades for [[${classInfo.course.title}]]</h3>
+        <div class="table-filters">
+            <div class="search-wrapper">
+                <i class='bx bx-search'></i>
+                <input type="text" id="gradebookSearch" placeholder="Search students...">
+            </div>
+        </div>
+    </div>
+
+    <table style="table-layout: auto; width: 100%;">
+        <thead>
+            <tr>
+                <th style="width: 50px;">#</th>
+                <th style="width: 250px;">Student Name</th>
+
+                <th:block th:each="ass : ${assessmentList}">
+                    <th style="text-align: center;">
+                        [[${ass.type}]]
+                        <small style="display: block; font-weight: normal;">([[${ass.weight}]]%)</small>
+                    </th>
+                </th:block>
+            </tr>
+        </thead>
+        <tbody id="gradebookTableBody">
+            <th:block th:each="student, loop : ${studentList}">
+                <tr class="grade-row" data-name="${student.name}">
+                    <td style="text-align: center;">[[${loop.count}]]</td>
+                    <td>
+                        <div class="head-info">
+                            <div class="avatar">
+                                <span>[[${#strings.substring(student.name, 0, 1)}]]</span>
+                            </div>
+                            <div class="head-name">
+                                <p>[[${student.name}]]</p>
+                                <small>ID: [[${student.id}]]</small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <th:block th:each="ass : ${assessmentList}">
+                        <td style="text-align: center; font-weight: 600;">
+
+                            <th:block th:if="${not empty markObj}">
+                                    <div style="margin-bottom: 5px;">
+                                        <span th:text="${#numbers.formatDecimal(markObj.mark, 1, 1)}"></span>
+                                    </div>
+                                    <div class="action-buttons" style="justify-content: center; opacity: 0.5;">
+                                        <a href="mark?action=edit&enrollId=${markObj.enrollment.id}&assessmentId=${ass.id}&classId=${classInfo.id}" th:href="@{|mark?action=edit&enrollId=${markObj.enrollment.id}&assessmentId=${ass.id}&classId=${classInfo.id}|}" class="btn-action edit" title="Edit Mark" style="width: 24px; height: 24px; font-size: 14px;">
+                                            <i class='bx bx-edit-alt'></i>
+                                        </a>
+                                        <a href="mark?action=delete&enrollId=${markObj.enrollment.id}&assessmentId=${ass.id}&classId=${classInfo.id}" th:href="@{|mark?action=delete&enrollId=${markObj.enrollment.id}&assessmentId=${ass.id}&classId=${classInfo.id}|}" class="btn-action delete" title="Delete Mark" 
+                                           onclick="return confirm('Delete this mark?');" style="width: 24px; height: 24px; font-size: 14px;">
+                                            <i class='bx bx-trash'></i>
+                                        </a>
+                                    </div>
+                                </th:block>
+                                <th:block>
+                                    <a href="mark?action=create&enrollId=${enrollId}&assessmentId=${ass.id}&classId=${classInfo.id}" th:href="@{|mark?action=create&enrollId=${enrollId}&assessmentId=${ass.id}&classId=${classInfo.id}|}" 
+                                       class="btn-action edit" title="Add Mark" 
+                                       style="width: 28px; height: 28px; font-size: 16px; background: #e0e0e0;">
+                                        <i class='bx bx-plus'></i>
+                                    </a>
+                                </th:block>
+                            
+                        </td>
+                    </th:block>
+                </tr>
+            </th:block>
+
+            <th:block th:if="${empty studentList}">
+                <tr>
+                    <td colspan="1" th:attr="colspan=${2 + #lists.size(assessmentList)}" style="text-align: center; padding: 20px;">
+                        No students are enrolled in this class.
+                    </td>
+                </tr>
+            </th:block>
+
+            <tr id="noResultsRow" style="display: none;">
+                <td colspan="1" th:attr="colspan=${2 + #lists.size(assessmentList)}" style="text-align: center; padding: 20px;">
+                    No students found matching your search.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Script tÃ¬m kiáº¿m cho Báº£ng Ä‘iá»ƒm
+    document.getElementById('gradebookSearch').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        const tableBody = document.getElementById('gradebookTableBody');
+        const rows = tableBody.querySelectorAll('tr.grade-row');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const name = row.getAttribute('data-name').toLowerCase();
+            if (name.includes(searchTerm)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('noResultsRow').style.display = (visibleCount === 0 && searchTerm !== '') ? 'table-row' : 'none';
+    });
+</script>
+</th:block>
+
+
+
+
+
+

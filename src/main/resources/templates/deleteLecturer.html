@@ -1,0 +1,67 @@
+﻿<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Delete Lecturer</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="department?action=list">Lecturers</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Edit Lecturer</a></li>
+        </ul>
+    </div>
+    <a href="lecturer" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Lecturer
+    </a>
+</div>
+
+<div class="form-container">
+
+    <p class="form-title">Lecturer Information</p>
+
+    <form action="lecturer?action=delete" method="POST" class="form-body">
+
+        <!--        <input type="hidden" name="action" value="edit">-->
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="lecturerId">Lecturer ID <span>*</span></label>
+                <input type="text" name="lecturerId" id="lecturerId" value="" th:value="${lecturer.id}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="lecturerName">Full Name</label>
+                <input type="text" name="lecturerName" id="lecturerName" value="" th:value="${lecturer.name}" readonly>
+            </div>
+
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="title" name="title" value="" th:value="${lecturer.title}" readonly> 
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone" value="" th:value="${lecturer.phone}" readonly>
+            </div>
+        </div>
+
+
+        <div class="form-buttons">
+            <a href="lecturer?action=all" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Delete Lecturer
+            </button>
+        </div>
+
+    </form>
+</div>
+</th:block>
+
+
+
+
+
+

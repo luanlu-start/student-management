@@ -11,7 +11,11 @@
     align-items: center;
     gap: 8px;
     padding: 10px 16px;
+<<<<<<< HEAD
+    background: var(--blue); 
+=======
     background: var(--blue);
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
     color: var(--light);
     border-radius: 10px;
     font-weight: 600;
@@ -25,6 +29,8 @@
 }
 
 
+<<<<<<< HEAD
+=======
 .btn-search {
     padding: 10px 14px;
     border-radius: 5px;
@@ -32,11 +38,16 @@
     background: #f9f9f9;
 }
 
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
 .filter-bar {
     display: flex;
     gap: 16px;
     padding: 16px;
+<<<<<<< HEAD
+    background: var(--light); 
+=======
     background: var(--light);
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
     border-radius: 10px;
     margin-bottom: 24px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -46,7 +57,11 @@
     flex: 1;
     padding: 10px 14px;
     border-radius: 5px;
+<<<<<<< HEAD
+    border: 1px solid var(--grey); 
+=======
     border: 1px solid var(--grey);
+>>>>>>> 16c346beada661c830c022b35641701ff4801ba2
     background: #f9f9f9;
 }
 .filter-bar input:focus {
