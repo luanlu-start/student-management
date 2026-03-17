@@ -1,83 +1,119 @@
-.pag {
+/* Shared pagination style for list pages */
+nav.pag {
     display: flex;
     justify-content: center;
-    margin: 20px 0;
-    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 22px 0 8px;
 }
 
-.pagination {
-    display: flex;
+nav.pag .pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 11px;
     list-style: none;
-    padding: 0;
-    border-radius: 8px;
     background: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-top: 15px
+    border: 1px solid #e8ebf2;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
 }
 
-.page-item {
+nav.pag .page-item {
     margin: 0;
 }
 
-.page-link {
-    display: block;
-    padding: 10px 16px;
-    color: #007bff;
+nav.pag .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 40px;
+    padding: 0 14px;
+    border: 1px solid #e3e8f3;
+    border-radius: 10px;
+    background: #fff;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
     text-decoration: none;
-    border-right: 1px solid #eee;
     transition: all 0.2s ease;
 }
 
-.page-link:hover {
-    background-color: #007bff;
-    color: white;
+nav.pag .page-link:hover {
+    border-color: #c7d2fe;
+    background: #eef2ff;
+    color: #1d4ed8;
+    transform: translateY(-1px);
 }
 
-.page-item:first-child .page-link {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-}
-
-.page-item:last-child .page-link {
-    border-right: none;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-}
-
-.page-link[disabled],
-.page-link:disabled {
-    color: #999;
-    pointer-events: none;
-    background-color: #f8f9fa;
-}
-
-.page-link.active {
-    background-color: #007bff;
+nav.pag .page-link.active,
+nav.pag .page-item.active .page-link {
+    border-color: #2563eb;
+    background: #2563eb;
     color: #fff;
     cursor: default;
+    pointer-events: none;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.28);
 }
 
-
-
-.pagination .page-link {
-    border-radius: 8px;
-    margin: 0 4px;
-    border: none;
-    color: #333;
-    font-weight: 500;
+nav.pag .page-item.disabled .page-link,
+nav.pag .page-link:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
 }
 
-.pagination .page-link:hover {
-    background-color: #eef2ff;
-    color: #4f46e5;
+@media (max-width: 576px) {
+    nav.pag .pagination {
+        gap: 6px;
+        padding: 8px;
+    }
+
+    nav.pag .page-link {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        font-size: 13px;
+    }
 }
 
-.pagination .page-item.active .page-link {
-    background-color: #4f46e5;
-    color: white;
+/* Keep pagination in a stable vertical position while filtering */
+.stable-list-layout {
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 12px;
 }
 
-.pagination .page-item.disabled .page-link {
-    opacity: 0.4;
+.stable-list-layout .user-grid {
+    flex: 1;
+    align-content: start;
+}
+
+.stable-list-layout nav.pag {
+    margin-top: auto;
+    margin-bottom: 0;
+
+}
+
+/* Legacy class kept for compatibility */
+.lecturer-list-layout {
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 12px;
+}
+
+.lecturer-list-layout .user-grid {
+    flex: 1;
+    align-content: start;
+}
+
+.lecturer-list-layout nav.pag {
+    margin-top: auto;
+    margin-bottom: 0;
 }

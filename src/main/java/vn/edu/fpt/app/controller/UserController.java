@@ -10,7 +10,7 @@ import vn.edu.fpt.app.service.LecturerService;
 import vn.edu.fpt.app.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,12 +25,12 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/user")
+@PreAuthorize("hasAnyRole('admin', 'academic_staff')")
 public class UserController {
 
     private final UserService userService;
     private final LecturerService lecturerService;
 
-    @Autowired
     public UserController(UserService userService, LecturerService lecturerService) {
         this.userService = userService;
         this.lecturerService = lecturerService;
@@ -40,25 +40,20 @@ public class UserController {
     public String list(HttpSession session, Model model) {
         List<User> list = userService.getAllUsers();
         model.addAttribute("listUser", list);
-        model.addAttribute("home_view", "user.html");
+        model.addAttribute("home_view", "user/user.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=add")
+    @GetMapping("/add")
     public String showAdd(HttpSession session, Model model) {
-        User loginUser = (User) session.getAttribute("user");
-        if (loginUser == null || !"admin".equals(loginUser.getRole())) {
-            session.setAttribute("message", "You do not have permission to access that page.");
-            session.setAttribute("messageType", "error");
-            return "redirect:/user";
-        }
         List<Lecturer> lecturerList = lecturerService.getAllLecturers();
         model.addAttribute("listLecturers", lecturerList);
-        model.addAttribute("home_view", "createUser.html");
+        model.addAttribute("home_view", "user/createUser.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=delete")
+    @PreAuthorize("hasRole('admin')")
+    @GetMapping("/delete")
     public String showDelete(
             @RequestParam(name = "id") Integer id,
             HttpSession session,
@@ -75,13 +70,13 @@ public class UserController {
             if (loginUser.getId() == id) {
                 session.setAttribute("message", "You cannot delete your own account!");
                 session.setAttribute("messageType", "error");
-                return "redirect:/user?action=all";
+                return "redirect:/user";
             }
 
             User userToDelete = userService.getUserById(id);
             if (userToDelete != null) {
                 model.addAttribute("userToDelete", userToDelete);
-                model.addAttribute("home_view", "deleteUser.html");
+                model.addAttribute("home_view", "user/deleteUser.html");
                 return "dashboard";
             }
             return "redirect:/user";
@@ -90,24 +85,18 @@ public class UserController {
         }
     }
 
-    @PostMapping(params = "action=add")
+    @PostMapping("/add")
     public String add(@ModelAttribute("userForm") UserForm form, HttpSession session) {
-
-        User loginUser = (User) session.getAttribute("user");
-
-        if (loginUser == null || !"admin".equals(loginUser.getRole())) {
-            session.setAttribute("message", "You do not have permission to perform this action.");
-            session.setAttribute("messageType", "error");
-            return "redirect:/user?action=all";
-        }
 
         try {
             Lecturer lecturer = null;
-            if ("teacher".equals(form.getRole()) && form.getLecturerId() != null && form.getLecturerId() > 0) {
+            String role = form.getRole() == null ? "" : form.getRole().trim().toLowerCase().replace(' ', '_');
+            if (("teacher".equals(role) || "lecturer".equals(role))
+                    && form.getLecturerId() != null && form.getLecturerId() > 0) {
                 lecturer = lecturerService.getLecturerById(form.getLecturerId());
             }
 
-            User newUser = new User(form.getUsername(), form.getPassword(), form.getRole(), lecturer);
+            User newUser = new User(form.getUsername(), form.getPassword(), role, lecturer);
             boolean success = userService.addNewUser(newUser);
 
             if (success) {
@@ -124,7 +113,8 @@ public class UserController {
         return "redirect:/user";
     }
 
-    @PostMapping(params = "action=delete")
+    @PreAuthorize("hasRole('admin')")
+    @PostMapping("/delete")
     public String delete(@ModelAttribute("userForm") UserForm form, HttpSession session) {
         User loginUser = (User) session.getAttribute("user");
 
@@ -179,5 +169,3 @@ public class UserController {
         public void setLecturerId(Integer lecturerId) { this.lecturerId = lecturerId; }
     }
 }
-
-

@@ -10,7 +10,8 @@ import vn.edu.fpt.app.service.DepartmentService;
 import vn.edu.fpt.app.service.StudentService;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,12 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/department")
+@PreAuthorize("hasAnyRole('admin', 'academic_staff')")
 public class DepartmentController {
 
     private final DepartmentService depService;
     private final StudentService stuService;
 
-    @Autowired
     public DepartmentController(DepartmentService depService, StudentService stuService) {
         this.depService = depService;
         this.stuService = stuService;
@@ -44,32 +45,32 @@ public class DepartmentController {
         model.addAttribute("totalDepartment", departmentList.size());
         model.addAttribute("totalStudent", studentList.size());
         model.addAttribute("departmentList", departmentList);
-        model.addAttribute("home_view", "department.html");
+        model.addAttribute("home_view", "department/department.html");
         return "dashboard";
     }
 
 
-    @GetMapping(params = "action=edit")
+    @GetMapping("/edit")
     public String showEdit(@RequestParam(name = "depCode") String depCode, Model model) {
         model.addAttribute("editDepartment", depService.getDepartmentByCode(depCode));
-        model.addAttribute("home_view", "editDepartment.html");
+        model.addAttribute("home_view", "department/editDepartment.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=delete")
+    @GetMapping("/delete")
     public String showDelete(@RequestParam(name = "depCode") String depCode, Model model) {
         model.addAttribute("department", depService.getDepartmentByCode(depCode));
-        model.addAttribute("home_view", "deleteDepartment.html");
+        model.addAttribute("home_view", "department/deleteDepartment.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=add")
+    @GetMapping("/add")
     public String showCreate(Model model) {
-        model.addAttribute("home_view", "createDepartment.html");
+        model.addAttribute("home_view", "department/createDepartment.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=edit")
+    @PostMapping("/edit")
     public String edit(@ModelAttribute("departmentForm") DepartmentForm form, Model model) {
         if (form.getDepartmentCode() == null) {
             return "redirect:/department";
@@ -85,11 +86,11 @@ public class DepartmentController {
         }
         model.addAttribute("ErrorMsg", "Fail to update department!");
         model.addAttribute("editDepartment", depService.getDepartmentByCode(form.getDepartmentCode()));
-        model.addAttribute("home_view", "department.html");
+        model.addAttribute("home_view", "department/department.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=delete")
+    @PostMapping("/delete")
     public String delete(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
         boolean deleteSuccess = form.getDepCode() != null && depService.deleteDepartmentByCode(form.getDepCode());
         if (deleteSuccess) {
@@ -102,26 +103,46 @@ public class DepartmentController {
         return "redirect:/department";
     }
 
-    @PostMapping(params = "action=add")
+    @PostMapping("/add")
     public String add(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
-        if (form.getDepartmentCode() == null || form.getDepartmentName() == null) {
-            return "redirect:/department";
+        String code = form.getDepartmentCode() == null ? "" : form.getDepartmentCode().trim();
+        String name = form.getDepartmentName() == null ? "" : form.getDepartmentName().trim();
+
+        if (code.isEmpty() || name.isEmpty()) {
+            session.setAttribute("message", "Department code and name are required!");
+            session.setAttribute("messageType", "error");
+            return "redirect:/department/add";
         }
+
+        if (depService.existsByCode(code)) {
+            session.setAttribute("message", "Department code already exists!");
+            session.setAttribute("messageType", "error");
+            return "redirect:/department/add";
+        }
+
+        if (depService.existsByName(name)) {
+            session.setAttribute("message", "Department name already exists!");
+            session.setAttribute("messageType", "error");
+            return "redirect:/department/add";
+        }
+
         Department department = new Department(
-                form.getDepartmentCode(),
-                form.getDepartmentName(),
+                code,
+                name,
                 form.getDepartmentHead(),
                 form.getPhone(),
                 form.getEmail());
+
         boolean addSuccess = depService.addNewDepartment(department);
         if (addSuccess) {
-            session.setAttribute("message", "Department add successfully!");
+            session.setAttribute("message", "Department added successfully!");
             session.setAttribute("messageType", "success");
-        } else {
-            session.setAttribute("message", "Failed to add department!");
-            session.setAttribute("messageType", "error");
+            return "redirect:/department";
         }
-        return "redirect:/department";
+
+        session.setAttribute("message", "Failed to add department. Please check duplicate data and try again.");
+        session.setAttribute("messageType", "error");
+        return "redirect:/department/add";
     }
 
     public static class DepartmentForm {
@@ -147,5 +168,3 @@ public class DepartmentController {
     }
 
 }
-
-

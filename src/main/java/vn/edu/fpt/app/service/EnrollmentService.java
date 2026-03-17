@@ -6,7 +6,6 @@ import vn.edu.fpt.app.entities.Student;
 import vn.edu.fpt.app.repository.EnrollmentRepository;
 import vn.edu.fpt.app.service.ClassService;
 import vn.edu.fpt.app.service.StudentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,14 +16,15 @@ import java.util.Map;
 @Service
 public class EnrollmentService {
 
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
+    private final EnrollmentRepository enrollmentRepository;
+    private final StudentService studentService;
+    private final ClassService classService;
 
-    @Autowired
-    private StudentService studentService;
-
-    @Autowired
-    private ClassService classService;
+    public EnrollmentService(EnrollmentRepository enrollmentRepository, StudentService studentService, ClassService classService) {
+        this.enrollmentRepository = enrollmentRepository;
+        this.studentService = studentService;
+        this.classService = classService;
+    }
 
     public List<Enrollment> getAllEnrollments() {
         return enrollmentRepository.findAll();
@@ -34,11 +34,20 @@ public class EnrollmentService {
         return enrollmentRepository.findById(id).orElse(null);
     }
 
+    public List<Enrollment> getEnrollmentsByClassId(int classId) {
+        return enrollmentRepository.findByCls_Id(classId);
+    }
+
+    public boolean isAlreadyEnrolled(int studentId, int classId) {
+        return enrollmentRepository.existsByStudent_IdAndCls_Id(studentId, classId);
+    }
+
     @Transactional
     public boolean createEnrollment(int studentId, int classId) {
         Student student = studentService.getStudentById(studentId);
         Classes cls = classService.getClassById(classId);
         if (student == null || cls == null) return false;
+        if (enrollmentRepository.existsByStudent_IdAndCls_Id(studentId, classId)) return false;
         try {
             enrollmentRepository.save(new Enrollment(0, student, cls));
             return true;
@@ -71,5 +80,3 @@ public class EnrollmentService {
         return map;
     }
 }
-
-

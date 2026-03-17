@@ -13,7 +13,9 @@ import vn.edu.fpt.app.service.CourseService;
 import vn.edu.fpt.app.service.DepartmentService;
 import vn.edu.fpt.app.service.EnrollmentService;
 import vn.edu.fpt.app.service.StudentService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,12 +24,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-/**
- *
- * @author Le Nhut Huy - CE200376<huylnce200376fpt@gmail.com>
- */
 @Controller
 @RequestMapping("/enrollment")
+@PreAuthorize("hasAnyRole('admin', 'academic_staff')")
 public class EnrollmentController {
 
     private final DepartmentService depService;
@@ -66,11 +65,11 @@ public class EnrollmentController {
         model.addAttribute("totalStudent", studentList.size());
         model.addAttribute("listAssessment", assessList);
         model.addAttribute("departmentList", departmentList);
-        model.addAttribute("home_view", "enrollment.html");
+        model.addAttribute("home_view", "enrollment/enrollment.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=addStudent")
+    @GetMapping("/addStudent")
     public String showAddStudent(@RequestParam(name = "classId", required = false) String classIdParam, Model model) {
         model.addAttribute("allStudent", stuService.getAllStudents());
         model.addAttribute("allClass", classService.getAllClasses());
@@ -80,25 +79,43 @@ public class EnrollmentController {
             } catch (NumberFormatException ignored) {
             }
         }
-        model.addAttribute("home_view", "createEnrollment.html");
+        model.addAttribute("home_view", "enrollment/createEnrollment.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=addStudent")
-    public String addStudent(@ModelAttribute("enrollmentForm") EnrollmentForm form, Model model) {
-        try {
-            if (form.getStudentId() == null || form.getClassId() == null) {
-                throw new NumberFormatException();
-            }
-            enrollService.createEnrollment(form.getStudentId(), form.getClassId());
-        } catch (Exception ignored) {
+    @PostMapping("/addStudent")
+    public String addStudent(@ModelAttribute("enrollmentForm") EnrollmentForm form, HttpSession session) {
+        if (form.getStudentId() == null || form.getClassId() == null) {
+            session.setAttribute("message", "Invalid data. Please select both student and class.");
+            session.setAttribute("messageType", "error");
+            return "redirect:/classes";
         }
-        model.addAttribute("listClasses", classService.getAllClasses());
-        model.addAttribute("home_view", "class.html");
-        return "dashboard";
+
+        int studentId = form.getStudentId();
+        int classId = form.getClassId();
+
+        if (enrollService.isAlreadyEnrolled(studentId, classId)) {
+            Student student = stuService.getStudentById(studentId);
+            String studentName = student != null ? student.getName() : "Student #" + studentId;
+            session.setAttribute("message", "\"" + studentName + "\" is already enrolled in this class!");
+            session.setAttribute("messageType", "error");
+            return "redirect:/classes/view?id=" + classId;
+        }
+
+        boolean success = enrollService.createEnrollment(studentId, classId);
+        if (success) {
+            Student student = stuService.getStudentById(studentId);
+            String studentName = student != null ? student.getName() : "Student #" + studentId;
+            session.setAttribute("message", "\"" + studentName + "\" has been added to the class successfully!");
+            session.setAttribute("messageType", "success");
+        } else {
+            session.setAttribute("message", "Failed to add student to class. Please try again.");
+            session.setAttribute("messageType", "error");
+        }
+        return "redirect:/classes/view?id=" + classId;
     }
 
-    @PostMapping(params = "action=deleteStudent")
+    @PostMapping("/deleteStudent")
     public String showDeleteStudent(@ModelAttribute("enrollmentForm") EnrollmentForm form, Model model) {
         if (form.getStudentId() == null || form.getClassId() == null) {
             return "redirect:/classes";
@@ -107,19 +124,31 @@ public class EnrollmentController {
         Classes classes = classService.getClassById(form.getClassId());
         model.addAttribute("classes", classes);
         model.addAttribute("student", student);
-        model.addAttribute("home_view", "deleteEnrollment.html");
+        model.addAttribute("home_view", "enrollment/deleteEnrollment.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=confirmDeleteStudent")
-    public String confirmDeleteStudent(@ModelAttribute("enrollmentForm") EnrollmentForm form, Model model) {
+    @PostMapping("/confirmDeleteStudent")
+    public String confirmDeleteStudent(@ModelAttribute("enrollmentForm") EnrollmentForm form, HttpSession session) {
         if (form.getStudentId() == null || form.getClassId() == null) {
             return "redirect:/classes";
         }
-        enrollService.deleteEnrollment(form.getStudentId(), form.getClassId());
-        model.addAttribute("listClasses", classService.getAllClasses());
-        model.addAttribute("home_view", "class.html");
-        return "dashboard";
+
+        int studentId = form.getStudentId();
+        int classId = form.getClassId();
+
+        Student student = stuService.getStudentById(studentId);
+        String studentName = student != null ? student.getName() : "Student #" + studentId;
+
+        boolean success = enrollService.deleteEnrollment(studentId, classId);
+        if (success) {
+            session.setAttribute("message", "\"" + studentName + "\" has been removed from the class.");
+            session.setAttribute("messageType", "success");
+        } else {
+            session.setAttribute("message", "Failed to remove student from class.");
+            session.setAttribute("messageType", "error");
+        }
+        return "redirect:/classes/view?id=" + classId;
     }
 
     public static class EnrollmentForm {
@@ -132,5 +161,4 @@ public class EnrollmentController {
         public void setClassId(Integer classId) { this.classId = classId; }
     }
 }
-
 

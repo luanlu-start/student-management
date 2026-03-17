@@ -7,7 +7,8 @@ package vn.edu.fpt.app.controller;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +34,6 @@ public class MarkController {
     private final AssessmentService assessService;
     private final ClassService classService;
 
-    @Autowired
     public MarkController(
             MarkService markService,
             EnrollmentService enrollService,
@@ -45,15 +45,35 @@ public class MarkController {
         this.classService = classService;
     }
 
-    @GetMapping(params = "action=create")
+    @PreAuthorize("hasAnyRole('admin', 'lecturer')")
+    @GetMapping("/create")
     public String showCreate(
             @RequestParam(name = "classId", required = false) String classId,
             @RequestParam(name = "enrollId", required = false) String enrollIdParam,
             @RequestParam(name = "assessmentId", required = false) String assessIdParam,
-            Model model) {
-        model.addAttribute("allEnrollment", enrollService.getAllEnrollments());
-        model.addAttribute("allAssessment", assessService.getAllAssessments());
+            Model model,
+            HttpSession session) {
         model.addAttribute("classId", classId);
+
+        if (classId != null && !classId.isEmpty()) {
+            try {
+                int classIdInt = Integer.parseInt(classId);
+                Classes classInfo = classService.getClassById(classIdInt);
+                if (classInfo != null) {
+                    model.addAttribute("allEnrollment", enrollService.getEnrollmentsByClassId(classIdInt));
+                    model.addAttribute("allAssessment", assessService.getAssessmentsByCourseId(classInfo.getCourse().getId()));
+                } else {
+                    model.addAttribute("allEnrollment", enrollService.getAllEnrollments());
+                    model.addAttribute("allAssessment", assessService.getAllAssessments());
+                }
+            } catch (NumberFormatException ignored) {
+                model.addAttribute("allEnrollment", enrollService.getAllEnrollments());
+                model.addAttribute("allAssessment", assessService.getAllAssessments());
+            }
+        } else {
+            model.addAttribute("allEnrollment", enrollService.getAllEnrollments());
+            model.addAttribute("allAssessment", assessService.getAllAssessments());
+        }
 
         if (enrollIdParam != null && !enrollIdParam.isEmpty()) {
             try {
@@ -69,50 +89,73 @@ public class MarkController {
             }
         }
 
-        model.addAttribute("home_view", "createMark.html");
+        Object error = session.getAttribute("error");
+        if (error != null) {
+            model.addAttribute("error", error);
+            session.removeAttribute("error");
+        }
+
+        model.addAttribute("home_view", "mark/createMark.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=edit")
+    @PreAuthorize("hasAnyRole('admin', 'lecturer')")
+    @GetMapping("/edit")
     public String showEdit(
             @RequestParam(name = "classId", required = false) String classId,
             @RequestParam(name = "enrollId") String enrollIdParam,
             @RequestParam(name = "assessmentId") String assessIdParam,
-            Model model) {
+            Model model,
+            HttpSession session) {
         try {
             int enrollId = Integer.parseInt(enrollIdParam);
             int assessmentId = Integer.parseInt(assessIdParam);
             Mark mark = markService.getMarkById(enrollId, assessmentId);
+            if (mark == null) {
+                session.setAttribute("error", "Mark not found.");
+                return classId != null && !classId.isEmpty()
+                        ? "redirect:/mark/viewByClass?classId=" + classId
+                        : "redirect:/classes";
+            }
             model.addAttribute("mark", mark);
             model.addAttribute("classId", classId);
-            model.addAttribute("home_view", "editMark.html");
+            model.addAttribute("home_view", "mark/editMark.html");
             return "dashboard";
         } catch (Exception e) {
             return "redirect:/classes";
         }
     }
 
-    @GetMapping(params = "action=delete")
+    @PreAuthorize("hasAnyRole('admin', 'lecturer')")
+    @GetMapping("/delete")
     public String showDelete(
             @RequestParam(name = "classId", required = false) String classId,
             @RequestParam(name = "enrollId") String enrollIdParam,
             @RequestParam(name = "assessmentId") String assessIdParam,
-            Model model) {
+            Model model,
+            HttpSession session) {
         try {
             int enrollIdDelete = Integer.parseInt(enrollIdParam);
             int assessmentIdDelete = Integer.parseInt(assessIdParam);
             Mark markDelete = markService.getMarkById(enrollIdDelete, assessmentIdDelete);
+            if (markDelete == null) {
+                session.setAttribute("error", "Mark not found.");
+                return classId != null && !classId.isEmpty()
+                        ? "redirect:/mark/viewByClass?classId=" + classId
+                        : "redirect:/classes";
+            }
             model.addAttribute("mark", markDelete);
             model.addAttribute("classId", classId);
-            model.addAttribute("home_view", "deleteMark.html");
+            model.addAttribute("home_view", "mark/deleteMark.html");
             return "dashboard";
         } catch (Exception e) {
             return "redirect:/classes";
         }
     }
 
-    @GetMapping(params = "action=viewByClass")
-    public String viewByClass(@RequestParam(name = "classId") String classId, Model model) {
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff', 'lecturer')")
+    @GetMapping("/viewByClass")
+    public String viewByClass(@RequestParam(name = "classId") String classId, Model model, HttpSession session) {
         try {
             int vClassId = Integer.parseInt(classId);
             Classes classInfo = classService.getClassById(vClassId);
@@ -122,24 +165,36 @@ public class MarkController {
 
             List<Student> studentList = classService.getStudentsByClassId(vClassId);
             List<Assessment> assessmentList = assessService.getAssessmentsByCourseId(classInfo.getCourse().getId());
-            Map<String, Mark> marksMap = markService.getMarksMapForClass(vClassId);
             Map<Integer, Integer> studentEnrollMap = enrollService.getStudentEnrollmentMap(vClassId);
+            Map<Integer, Map<Integer, Mark>> marksByStudentAssessment = markService.getMarksByStudentAndAssessmentForClass(vClassId);
+
+            Object success = session.getAttribute("success");
+            Object error = session.getAttribute("error");
+            if (success != null) {
+                model.addAttribute("success", success);
+                session.removeAttribute("success");
+            }
+            if (error != null) {
+                model.addAttribute("error", error);
+                session.removeAttribute("error");
+            }
 
             model.addAttribute("classInfo", classInfo);
             model.addAttribute("studentList", studentList);
             model.addAttribute("assessmentList", assessmentList);
-            model.addAttribute("marksMap", marksMap);
             model.addAttribute("studentEnrollMap", studentEnrollMap);
-            model.addAttribute("home_view", "viewClassMarks.html");
+            model.addAttribute("marksByStudentAssessment", marksByStudentAssessment);
+            model.addAttribute("home_view", "mark/viewClassMarks.html");
             return "dashboard";
         } catch (Exception e) {
             return "redirect:/classes";
         }
     }
 
-    @PostMapping(params = "action=create")
+    @PreAuthorize("hasAnyRole('admin', 'lecturer')")
+    @PostMapping("/create")
     public String create(@ModelAttribute("markForm") MarkForm form, HttpSession session) {
-        String redirectURL = "redirect:/mark?action=viewByClass&classId=" + (form.getClassId() == null ? "" : form.getClassId());
+        String redirectURL = "redirect:/mark/viewByClass?classId=" + (form.getClassId() == null ? "" : form.getClassId());
         try {
             int enrollId = Integer.parseInt(form.getEnrollId());
             int assessmentId = Integer.parseInt(form.getAssessmentId());
@@ -147,11 +202,13 @@ public class MarkController {
 
             if (markService.markExists(enrollId, assessmentId)) {
                 session.setAttribute("error", "Mark already exists for this enrollment and assessment!");
-                String createUrl = "redirect:/mark?action=create";
+                String createUrl = "redirect:/mark/create";
                 if (form.getClassId() != null && !form.getClassId().isEmpty()) {
-                    createUrl += "&classId=" + form.getClassId();
+                    createUrl += "?classId=" + form.getClassId();
+                    createUrl += "&enrollId=" + enrollId + "&assessmentId=" + assessmentId;
+                } else {
+                    createUrl += "?enrollId=" + enrollId + "&assessmentId=" + assessmentId;
                 }
-                createUrl += "&enrollId=" + enrollId + "&assessmentId=" + assessmentId;
                 return createUrl;
             }
 
@@ -163,9 +220,10 @@ public class MarkController {
         return redirectURL;
     }
 
-    @PostMapping(params = "action=edit")
+    @PreAuthorize("hasAnyRole('admin', 'lecturer')")
+    @PostMapping("/edit")
     public String edit(@ModelAttribute("markForm") MarkForm form, HttpSession session) {
-        String redirectURL = "redirect:/mark?action=viewByClass&classId=" + (form.getClassId() == null ? "" : form.getClassId());
+        String redirectURL = "redirect:/mark/viewByClass?classId=" + (form.getClassId() == null ? "" : form.getClassId());
         try {
             int enrollIdEdit = Integer.parseInt(form.getEnrollId());
             int assessmentIdEdit = Integer.parseInt(form.getAssessmentId());
@@ -179,9 +237,10 @@ public class MarkController {
         return redirectURL;
     }
 
-    @PostMapping(params = "action=delete")
+    @PreAuthorize("hasAnyRole('admin', 'lecturer')")
+    @PostMapping("/delete")
     public String delete(@ModelAttribute("markForm") MarkForm form, HttpSession session) {
-        String redirectURL = "redirect:/mark?action=viewByClass&classId=" + (form.getClassId() == null ? "" : form.getClassId());
+        String redirectURL = "redirect:/mark/viewByClass?classId=" + (form.getClassId() == null ? "" : form.getClassId());
         try {
             int enrollIdDelete = Integer.parseInt(form.getEnrollId());
             int assessmentIdDelete = Integer.parseInt(form.getAssessmentId());
@@ -210,4 +269,3 @@ public class MarkController {
         public void setMark(String mark) { this.mark = mark; }
     }
 }
-

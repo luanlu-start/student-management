@@ -2,7 +2,6 @@ package vn.edu.fpt.app.service;
 
 import vn.edu.fpt.app.entities.Semester;
 import vn.edu.fpt.app.repository.SemesterRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,8 +10,11 @@ import java.util.List;
 @Service
 public class SemesterService {
 
-    @Autowired
-    private SemesterRepository semesterRepository;
+    private final SemesterRepository semesterRepository;
+
+    public SemesterService(SemesterRepository semesterRepository) {
+        this.semesterRepository = semesterRepository;
+    }
 
     public List<Semester> getAllSemesters() {
         return semesterRepository.findAll();
@@ -57,5 +59,3 @@ public class SemesterService {
         }
     }
 }
-
-

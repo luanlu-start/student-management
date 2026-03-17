@@ -12,7 +12,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,11 +27,11 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/semester")
+@PreAuthorize("hasAnyRole('admin', 'academic_staff')")
 public class SemesterController {
 
     private final SemesterService semesterService;
 
-    @Autowired
     public SemesterController(SemesterService semesterService) {
         this.semesterService = semesterService;
     }
@@ -41,31 +41,31 @@ public class SemesterController {
         List<Semester> sesList = semesterService.getAllSemesters();
         model.addAttribute("totalSemester", sesList.size());
         model.addAttribute("semesterList", sesList);
-        model.addAttribute("home_view", "semester.html");
+        model.addAttribute("home_view", "semester/semester.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=edit")
+    @GetMapping("/edit")
     public String showEdit(@RequestParam(name = "sesID") Integer sesId, Model model) {
         model.addAttribute("editSemester", semesterService.getSemesterById(sesId));
-        model.addAttribute("home_view", "editSemester.html");
+        model.addAttribute("home_view", "semester/editSemester.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=delete")
+    @GetMapping("/delete")
     public String showDelete(@RequestParam(name = "sesID") Integer sesId, Model model) {
         model.addAttribute("delSemester", semesterService.getSemesterById(sesId));
-        model.addAttribute("home_view", "deleteSemester.html");
+        model.addAttribute("home_view", "semester/deleteSemester.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=add")
+    @GetMapping("/add")
     public String showCreate(Model model) {
-        model.addAttribute("home_view", "createSemester.html");
+        model.addAttribute("home_view", "semester/createSemester.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=edit")
+    @PostMapping("/edit")
     public String edit(@ModelAttribute("semesterForm") SemesterForm form, HttpSession session, Model model) {
         if (form.getSemesterID() == null || form.getSemesterCode() == null || form.getSemesterYear() == null || form.getSemesterBegin() == null || form.getSemesterEnd() == null) {
             return "redirect:/semester";
@@ -82,11 +82,11 @@ public class SemesterController {
         }
         model.addAttribute("ErrorMsg", "Fail to update semester!");
         model.addAttribute("editSemester", semesterService.getSemesterById(form.getSemesterID()));
-        model.addAttribute("home_view", "semester.html");
+        model.addAttribute("home_view", "semester/semester.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=delete")
+    @PostMapping("/delete")
     public String delete(@ModelAttribute("semesterForm") SemesterForm form, HttpSession session) {
         if (form.getSemesterID() == null) {
             return "redirect:/semester";
@@ -97,7 +97,7 @@ public class SemesterController {
         return "redirect:/semester";
     }
 
-    @PostMapping(params = "action=add")
+    @PostMapping("/add")
     public String add(@ModelAttribute("semesterForm") SemesterForm form, HttpSession session, Model model) {
         String prefix = trimOrEmpty(form.getCodePrefix());
         String yearStr = trimOrEmpty(form.getSemesterYear() == null ? null : String.valueOf(form.getSemesterYear()));
@@ -106,7 +106,7 @@ public class SemesterController {
 
         if (prefix.isEmpty() || yearStr.isEmpty() || beginStr.isEmpty() || endStr.isEmpty()) {
             model.addAttribute("ErrorMsg", "Please fill all required fields.");
-            model.addAttribute("home_view", "createSemester.html");
+            model.addAttribute("home_view", "semester/createSemester.html");
             return "dashboard";
         }
 
@@ -118,7 +118,7 @@ public class SemesterController {
             }
         } catch (NumberFormatException ex) {
             model.addAttribute("ErrorMsg", "Year must be a valid number (1997-2100).");
-            model.addAttribute("home_view", "createSemester.html");
+            model.addAttribute("home_view", "semester/createSemester.html");
             return "dashboard";
         }
 
@@ -129,7 +129,7 @@ public class SemesterController {
             ne = normalizeDateOrThrow(year, endStr);
         } catch (IllegalArgumentException ex) {
             model.addAttribute("ErrorMsg", "Dates must be in MM-DD or YYYY-MM-DD (e.g. 05-10 or 2025-05-10).");
-            model.addAttribute("home_view", "createSemester.html");
+            model.addAttribute("home_view", "semester/createSemester.html");
             return "dashboard";
         }
 
@@ -140,13 +140,13 @@ public class SemesterController {
             endDate = Date.valueOf(ne);
         } catch (IllegalArgumentException ex) {
             model.addAttribute("ErrorMsg", "Invalid date value. Use YYYY-MM-DD (e.g. 2025-05-10).");
-            model.addAttribute("home_view", "createSemester.html");
+            model.addAttribute("home_view", "semester/createSemester.html");
             return "dashboard";
         }
 
         if (endDate.before(beginDate)) {
             model.addAttribute("ErrorMsg", "End date must be after begin date!");
-            model.addAttribute("home_view", "createSemester.html");
+            model.addAttribute("home_view", "semester/createSemester.html");
             return "dashboard";
         }
 
@@ -156,14 +156,14 @@ public class SemesterController {
 
         if (beginLD.isBefore(win[0]) || endLD.isAfter(win[1])) {
             model.addAttribute("ErrorMsg", "Dates must fall within the " + prefix + " window (" + win[0] + " to " + win[1] + ").");
-            model.addAttribute("home_view", "createSemester.html");
+            model.addAttribute("home_view", "semester/createSemester.html");
             return "dashboard";
         }
 
         long days = ChronoUnit.DAYS.between(beginLD, endLD) + 1;
         if (days < 90) {
             model.addAttribute("ErrorMsg", "A semester must be at least 90 days.");
-            model.addAttribute("home_view", "createSemester.html");
+            model.addAttribute("home_view", "semester/createSemester.html");
             return "dashboard";
         }
 
@@ -251,5 +251,3 @@ public class SemesterController {
     }
 
 }
-
-

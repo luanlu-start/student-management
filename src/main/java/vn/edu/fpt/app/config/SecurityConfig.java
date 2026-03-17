@@ -1,23 +1,25 @@
 package vn.edu.fpt.app.config;
 
-import vn.edu.fpt.app.entities.User;
-import vn.edu.fpt.app.repository.UserRepository;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import vn.edu.fpt.app.entities.User;
+import vn.edu.fpt.app.repository.UserRepository;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
-@ComponentScan(value = {"vn.edu.fpt.app.controller", "vn.edu.fpt.app.entities", "vn.edu.fpt.app.repository","vn.edu.fpt.app.service"})
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final UserRepository userRepository;
@@ -28,87 +30,70 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence rawPassword) {
-                try {
-                    MessageDigest md = MessageDigest.getInstance("MD5");
-                    byte[] digest = md.digest(rawPassword.toString().getBytes(StandardCharsets.UTF_8));
-                    StringBuilder sb = new StringBuilder();
-                    for (byte b : digest) {
-                        sb.append(String.format("%02x", b));
-                    }
-                    return sb.toString();
-                } catch (Exception e) {
-                    throw new IllegalStateException("Cannot hash password", e);
-                }
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return encode(rawPassword).equalsIgnoreCase(encodedPassword);
-            }
-        };
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+            User user = userRepository.findByUsername(username).orElse(null);
+            if (user == null) {
+                throw new UsernameNotFoundException("User not found");
+            }
 
-            String normalizedRole = user.getRole() == null ? "USER" : user.getRole().trim().toUpperCase();
-            return org.springframework.security.core.userdetails.User
-                    .withUsername(user.getUsername())
-                    .password(user.getPassword())
-                    .roles(normalizedRole)
-                    .build();
+            String role = user.getRole() == null ? "" : user.getRole().trim().toLowerCase().replace(' ', '_');
+            if ("teacher".equals(role)) {
+                role = "lecturer"; // Backward-compat with existing data
+            }
+
+            return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+            );
         };
     }
 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return provider;
-    }
+//    @Bean
+//    public AuthenticationManager authenticationManager(
+//            AuthenticationConfiguration authConfig
+//    ) throws Exception {
+//        return authConfig.getAuthenticationManager();
+//    }
 
+    // FilterChain (lọc request)
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authenticationProvider(authenticationProvider(userDetailsService(), passwordEncoder()))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .csrf(Customizer.withDefaults())
+                .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                "/login",
-                                "/error",
-                                "/favicon.ico")
-                        .permitAll()
-                        .requestMatchers(
-                                "/assets/**",
-                                "/static/**",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**")
-                        .permitAll()
-                        .requestMatchers("/user/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
+                            "/login", "/logout", "/error", "/css/**", "/js/**", "/assets/**", "/static/**"
+                        ).permitAll() // permitAll = cho phép công cộng
+                        .requestMatchers("/", "/home").authenticated() // Trang chủ cho tất cả role đã xác thực
+                        .anyRequest().authenticated() // anyReq = tất cả các request còn lại, buộc phải xác thực
+                )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/home", true)
-                        .failureUrl("/login?error")
-                        .permitAll())
+                        .usernameParameter("username")
+                        .successHandler((request, response, authentication) -> {
+                            userRepository.findByUsername(authentication.getName())
+                                    .ifPresent(user -> request.getSession().setAttribute("user", user));
+                            response.sendRedirect("/home");
+                        })
+                        .failureUrl("/login?message=true")
+                        .permitAll()
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .permitAll());
+                        .clearAuthentication(true)
+                        .permitAll()
+                )
+                .build();
 
-        return http.build();
+
     }
 }
-
-
