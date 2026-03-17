@@ -4,6 +4,7 @@
  */
 package vn.edu.fpt.app.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import vn.edu.fpt.app.entities.Course;
 import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.entities.Enrollment;
@@ -13,7 +14,7 @@ import vn.edu.fpt.app.service.DepartmentService;
 import vn.edu.fpt.app.service.EnrollmentService;
 import vn.edu.fpt.app.service.StudentService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -35,7 +36,6 @@ public class CourseController {
     private final EnrollmentService enrService;
     private final DepartmentService depService;
 
-    @Autowired
     public CourseController(
             CourseService courseService,
             StudentService stuService,
@@ -47,43 +47,92 @@ public class CourseController {
         this.depService = depService;
     }
 
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @GetMapping
-    public String list(Model model) {
-        List<Course> listCourse = courseService.getAllCourses();
+    public String list(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "departmentCode", required = false) String departmentCode,
+            Model model) {
+        List<Course> allCourses = courseService.getAllCourses();
         List<Student> studentList = stuService.getAllStudents();
         List<Enrollment> enrollList = enrService.getAllEnrollments();
 
-        model.addAttribute("totalCourses", listCourse.size());
+        String normalizedKeyword = keyword == null ? "" : keyword.trim().toLowerCase();
+        String normalizedDepartmentCode = departmentCode == null ? "" : departmentCode.trim();
+        if ("all".equalsIgnoreCase(normalizedDepartmentCode)) {
+            normalizedDepartmentCode = "";
+        }
+        final String filterKeyword = normalizedKeyword;
+        final String filterDepartmentCode = normalizedDepartmentCode;
+
+        List<Course> filteredCourses = allCourses.stream()
+                .filter(course -> {
+                    if (filterKeyword.isEmpty()) {
+                        return true;
+                    }
+                    String code = course.getCode() == null ? "" : course.getCode().toLowerCase();
+                    String title = course.getTitle() == null ? "" : course.getTitle().toLowerCase();
+                    return code.contains(filterKeyword) || title.contains(filterKeyword);
+                })
+                .filter(course -> {
+                    if (filterDepartmentCode.isEmpty()) {
+                        return true;
+                    }
+                    return course.getDepartment() != null
+                            && course.getDepartment().getCode() != null
+                            && filterDepartmentCode.equalsIgnoreCase(course.getDepartment().getCode());
+                })
+                .toList();
+
+        model.addAttribute("totalCourses", allCourses.size());
         model.addAttribute("totalStudents", studentList.size());
         model.addAttribute("totalEnrolls", enrollList.size());
-        model.addAttribute("listCourse", listCourse);
-        model.addAttribute("home_view", "course.html");
+        model.addAttribute("listCourse", filteredCourses);
+        model.addAttribute("listDepartment", depService.getAllDepartments());
+        model.addAttribute("keyword", keyword == null ? "" : keyword.trim());
+        model.addAttribute("departmentCode", normalizedDepartmentCode);
+        model.addAttribute("home_view", "course/course.html");
         return "dashboard";
     }
 
 
-    @GetMapping(params = "action=create")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @GetMapping("/create")
     public String showCreate(Model model) {
         model.addAttribute("listDepartment", depService.getAllDepartments());
-        model.addAttribute("home_view", "createCourse.html");
+        model.addAttribute("home_view", "course/createCourse.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=update")
-    public String showUpdate(@RequestParam(name = "id") Integer id, Model model) {
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @GetMapping("/update")
+    public String showUpdate(
+            @RequestParam(name = "id") Integer id,
+            @RequestParam(name = "error", required = false) String error,
+            Model model) {
         model.addAttribute("course", courseService.getCourseById(id));
-        model.addAttribute("home_view", "editCourse.html");
+        model.addAttribute("listDepartment", depService.getAllDepartments());
+
+        if ("department".equalsIgnoreCase(error)) {
+            model.addAttribute("errorMsg", "Department code is invalid. Please choose an existing department.");
+        } else if ("update".equalsIgnoreCase(error)) {
+            model.addAttribute("errorMsg", "Failed to update course. Please try again.");
+        }
+
+        model.addAttribute("home_view", "course/editCourse.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=delete")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @GetMapping("/delete")
     public String showDelete(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("course", courseService.getCourseById(id));
-        model.addAttribute("home_view", "deleteCourse.html");
+        model.addAttribute("home_view", "course/deleteCourse.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=create")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/create")
     public String create(@ModelAttribute("course") CourseForm form) {
         if (form.getCode() == null || form.getTitle() == null || form.getCredits() == null || form.getDepartmentCode() == null) {
             return "redirect:/course";
@@ -95,19 +144,32 @@ public class CourseController {
         return "redirect:/course";
     }
 
-    @PostMapping(params = "action=update")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/update")
     public String update(@ModelAttribute("course") CourseForm form) {
         if (form.getId() == null || form.getCode() == null || form.getTitle() == null || form.getCredits() == null || form.getDepartmentCode() == null) {
             return "redirect:/course";
         }
-        Department d = new Department();
-        d.setCode(form.getDepartmentCode());
+
+        String departmentCode = form.getDepartmentCode().trim();
+        Department d = depService.getDepartmentByCode(departmentCode);
+        if (d == null) {
+            return "redirect:/course/update?id=" + form.getId() + "&error=department";
+        }
+
         Course updated = new Course(form.getId(), form.getCode(), form.getTitle(), form.getCredits(), d);
-        courseService.updateCourse(updated);
-        return "redirect:/course";
+        try {
+            courseService.updateCourse(updated);
+            return "redirect:/course";
+        } catch (DataIntegrityViolationException e) {
+            return "redirect:/course/update?id=" + form.getId() + "&error=department";
+        } catch (Exception e) {
+            return "redirect:/course/update?id=" + form.getId() + "&error=update";
+        }
     }
 
-    @PostMapping(params = "action=delete")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/delete")
     public String delete(@ModelAttribute("course") CourseForm form) {
         if (form.getId() != null) {
             courseService.deleteCourse(form.getId());
@@ -134,5 +196,3 @@ public class CourseController {
         public void setDepartmentCode(String departmentCode) { this.departmentCode = departmentCode; }
     }
 }
-
-

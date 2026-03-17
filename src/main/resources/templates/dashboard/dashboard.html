@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href='https://unpkg.com/boxicons@latest/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" th:href="@{/assets/css/dashboard.css}" href="dashboard.css" />
+        <title>Uni System</title>
+    </head>
+    <body>
+        <!-- SIDEBAR -->
+        <section id="sidebar">
+            <a th:href="@{/home}" href="home" class="brand">
+                <i>
+                    <img class="admin-logo" th:src="@{/assets/pictures/adminLogo.png}" src="adminLogo.png" alt=""/>
+                </i> Uni System
+            </a>
+            <ul class="side-menu" th:with="r=${session.user != null ? #strings.toLowerCase(#strings.replace(session.user.role,' ','_')) : ''}">
+                <li>
+                    <a th:href="@{/home}" href="home" class="active">
+                        <i class="bx bxs-dashboard icon"></i> Dashboard
+                    </a>
+                </li>
+
+                <li class="divider" data-text="Academic"></li>
+
+                <li th:if="${r == 'admin' or r == 'academic_staff'}">
+                    <a href="#">
+                        <i class='bx bxs-user-account icon'></i> 
+                        Lecturers
+                        <i class="bx bx-chevron-right icon-right"></i>
+                    </a>
+                    <ul class="side-dropdown">
+                        <li><a th:href="@{/lecturer}" href="/lecturer">All Lecturers</a></li>
+                        <li><a th:href="@{/lecturer/add}" href="/lecturer/add">Add Lecturer</a></li>
+                    </ul>
+                </li>
+
+                <li th:if="${r == 'admin' or r == 'academic_staff'}">
+                    <a href="#">
+                        <i class='bx bxs-group icon'></i> Students
+                        <i class="bx bx-chevron-right icon-right"></i>
+                    </a>
+                    <ul class="side-dropdown">
+                        <li><a th:href="@{/student}" href="/student">All Students</a></li>
+                        <li><a th:href="@{/student/add}" href="/student/add">Add Student</a></li>
+                    </ul>
+                </li>
+
+                <li th:if="${r == 'admin' or r == 'academic_staff'}">
+                    <a href="#">
+                        <i class='bx bxs-book-open icon'></i> Courses
+                        <i class="bx bx-chevron-right icon-right"></i>
+                    </a>
+                    <ul class="side-dropdown">
+                        <li><a th:href="@{/course}" href="/course">All Courses</a></li>
+                    </ul>
+                </li>
+
+                <li th:if="${r == 'admin' or r == 'academic_staff' or r == 'lecturer' or r == 'teacher'}">
+                    <a href="#">
+                        <i class='bx bxs-calendar-event icon'></i>Class
+                        <i class="bx bx-chevron-right icon-right"></i>
+                    </a>
+                    <ul class="side-dropdown">
+                        <li><a th:href="@{/classes}" href="/classes">All Classes</a></li>
+                    </ul>
+                </li>
+
+                <li th:if="${r == 'admin' or r == 'academic_staff'}">
+                    <a href="#">
+                        <i class='bx bxs-building-house icon'></i> Departments
+                        <i class="bx bx-chevron-right icon-right"></i>
+                    </a>
+                    <ul class="side-dropdown">
+                        <li><a th:href="@{/department}" href="/department">All Departments</a></li>
+                    </ul>
+                </li>
+
+                <li th:if="${r == 'admin' or r == 'academic_staff'}">
+                    <a href="#">
+                        <i class='bx bxs-notepad icon'></i> Assessments
+                        <i class="bx bx-chevron-right icon-right"></i>
+                    </a>
+                    <ul class="side-dropdown">
+                        <li><a th:href="@{/assessment}" href="/assessment">All Assessments</a></li>
+                    </ul>
+                </li>
+
+                <li th:if="${r == 'admin' or r == 'academic_staff'}">
+                    <a href="#">
+                        <i class='bx bxs-calendar icon'></i> Semesters
+                        <i class="bx bx-chevron-right icon-right"></i>
+                    </a>
+                    <ul class="side-dropdown">
+                        <li><a th:href="@{/semester}" href="/semester">All Semesters</a></li>
+                    </ul>
+                </li>
+
+
+                <li class="divider" data-text="Administrator" th:if="${r == 'admin' or r == 'academic_staff'}"></li>
+
+                <li th:if="${r == 'admin' or r == 'academic_staff'}">
+                    <a>
+                        <i class='bx bx-user icon'></i> User
+                        <i class="bx bx-chevron-right icon-right"></i>
+                    </a>
+                    <ul class="side-dropdown">
+                        <li><a th:href="@{/user}" href="/user">All User</a></li>
+                    </ul>
+                </li>
+
+                <li class="logout-bottom">
+                    <a th:href="@{/logout}" href="/logout" class="logout">
+                        <i class='bx bx-log-out icon'></i>
+                        Log Out
+                    </a>
+                </li>
+
+            </ul>
+        </section>
+        <!-- SIDEBAR -->
+
+        <!-- NAVBAR -->
+        <section id="content">
+            <nav>
+                <i class="bx bx-menu toggle-sidebar"></i>
+                <form action="#">
+                    <div class="form-group">
+                        <input type="text" placeholder="Search..." />
+                        <i class="bx bx-search icon"></i>
+                    </div>
+                </form>
+                <span class="divider"></span>
+                <div class="profile">
+                    <div class="avatar">
+                        <span th:text="${session.user != null ? #strings.substring(session.user.username,0,1) : 'U'}">U</span>
+                    </div>
+                    <span class="profile-name" th:text="${session.user != null ? session.user.username : 'User'}">User</span>
+                    <i class='bx bx-chevron-down arrow'></i>
+
+                    <ul class="profile-link">
+                        <li>
+                            <a href="#"><i class="bx bxs-user-circle icon"></i> Profile</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="bx bxs-cog icon"></i> Settings</a>
+                        </li>
+
+                        <li>
+                            <a th:href="@{/logout}" href="logout" class="logout"><i class='bx bx-log-out icon'></i> Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- NAVBAR -->
+
+            <!-- MAIN -->
+            <main id="dashboard-main" style="height: 88vh"> 
+                <th:block th:if="${home_view != null}">
+                    <th:block th:replace="~{${#strings.replace(home_view, '.jsp', '')}}"></th:block>
+                </th:block>
+
+            </main>
+            <!-- MAIN -->
+        </section>
+
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script th:src="@{/assets/js/dashboard.js}" src="../../static/assets/js/dashboard.js" type="text/javascript"></script>
+        <script th:src="@{/assets/js/client-filters.js}" src="../../static/assets/js/client-filters.js" type="text/javascript"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var alerts = document.querySelectorAll('.alert');
+                if (!alerts.length) {
+                    return;
+                }
+
+                alerts.forEach(function (alert) {
+                    setTimeout(function () {
+                        alert.style.transition = 'opacity 0.3s ease';
+                        alert.style.opacity = '0';
+                        setTimeout(function () {
+                            if (alert.parentNode) {
+                                alert.parentNode.removeChild(alert);
+                            }
+                        }, 300);
+                    }, 2000);
+                });
+            });
+        </script>
+
+    </body>
+</html>

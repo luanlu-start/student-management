@@ -18,6 +18,7 @@ import vn.edu.fpt.app.service.SemesterService;
 import vn.edu.fpt.app.service.StudentService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,6 +56,7 @@ public class HomeController {
     /**
      * Render dashboard home page with summary counters.
      */
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff', 'lecturer')")
     @GetMapping("/home")
     public String home(Model model) {
 
@@ -75,9 +77,8 @@ public class HomeController {
         model.addAttribute("listCourse", listCourse);
         model.addAttribute("Studentlist", studentList);
         model.addAttribute("semesterList", semesterList);
-        model.addAttribute("home_view", "home");
-        return "dashboard";
+        model.addAttribute("home_view", "home/home");
+        return "dashboard/dashboard";
     }
 
 }
-

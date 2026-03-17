@@ -2,7 +2,6 @@ package vn.edu.fpt.app.service;
 
 import vn.edu.fpt.app.entities.Student;
 import vn.edu.fpt.app.repository.StudentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,8 +10,11 @@ import java.util.List;
 @Service
 public class StudentService {
 
-    @Autowired
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
+
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
@@ -72,5 +74,3 @@ public class StudentService {
         return studentRepository.findByDepartment_CodeAndNameContainingIgnoreCase(departmentCode, name);
     }
 }
-
-

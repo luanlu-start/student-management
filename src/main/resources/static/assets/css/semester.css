@@ -1,0 +1,14 @@
+.semester-actions {
+    margin-left: 0;
+    justify-content: center;
+}
+
+.table-container table td:last-child,
+.table-container table th:last-child {
+    text-align: center;
+}
+
+.table-container .search-wrapper input {
+    min-width: 240px;
+}
+

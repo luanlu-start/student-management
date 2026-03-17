@@ -5,9 +5,6 @@ import vn.edu.fpt.app.entities.Enrollment;
 import vn.edu.fpt.app.entities.Mark;
 import vn.edu.fpt.app.entities.MarkId;
 import vn.edu.fpt.app.repository.MarkRepository;
-import vn.edu.fpt.app.service.AssessmentService;
-import vn.edu.fpt.app.service.EnrollmentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,14 +15,15 @@ import java.util.Map;
 @Service
 public class MarkService {
 
-    @Autowired
-    private MarkRepository markRepository;
+    private final MarkRepository markRepository;
+    private final EnrollmentService enrollmentService;
+    private final AssessmentService assessmentService;
 
-    @Autowired
-    private EnrollmentService enrollmentService;
-
-    @Autowired
-    private AssessmentService assessmentService;
+    public MarkService(MarkRepository markRepository, EnrollmentService enrollmentService, AssessmentService assessmentService) {
+        this.markRepository = markRepository;
+        this.enrollmentService = enrollmentService;
+        this.assessmentService = assessmentService;
+    }
 
     public List<Mark> getAllMarks() {
         return markRepository.findAll();
@@ -104,18 +102,30 @@ public class MarkService {
     }
 
     /**
-     * Tráº£ vá» Map<"studentId_assessmentId", Mark> cho má»™t lá»›p há»c.
-     * DÃ¹ng Ä‘á»ƒ hiá»ƒn thá»‹ báº£ng Ä‘iá»ƒm nhanh trÃªn UI.
+     * Returns Map<"enrollId_assessmentId", Mark> for one class.
      */
     public Map<String, Mark> getMarksMapForClass(int classId) {
         Map<String, Mark> marksMap = new HashMap<>();
         markRepository.findByClassId(classId).forEach(m -> {
-            int studentId = m.getEnrollment().getStudent().getId();
+            int enrollId = m.getEnrollment().getId();
             int assessmentId = m.getAssessment().getId();
-            marksMap.put(studentId + "_" + assessmentId, m);
+            marksMap.put(enrollId + "_" + assessmentId, m);
         });
         return marksMap;
     }
+
+    /**
+     * Returns Map<studentId, Map<assessmentId, Mark>> for one class.
+     */
+    public Map<Integer, Map<Integer, Mark>> getMarksByStudentAndAssessmentForClass(int classId) {
+        Map<Integer, Map<Integer, Mark>> marksByStudentAssessment = new HashMap<>();
+        markRepository.findByClassId(classId).forEach(mark -> {
+            int studentId = mark.getEnrollment().getStudent().getId();
+            int assessmentId = mark.getAssessment().getId();
+            marksByStudentAssessment
+                    .computeIfAbsent(studentId, ignored -> new HashMap<>())
+                    .put(assessmentId, mark);
+        });
+        return marksByStudentAssessment;
+    }
 }
-
-

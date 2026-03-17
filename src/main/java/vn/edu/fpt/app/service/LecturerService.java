@@ -2,7 +2,6 @@ package vn.edu.fpt.app.service;
 
 import vn.edu.fpt.app.entities.Lecturer;
 import vn.edu.fpt.app.repository.LecturerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,8 +10,11 @@ import java.util.List;
 @Service
 public class LecturerService {
 
-    @Autowired
-    private LecturerRepository lecturerRepository;
+    private final LecturerRepository lecturerRepository;
+
+    public LecturerService(LecturerRepository lecturerRepository) {
+        this.lecturerRepository = lecturerRepository;
+    }
 
     public List<Lecturer> getAllLecturers() {
         return lecturerRepository.findAll();
@@ -72,5 +74,3 @@ public class LecturerService {
         return lecturerRepository.findByDepartment_CodeAndNameContainingIgnoreCase(departmentCode, name);
     }
 }
-
-

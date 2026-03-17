@@ -4,7 +4,6 @@ import vn.edu.fpt.app.entities.Assessment;
 import vn.edu.fpt.app.entities.Course;
 import vn.edu.fpt.app.repository.AssessmentRepository;
 import vn.edu.fpt.app.service.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,11 +12,13 @@ import java.util.List;
 @Service
 public class AssessmentService {
 
-    @Autowired
-    private AssessmentRepository assessmentRepository;
+    private final AssessmentRepository assessmentRepository;
+    private final CourseService courseService;
 
-    @Autowired
-    private CourseService courseService;
+    public AssessmentService(AssessmentRepository assessmentRepository, CourseService courseService) {
+        this.assessmentRepository = assessmentRepository;
+        this.courseService = courseService;
+    }
 
     public List<Assessment> getAllAssessments() {
         return assessmentRepository.findAll();
@@ -74,5 +75,3 @@ public class AssessmentService {
         }
     }
 }
-
-

@@ -4,6 +4,7 @@
  */
 package vn.edu.fpt.app.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.entities.Student;
 import vn.edu.fpt.app.service.DepartmentService;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/student")
+@PreAuthorize("hasAnyRole('admin', 'academic_staff')")
 public class StudentController {
 
     private final StudentService studentService;
@@ -35,7 +37,7 @@ public class StudentController {
     }
 
     @GetMapping
-    public String list(@RequestParam(name = "i", required = false) String i, Model model) {
+    public String list(@RequestParam(name = "i", required = false) String i, Model model, HttpSession session) {
         int pagSize = 10;
         int pagIndex = 1;
 
@@ -55,45 +57,47 @@ public class StudentController {
         model.addAttribute("page", pagIndex);
         model.addAttribute("totalPage", (list.size() + pagSize - 1) / pagSize);
         model.addAttribute("listDepartmet", depService.getAllDepartments());
-        model.addAttribute("home_view", "student.html");
+        consumeMessage(session, model);
+        model.addAttribute("home_view", "student/student.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=edit")
+    @GetMapping("/edit")
     public String showEdit(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("departmentList", depService.getAllDepartments());
         model.addAttribute("student", studentService.getStudentById(id));
-        model.addAttribute("home_view", "editStudent.html");
+        model.addAttribute("home_view", "student/editStudent.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=delete")
+    @GetMapping("/delete")
     public String showDelete(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("student", studentService.getStudentById(id));
-        model.addAttribute("home_view", "deleteStudent.html");
+        model.addAttribute("home_view", "student/deleteStudent.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=add")
+    @GetMapping("/add")
     public String showAdd(Model model) {
         model.addAttribute("depList", depService.getAllDepartments());
-        model.addAttribute("home_view", "createStudent.html");
+        model.addAttribute("home_view", "student/createStudent.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=view")
+    @GetMapping("/view")
     public String showView(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("student", studentService.getStudentById(id));
-        model.addAttribute("home_view", "viewStudent.html");
+        model.addAttribute("home_view", "student/viewStudent.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=fillter")
+    @GetMapping("/fillter")
     public String filter(
             @RequestParam(name = "i", required = false) String i,
             @RequestParam(name = "nameStudent", required = false) String studentName,
             @RequestParam(name = "departmentname", required = false) String departmentName,
-            Model model) {
+            Model model,
+            HttpSession session) {
         int pagSize = 10;
         int pagIndex = 1;
         if (i != null) {
@@ -133,13 +137,17 @@ public class StudentController {
         model.addAttribute("totalPage", totalPageFilter);
         model.addAttribute("nameStudent", studentName);
         model.addAttribute("departmentname", departmentName);
-        model.addAttribute("home_view", "student.html");
+        consumeMessage(session, model);
+        model.addAttribute("home_view", "student/student.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=edit")
-    public String edit(@ModelAttribute("studentForm") StudentForm form, Model model) {
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/edit")
+    public String edit(@ModelAttribute("studentForm") StudentForm form, HttpSession session) {
         if (form.getStudentId() == null || form.getBirthday() == null) {
+            session.setAttribute("message", "Failed to update student!");
+            session.setAttribute("messageType", "error");
             return "redirect:/student";
         }
         Department department = depService.getDepartmentByCode(form.getDepCode());
@@ -156,15 +164,17 @@ public class StudentController {
         boolean update = studentService.updateStudent(updatedStudent);
 
         if (update) {
-            return "redirect:/student";
+            session.setAttribute("message", "Student updated successfully!");
+            session.setAttribute("messageType", "success");
+        } else {
+            session.setAttribute("message", "Failed to update student!");
+            session.setAttribute("messageType", "error");
         }
-        model.addAttribute("ErrorMsg", "Fail to update student!");
-        model.addAttribute("editStudent", studentService.getStudentById(form.getStudentId()));
-        model.addAttribute("home_view", "student.html");
-        return "dashboard";
+        return "redirect:/student";
     }
 
-    @PostMapping(params = "action=delete")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/delete")
     public String delete(@ModelAttribute("studentForm") StudentForm form, HttpSession session) {
         if (form.getStudentId() == null) {
             return "redirect:/student";
@@ -180,12 +190,17 @@ public class StudentController {
         return "redirect:/student";
     }
 
-    @PostMapping(params = "action=add")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/add")
     public String add(@ModelAttribute("studentForm") StudentForm form, HttpSession session) {
         if (form.getBirthdate() == null) {
             return "redirect:/student";
         }
-        Department department = depService.getDepartmentByCode(form.getDepartment());
+        String departmentCode = form.getDepCode();
+        if (departmentCode == null || departmentCode.trim().isEmpty()) {
+            departmentCode = form.getDepartment();
+        }
+        Department department = depService.getDepartmentByCode(departmentCode);
         Student newStudent = new Student(
                 form.getStudentName(),
                 Date.valueOf(form.getBirthdate()),
@@ -205,6 +220,18 @@ public class StudentController {
             session.setAttribute("messageType", "error");
         }
         return "redirect:/student";
+    }
+
+    private void consumeMessage(HttpSession session, Model model) {
+        Object message = session.getAttribute("message");
+        Object messageType = session.getAttribute("messageType");
+
+        if (message != null) {
+            model.addAttribute("message", message);
+            model.addAttribute("messageType", messageType != null ? messageType : "info");
+            session.removeAttribute("message");
+            session.removeAttribute("messageType");
+        }
     }
 
     public static class StudentForm {
@@ -259,5 +286,3 @@ public class StudentController {
         return list.subList(begin, end);
     }
 }
-
-

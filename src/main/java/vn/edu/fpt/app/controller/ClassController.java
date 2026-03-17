@@ -8,14 +8,14 @@ import vn.edu.fpt.app.entities.Classes;
 import vn.edu.fpt.app.entities.Course;
 import vn.edu.fpt.app.entities.Lecturer;
 import vn.edu.fpt.app.entities.Semester;
-import vn.edu.fpt.app.entities.Student;
+import vn.edu.fpt.app.entities.User;
 import vn.edu.fpt.app.service.ClassService;
 import vn.edu.fpt.app.service.CourseService;
 import vn.edu.fpt.app.service.LecturerService;
 import vn.edu.fpt.app.service.SemesterService;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -37,7 +37,6 @@ public class ClassController {
     private final LecturerService lecturerService;
     private final SemesterService semesterService;
 
-    @Autowired
     public ClassController(
             ClassService classService,
             CourseService courseService,
@@ -49,18 +48,22 @@ public class ClassController {
         this.semesterService = semesterService;
     }
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff', 'lecturer')")
     @GetMapping
-    public String list(Model model) {
-        List<Classes> classList = classService.getAllClasses();
+    public String list(Model model, HttpSession session) {
+        User loginUser = (User) session.getAttribute("user");
+        String role = loginUser != null && loginUser.getRole() != null
+                ? loginUser.getRole().trim().toLowerCase().replace(' ', '_')
+                : "";
+
+        List<Classes> classList;
+        if (("lecturer".equals(role) || "teacher".equals(role))
+                && loginUser != null && loginUser.getLecturer() != null) {
+            classList = classService.getClassesByLecturerId(loginUser.getLecturer().getId());
+        } else {
+            classList = classService.getAllClasses();
+        }
+
         List<Course> courseList = courseService.getAllCourses();
         List<Lecturer> lecturerList = lecturerService.getAllLecturers();
         List<Semester> semesterList = semesterService.getAllSemesters();
@@ -71,38 +74,54 @@ public class ClassController {
         model.addAttribute("listCourses", courseList);
         model.addAttribute("listLecturers", lecturerList);
         model.addAttribute("listSemesters", semesterList);
-        model.addAttribute("home_view", "class.html");
+        consumeMessage(session, model);
+        model.addAttribute("home_view", "class/class.html");
         return "dashboard";
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @GetMapping(params = "action=view")
-    public String view(@RequestParam(name = "id") Integer id, Model model) {
-        model.addAttribute("classInfo", classService.getClassById(id));
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff', 'lecturer')")
+    @GetMapping("/view")
+    public String view(@RequestParam(name = "id") Integer id, Model model, HttpSession session) {
+        Classes cls = classService.getClassById(id);
+        if (cls == null) {
+            return "redirect:/classes";
+        }
+
+        User loginUser = (User) session.getAttribute("user");
+        String role = loginUser != null && loginUser.getRole() != null
+                ? loginUser.getRole().trim().toLowerCase().replace(' ', '_')
+                : "";
+
+        if (("lecturer".equals(role) || "teacher".equals(role))
+                && (loginUser.getLecturer() == null
+                || cls.getLecturer() == null
+                || cls.getLecturer().getId() != loginUser.getLecturer().getId())) {
+            session.setAttribute("message", "You can only view classes assigned to you.");
+            session.setAttribute("messageType", "error");
+            return "redirect:/classes";
+        }
+
+        model.addAttribute("classInfo", cls);
         model.addAttribute("studentList", classService.getStudentsByClassId(id));
-        model.addAttribute("home_view", "viewClass.html");
+        consumeMessage(session, model);
+        model.addAttribute("home_view", "class/viewClass.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=delete")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @GetMapping("/delete")
     public String showDelete(@RequestParam(name = "id") Integer id, Model model) {
         Classes deleteClass = classService.getClassById(id);
         if (deleteClass == null) {
             return "redirect:/classes";
         }
         model.addAttribute("classInfo", deleteClass);
-        model.addAttribute("home_view", "deleteClass.html");
+        model.addAttribute("home_view", "class/deleteClass.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=edit")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @GetMapping("/edit")
     public String showEdit(@RequestParam(name = "id") Integer id, Model model) {
         Classes editClass = classService.getClassById(id);
         if (editClass == null) {
@@ -111,20 +130,22 @@ public class ClassController {
         model.addAttribute("classInfo", editClass);
         model.addAttribute("lecturerList", lecturerService.getAllLecturers());
         model.addAttribute("semesterList", semesterService.getAllSemesters());
-        model.addAttribute("home_view", "editClass.html");
+        model.addAttribute("home_view", "class/editClass.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=add")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @GetMapping("/add")
     public String showCreate(Model model) {
         model.addAttribute("listCourses", courseService.getAllCourses());
         model.addAttribute("listLecturers", lecturerService.getAllLecturers());
         model.addAttribute("listSemesters", semesterService.getAllSemesters());
-        model.addAttribute("home_view", "createClass.html");
+        model.addAttribute("home_view", "class/createClass.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=delete")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/delete")
     public String delete(@ModelAttribute("classForm") ClassForm form, HttpSession session) {
         try {
             if (form.getClassId() == null) {
@@ -140,7 +161,8 @@ public class ClassController {
         return "redirect:/classes";
     }
 
-    @PostMapping(params = "action=edit")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/edit")
     public String edit(@ModelAttribute("classForm") ClassForm form, HttpSession session) {
         try {
             if (form.getClassId() == null || form.getSemesterId() == null || form.getLecturerId() == null) {
@@ -161,7 +183,8 @@ public class ClassController {
         return "redirect:/classes";
     }
 
-    @PostMapping(params = "action=add")
+    @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
+    @PostMapping("/add")
     public String add(@ModelAttribute("classForm") ClassForm form, HttpSession session) {
         try {
             if (form.getCourseId() == null || form.getLecturerId() == null || form.getSemesterId() == null || form.getCode() == null) {
@@ -181,6 +204,18 @@ public class ClassController {
             session.setAttribute("messageType", "error");
         }
         return "redirect:/classes";
+    }
+
+    private void consumeMessage(HttpSession session, Model model) {
+        Object message = session.getAttribute("message");
+        Object messageType = session.getAttribute("messageType");
+
+        if (message != null) {
+            model.addAttribute("message", message);
+            model.addAttribute("messageType", messageType != null ? messageType : "info");
+            session.removeAttribute("message");
+            session.removeAttribute("messageType");
+        }
     }
 
     public static class ClassForm {
@@ -209,5 +244,3 @@ public class ClassController {
     }
 
 }
-
-

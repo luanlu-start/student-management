@@ -1,0 +1,149 @@
+.course-accordion {
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.course-header:hover {
+    background: #e9ecef;
+}
+
+.course-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.course-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+}
+
+.course-details h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.course-details p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+.course-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.assessment-count {
+    background: #667eea;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.btn-add-assessment {
+    background: #28a745;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    transition: all 0.3s;
+}
+
+.btn-add-assessment:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+
+.toggle-icon {
+    font-size: 20px;
+    color: #7f8c8d;
+    transition: transform 0.3s;
+}
+
+.course-accordion.active .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.course-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.course-accordion.active .course-content {
+    max-height: 2000px;
+}
+
+.assessments-table {
+    padding: 0 20px 20px;
+}
+
+.assessments-table .action-buttons {
+    margin-left: 0;
+}
+
+.no-assessments {
+    text-align: center;
+    padding: 30px;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.no-assessments-icon {
+    font-size: 48px;
+    opacity: 0.3;
+}
+
+.btn-add-header {
+    background: #28a745;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-add-header:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+

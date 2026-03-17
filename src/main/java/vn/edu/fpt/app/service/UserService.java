@@ -2,7 +2,6 @@ package vn.edu.fpt.app.service;
 
 import vn.edu.fpt.app.entities.User;
 import vn.edu.fpt.app.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,8 +11,11 @@ import java.util.List;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     /** BÄƒm máº­t kháº©u báº±ng MD5 */
     public String hashMD5(String str) {
@@ -75,5 +77,3 @@ public class UserService {
         }
     }
 }
-
-

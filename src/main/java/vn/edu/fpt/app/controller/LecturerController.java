@@ -11,7 +11,7 @@ import vn.edu.fpt.app.service.LecturerService;
 import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/lecturer")
+@PreAuthorize("hasAnyRole('admin', 'academic_staff')")
 public class LecturerController {
 
     private final LecturerService lecturerService;
     private final DepartmentService departmentService;
 
-    @Autowired
     public LecturerController(LecturerService lecturerService, DepartmentService departmentService) {
         this.lecturerService = lecturerService;
         this.departmentService = departmentService;
@@ -61,40 +61,40 @@ public class LecturerController {
         model.addAttribute("page", pagIndex);
         model.addAttribute("totalPage", totalPage);
         model.addAttribute("listDepartments", departmentService.getAllDepartments());
-        model.addAttribute("home_view", "lecturer.html");
+        model.addAttribute("home_view", "lecturer/lecturer.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=delete")
+    @GetMapping("/delete")
     public String showDelete(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("lecturer", lecturerService.getLecturerById(id));
-        model.addAttribute("home_view", "deleteLecturer.html");
+        model.addAttribute("home_view", "lecturer/deleteLecturer.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=edit")
+    @GetMapping("/edit")
     public String showEdit(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("departmentList", departmentService.getAllDepartments());
         model.addAttribute("lecturer", lecturerService.getLecturerById(id));
-        model.addAttribute("home_view", "editLecturer.html");
+        model.addAttribute("home_view", "lecturer/editLecturer.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=view")
+    @GetMapping("/view")
     public String showView(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("lecturer", lecturerService.getLecturerById(id));
-        model.addAttribute("home_view", "viewLecturer.html");
+        model.addAttribute("home_view", "lecturer/viewLecturer.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=add")
+    @GetMapping("/add")
     public String showAdd(Model model) {
         model.addAttribute("departmentList", departmentService.getAllDepartments());
-        model.addAttribute("home_view", "createLecturer.html");
+        model.addAttribute("home_view", "lecturer/createLecturer.html");
         return "dashboard";
     }
 
-    @GetMapping(params = "action=fillter")
+    @GetMapping("/fillter")
     public String filter(
             @RequestParam(name = "i", required = false) String i,
             @RequestParam(name = "nameLecturer", required = false) String lecturerName,
@@ -140,11 +140,11 @@ public class LecturerController {
         model.addAttribute("totalPage", totalPage);
         model.addAttribute("nameLecturer", lecturerName);
         model.addAttribute("departmentCode", depCode);
-        model.addAttribute("home_view", "lecturer.html");
+        model.addAttribute("home_view", "lecturer/lecturer.html");
         return "dashboard";
     }
 
-    @PostMapping(params = "action=delete")
+    @PostMapping("/delete")
     public String delete(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
         if (form.getLecturerId() == null) {
             return "redirect:/lecturer";
@@ -169,7 +169,7 @@ public class LecturerController {
         return "redirect:/lecturer";
     }
 
-    @PostMapping(params = "action=edit")
+    @PostMapping("/edit")
     public String edit(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
         if (form.getLecturerID() == null) {
             return "redirect:/lecturer";
@@ -187,7 +187,7 @@ public class LecturerController {
         return "redirect:/lecturer";
     }
 
-    @PostMapping(params = "action=add")
+    @PostMapping("/add")
     public String add(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
         Department dep = departmentService.getDepartmentByCode(form.getDepartment());
         Lecturer newLecturer = new Lecturer(form.getLecturerName(), form.getEmail(), form.getPhone(), form.getTitle(), dep);
@@ -250,5 +250,3 @@ public class LecturerController {
     }
 
 }
-
-

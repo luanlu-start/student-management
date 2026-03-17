@@ -1,0 +1,44 @@
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Enrollment Overview</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Enrollment</a></li>
+        </ul>
+    </div>
+    <a href="enrollment/addStudent" class="btn-add-new">
+        <i class='bx bx-plus'></i>
+        Add Enrollment
+    </a>
+</div>
+
+<div class="stat-card-grid">
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>[[${totalCourse}]]</h3>
+            <p>Total Courses</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>[[${totalAssessment}]]</h3>
+            <p>Total Assessments</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>[[${totalDepartment}]]</h3>
+            <p>Total Departments</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>[[${totalStudent}]]</h3>
+            <p>Total Students</p>
+        </div>
+    </div>
+</div>
+</th:block>
+
