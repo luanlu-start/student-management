@@ -1,0 +1,72 @@
+﻿<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Add New Lecturer</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a th:href="@{/lecturer}">Lecturers</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Add New Lecturer</a></li>
+        </ul>
+    </div>
+    <a th:href="@{/lecturer}" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Lecturers
+    </a>
+</div>
+
+<div class="form-container">
+
+    <p class="form-title">Lecturer Information</p>
+
+    <form th:action="@{/lecturer/add}" method="POST" class="form-body">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label for="lecturerName">Full Name</label>
+                <input type="text" name="lecturerName" id="lecturerName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="department" class="form-label">Department</label>
+                <select id="department" class="form-select" aria-label="Default select example" name="department">
+                    <th:block th:each="dep : ${departmentList}">
+                        <option th:value="${dep.code}" th:text="${dep.name}"></option>
+                    </th:block>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email">
+            </div>
+
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="number" id="phone" name="phone">
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a th:href="@{/lecturer}" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Add New Lecturer
+            </button>
+        </div>
+
+    </form>
+</div>
+</th:block>

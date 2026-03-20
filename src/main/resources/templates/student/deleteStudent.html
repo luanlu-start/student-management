@@ -1,0 +1,85 @@
+﻿<link th:href="@{/assets/css/student.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Edit Student</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a th:href="@{/student}">Students</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Delete Student</a></li>
+        </ul>
+    </div>
+    <a th:href="@{/student}" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Students
+    </a>
+</div>
+
+<div class="form-container">
+
+    <p class="form-title">Student Information</p>
+
+    <form th:action="@{/student/delete}" method="POST" class="form-body">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="studentID">Student ID <span>*</span></label>
+                <input type="text" name="studentId" id="studentID" value="" th:value="${student.id}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="studentName">Full Name</label>
+                <input type="text" name="studentName" id="studentName" value="" th:value="${student.name}" readonly>
+            </div>
+
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="birthdate">Date of birth</label>
+                <input type="text" id="birthdate" name="birthday" value="" th:value="${student.birthdate}" readonly> 
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <input type="text" id="gender" name="gender" value="" th:value="${student.gender}" readonly>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" value="" th:value="${student.address}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="address">City</label>
+                <input type="text" id="city" name="city" value="" th:value="${student.city}" readonly>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="" th:value="${student.email}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="number" id="phone" name="phone" value="" th:value="${student.phone}" readonly>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a th:href="@{/student}" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Delete Student
+            </button>
+        </div>
+
+    </form>
+</div>
+</th:block>

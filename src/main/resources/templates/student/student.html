@@ -1,0 +1,107 @@
+﻿<link rel="stylesheet" th:href="@{/assets/css/pagination.css}">
+<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
+
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">All Students</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">All Students</a></li>
+        </ul>
+    </div>
+    <a th:href="@{/student/add}" class="btn-add-new">
+        <i class='bx bx-plus'></i>
+        Add New Student
+    </a>
+</div>
+
+<th:block th:if="${message != null}">
+    <div id="student-alert" class="alert" th:classappend="' alert-' + ${messageType}">
+        [[${message}]]
+    </div>
+</th:block>
+
+<div class="filter-bar">
+    <div id="studentFilterForm">
+        <input type="text" id="studentSearchInput" placeholder="Search students...">
+        <select id="studentDepartmentFilter">
+            <option value="all">All Departments</option>
+            <th:block th:each="p : ${listDepartmet}">
+                <option th:value="${p.code}">[[${p.name}]]</option>
+            </th:block>
+        </select>
+        <button type="button" id="studentFilterReset">Reset</button>
+    </div>
+</div>
+
+<div class="stable-list-layout">
+<div class="user-grid" id="studentGrid">
+
+    <th:block th:each="student : ${listStd}">
+
+        <div class="user-card"
+             th:attr="data-name=${student.name},data-department=${student.department != null ? student.department.code : 'none'}">
+
+            <div class="card-avatar" th:style="|background-color: #${T(java.lang.Math).abs(student.name.hashCode() % 999999)}|">
+                <span><span th:text="${student.name.substring(0, 1).toUpperCase()}"></span></span>
+            </div>
+
+            <div class="card-info">
+
+                <h3 class="card-name">[[${student.name}]]</h3>
+
+                
+                    <th:block th:if="${student.department != null and student.department.name != null and !#strings.isEmpty(student.department.name)}">
+                        <p class="card-detail">[[${student.department.name}]]</p>
+                    </th:block>
+                    <th:block th:unless="${student.department != null and student.department.name != null and !#strings.isEmpty(student.department.name)}">
+                        <p class="card-detail">(No Department)</p>
+                    </th:block>
+                
+
+                <p class="card-detail-role">Gender: [[${student.gender}]]</p>
+            </div>
+
+            <div class="card-buttons">
+                <a th:href="@{|/student/view?id=${student.id}|}" class="btn-card btn-view">
+                    <i class='bx bx-show'></i> View
+                </a>
+                <a th:href="@{|/student/edit?id=${student.id}|}" class="btn-card btn-edit">
+                    <i class='bx bx-edit'></i> Edit
+                </a>
+                <a th:href="@{|/student/delete?id=${student.id}|}" class="btn-card btn-edit">
+                    <i class='bx bx-trash'></i> Delete
+                </a>
+            </div>
+        </div>
+
+    </th:block>
+
+    <p id="studentNoResult" style="display:none; text-align: center; grid-column: 1 / -1; padding: 20px;">
+        No students found matching your criteria.
+    </p>
+</div>
+
+<nav class="pag" th:if="${totalPage > 0}">
+    <ul class="pagination">
+        <th:block th:if="${page > 1}">
+            <li class="page-item">
+                <a class="page-link" th:href="@{|/student?i=${page - 1}|}">&laquo; Prev</a>
+            </li>
+        </th:block>
+
+        <li class="page-item" th:each="p : ${#numbers.sequence(1, totalPage)}">
+            <a class="page-link" th:classappend="${p == page} ? ' active' : ''" th:href="@{|/student?i=${p}|}">[[${p}]]</a>
+        </li>
+
+        <th:block th:if="${page < totalPage}">
+            <li class="page-item">
+                <a class="page-link" th:href="@{|/student?i=${page + 1}|}">Next &raquo;</a>
+            </li>
+        </th:block>
+    </ul>
+</nav>
+</div>
+</th:block>

@@ -1,0 +1,93 @@
+﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Add New Mark</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a th:href="@{|/mark/viewByClass?classId=${classId}|}" th:if="${classId != null and !#strings.isEmpty(classId)}">Manage Grades</a></li>
+            <li><a th:href="@{/classes}" th:if="${classId == null or #strings.isEmpty(classId)}">Classes</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Add Mark</a></li>
+        </ul>
+    </div>
+
+    <a th:href="@{|/mark/viewByClass?classId=${classId}|}" th:if="${classId != null and !#strings.isEmpty(classId)}" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Gradebook
+    </a>
+    <a th:href="@{/classes}" th:if="${classId == null or #strings.isEmpty(classId)}" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Classes
+    </a>
+</div>
+
+<th:block th:if="${error != null}">
+    <div id="mark-create-error" class="alert alert-error">[[${error}]]</div>
+</th:block>
+
+<div class="form-container">
+    <p class="form-title">Enter Mark Details</p>
+
+    <form th:action="@{/mark/create}" method="POST" class="form-body">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <th:block th:if="${classId != null and !#strings.isEmpty(classId)}">
+            <input type="hidden" name="classId" th:value="${classId}">
+        </th:block>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="enrollId">Student Enrollment <span>*</span></label>
+                <select id="enrollId" name="enrollId" class="form-select" required>
+                    <option value="" disabled th:selected="${preSelectedEnrollId == null}">-- Select Student &amp; Course --</option>
+                    <option th:each="en : ${allEnrollment}"
+                            th:value="${en.id}"
+                            th:selected="${preSelectedEnrollId != null and en.id == preSelectedEnrollId}">
+                        (ID: [[${en.id}]]) [[${en.student.name}]] - [[${en.cls.course.code}]] - [[${en.cls.semester.code}]]
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="assessmentId">Assessment <span>*</span></label>
+                <select id="assessmentId" name="assessmentId" class="form-select" required>
+                    <option value="" disabled th:selected="${preSelectedAssessId == null}">-- Select Assessment --</option>
+                    <option th:each="as : ${allAssessment}"
+                            th:value="${as.id}"
+                            th:selected="${preSelectedAssessId != null and as.id == preSelectedAssessId}">
+                        [[${as.course.code}]] - [[${as.type}]] ([[${as.weight}]]%)
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="mark">Mark (0-100) <span>*</span></label>
+                <input type="number" id="mark" name="mark" step="0.1" min="0" max="100" placeholder="E.g: 85.5" required>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a th:href="@{|/mark/viewByClass?classId=${classId}|}" th:if="${classId != null and !#strings.isEmpty(classId)}" class="btn btn-cancel">Cancel</a>
+            <a th:href="@{/classes}" th:if="${classId == null or #strings.isEmpty(classId)}" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-plus'></i> Add New Mark
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    setTimeout(function () {
+        var alertBox = document.getElementById('mark-create-error');
+        if (!alertBox) return;
+        alertBox.style.transition = 'opacity 0.3s ease';
+        alertBox.style.opacity = '0';
+        setTimeout(function () {
+            if (alertBox.parentNode) alertBox.parentNode.removeChild(alertBox);
+        }, 300);
+    }, 2500);
+</script>
+</th:block>

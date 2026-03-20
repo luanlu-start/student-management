@@ -1,0 +1,115 @@
+﻿<link rel="stylesheet" th:href="@{/assets/css/pagination.css}">
+<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
+
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">All Lecturers</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">All Lecturers</a></li>
+        </ul>
+    </div>
+    <a th:href="@{/lecturer/add}" class="btn-add-new">
+        <i class='bx bx-plus'></i>
+        Add New Lecturer
+    </a>
+</div>
+
+<th:block th:if="${message != null and !#strings.isEmpty(message)}">
+    <div class="alert" th:classappend="' alert-' + ${messageType}">
+        [[${message}]]
+    </div>
+</th:block>
+
+<div class="filter-bar">
+    <div id="lecturerFilterForm">
+        <input type="text" id="lecturerSearchInput" placeholder="Search lecturer...">
+
+        <select id="lecturerDepartmentFilter">
+            <option value="all">All Departments</option>
+            <option th:each="p : ${listDepartments}" th:value="${p.code}">
+                [[${p.name}]]
+            </option>
+        </select>
+        <button type="button" id="lecturerFilterReset">Reset</button>
+    </div>
+</div>
+
+<div class="stable-list-layout lecturer-list-layout">
+<div class="user-grid" id="lecturerGrid">
+
+    <th:block th:each="lecturer : ${listLecturer}">
+
+        <div class="user-card"
+             th:attr="data-name=${lecturer.name != null ? lecturer.name : ''},data-department=${lecturer.department != null ? lecturer.department.code : 'none'}">
+
+            <div class="card-avatar" th:style="${lecturer.name != null and !#strings.isEmpty(lecturer.name) ? 'background-color: #' + T(java.lang.Math).abs(lecturer.name.hashCode() % 999999) : 'background-color: #64748b'}">
+                <span><span th:text="${lecturer.name != null and !#strings.isEmpty(lecturer.name) ? #strings.substring(lecturer.name, 0, 1).toUpperCase() : 'L'}"></span></span>
+            </div>
+
+            <div class="card-info">
+
+                <h3 class="card-name">[[${lecturer.title != null ? lecturer.title : ''}]] [[${lecturer.name != null ? lecturer.name : '(No Name)'}]]</h3>
+
+                
+                    <th:block th:if="${lecturer.department != null and lecturer.department.name != null and !#strings.isEmpty(lecturer.department.name)}">
+                        <p class="card-detail">[[${lecturer.department.name}]]</p>
+                    </th:block>
+                    <th:block th:unless="${lecturer.department != null and lecturer.department.name != null and !#strings.isEmpty(lecturer.department.name)}">
+                        <p class="card-detail">(No Department)</p>
+                    </th:block>
+                
+
+                <p class="card-detail-role">Email [[${lecturer.email}]]</p>
+            </div>
+
+            <div class="card-buttons">
+                <a th:href="@{|/lecturer/view?id=${lecturer.id}|}" class="btn-card btn-view">
+                    <i class='bx bx-show'></i> View
+                </a>
+                <a th:href="@{|/lecturer/edit?id=${lecturer.id}|}" class="btn-card btn-edit">
+                    <i class='bx bx-edit'></i> Edit
+                </a>
+
+                <a th:href="@{|/lecturer/delete?id=${lecturer.id}|}" class="btn-card btn-edit">
+                    <i class='bx bx-trash'></i> Delete
+                </a>
+            </div>
+        </div>
+
+    </th:block>
+
+    <th:block th:if="${#lists.isEmpty(listLecturer)}">
+        <p style="text-align: center; grid-column: 1 / -1; padding: 20px;">
+            No lecturers found matching your criteria.
+        </p>
+    </th:block>
+    <p id="lecturerNoResult" style="display: none; text-align: center; grid-column: 1 / -1; padding: 20px;">
+        No lecturers found matching your criteria.
+    </p>
+
+</div>
+
+<nav class="pag" th:if="${totalPage > 0}">
+    <ul class="pagination">
+        <th:block th:if="${page > 1}">
+            <li class="page-item">
+                <a class="page-link" th:href="@{|/lecturer?i=${page - 1}|}">&laquo; Prev</a>
+            </li>
+        </th:block>
+
+        <li class="page-item" th:each="p : ${#numbers.sequence(1, totalPage)}">
+            <a class="page-link" th:classappend="${p == page} ? ' active' : ''" th:href="@{|/lecturer?i=${p}|}">[[${p}]]</a>
+        </li>
+
+        <th:block th:if="${page < totalPage}">
+            <li class="page-item">
+                <a class="page-link" th:href="@{|/lecturer?i=${page + 1}|}">Next &raquo;</a>
+            </li>
+        </th:block>
+    </ul>
+</nav>
+</div>
+</th:block>

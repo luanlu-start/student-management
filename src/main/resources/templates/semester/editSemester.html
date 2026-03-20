@@ -1,0 +1,68 @@
+﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+  <div>
+    <h1 class="title">Edit Semester</h1>
+    <ul class="breadcrumbs">
+      <li><a th:href="@{/home}">Home</a></li>
+      <li class="divider">/</li>
+      <li><a th:href="@{/semester}">Semester</a></li>
+      <li class="divider">/</li>
+      <li><a href="#" class="active">Edit Semester</a></li>
+    </ul>
+  </div>
+  <a th:href="@{/semester}" class="btn-secondary">
+    <i class='bx bx-arrow-back'></i> Back to Semester
+  </a>
+</div>
+
+<div class="form-container">
+  <p class="form-title">Semester Information</p>
+
+  <form th:action="@{/semester/edit}" method="post" class="form-body">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <input type="hidden" name="semesterID" value="" th:value="${editSemester.id}">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="semesterCode">Semester Code <span>*</span></label>
+        <input type="text" id="semesterCode" name="semesterCode" 
+               value="" th:value="${editSemester.code}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="semesterYear">Year <span>*</span></label>
+        <input type="number" id="semesterYear" name="semesterYear" 
+               min="1997" max="2100" step="1" required
+               value="" th:value="${editSemester.year}" placeholder="e.g. 2025">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="semesterBegin">Begin Date <span>*</span></label>
+        <input type="date" id="semesterBegin" name="semesterBegin" 
+               value="" th:value="${editSemester.beginDate}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="semesterEnd">End Date <span>*</span></label>
+        <input type="date" id="semesterEnd" name="semesterEnd" 
+               value="" th:value="${editSemester.endDate}" required>
+      </div>
+    </div>
+
+    <div class="form-buttons">
+      <a th:href="@{/semester}" class="btn btn-cancel">Cancel</a>
+      <button type="submit" class="btn btn-save">
+        <i class='bx bx-save'></i> Update Semester
+      </button>
+    </div>
+
+    <th:block th:if="${ErrorMsg != null}">
+      <div class="alert alert-danger">[[${ErrorMsg}]]</div>
+    </th:block>
+  </form>
+</div>
+</th:block>

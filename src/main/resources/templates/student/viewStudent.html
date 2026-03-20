@@ -1,0 +1,124 @@
+﻿<link th:href="@{/assets/css/student.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/viewStudent.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Student Profile</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="student">Students</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">[[${student.name}]]</a></li>
+        </ul>
+    </div>
+    <a href="student" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Students
+    </a>
+</div>
+
+<div class="profile-header-card">
+    <div class="profile-avatar-lg" th:style="|background-color: #${T(java.lang.Math).abs(student.name.hashCode() % 999999)}|">
+        [[${#strings.substring(student.name, 0, 1)}]]
+    </div>
+    <div class="profile-header-info">
+        <h2 class="profile-name">[[${student.name}]]</h2>
+        <p class="profile-department">[[${student.department.name}]]</p>
+    </div>
+    <div class="profile-header-actions">
+        <a href="student/edit?id=${student.id}" th:href="@{|student/edit?id=${student.id}|}" class="btn btn-edit-profile">
+            <i class='bx bx-edit'></i> Edit Profile
+        </a>
+    </div>
+</div>
+
+<div class="profile-content-card">
+    <div class="profile-tabs">
+        <a href="#" class="tab-item active"><i class='bx bxs-user'></i> Overview</a>
+    </div>
+
+    <div class="tab-content" id="overview">
+        <div class="info-section">
+            <h4 class="section-title">Personal Information</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <p>Full Name</p>
+                    <span>[[${student.name}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Student ID</p>
+                    <span>[[${student.id}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Date of Birth</p>
+                    <span>[[${student.birthdate}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Gender</p>
+                    <span>[[${student.gender}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Email</p>
+                    <span>[[${student.email}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Phone</p>
+                    <span>[[${student.phone}]]</span>
+                </div>
+                <div class="info-item info-full-width">
+                    <p>Address</p>
+                    <span>[[${student.address}]], [[${student.city}]]</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h4 class="section-title">Academic Information</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <p>Department</p>
+                    <span>[[${student.department.name}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Program</p>
+                    <span>Bachelor of [[${student.department.name}]]</span>
+                </div>
+
+                <th:block th:each="classes : ${classList}">
+                    <div class="info-item">
+                        <p>Lecturer</p>
+                        <span>[[${classes.course.department.departmentHead}]]</span>
+                    </div>
+
+                    <div class="info-item">
+                        <p>Lecturer</p>
+                        <span>[[${classes.lecturer.name}]]</span>
+                    </div>
+
+                    <div class="info-item">
+                        <p>Semester</p>
+                        <span>[[${classes.semester.id}]]</span>
+                    </div>
+
+
+                </th:block>
+
+                <th:block th:each="course : ${enrolledCourses}">
+                    <div class="info-item">
+                        <p>Enrollment Course</p>
+                        <span>[[${course.title}]]</span>
+                    </div>
+                </th:block>
+
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>
+
+
+
+
+
+
+
