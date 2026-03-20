@@ -111,10 +111,13 @@
                 </li>
 
                 <li class="logout-bottom">
-                    <a th:href="@{/logout}" href="/logout" class="logout">
-                        <i class='bx bx-log-out icon'></i>
-                        Log Out
-                    </a>
+                    <form th:action="@{/logout}" method="post" class="logout-form">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="logout logout-btn">
+                            <i class='bx bx-log-out icon'></i>
+                            Log Out
+                        </button>
+                    </form>
                 </li>
 
             </ul>
@@ -148,7 +151,12 @@
                         </li>
 
                         <li>
-                            <a th:href="@{/logout}" href="logout" class="logout"><i class='bx bx-log-out icon'></i> Logout</a>
+                            <form th:action="@{/logout}" method="post" class="logout-form">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="logout logout-btn">
+                                    <i class='bx bx-log-out icon'></i> Logout
+                                </button>
+                            </form>
                         </li>
                     </ul>
                 </div>

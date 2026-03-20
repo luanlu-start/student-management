@@ -1,0 +1,118 @@
+﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Departments Management</h1>
+        <p class="subtitle">Manage academic departments, staff, and student enrollment.</p>
+    </div>
+    <div class="header-buttons">
+        <a th:href="@{/department/add}" class="btn-add-new">
+            <i class='bx bx-plus'></i> Add Department
+        </a>
+    </div>
+</div>
+
+<th:block th:if="${message != null and !#strings.isEmpty(message)}">
+    <div class="alert" th:classappend="' alert-' + ${messageType}">
+        [[${message}]]
+    </div>
+</th:block>
+
+<div class="stat-card-grid">
+    <div class="stat-card">
+        <div class="icon-wrapper blue">
+            <i class='bx bxs-school'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalDepartment}]]</h3>
+            <p>Total Departments</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper green">
+            <i class='bx bx-check-circle'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalDepartment}]]</h3> 
+            <p>Active Departments</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper cyan">
+            <i class='bx bxs-group'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalStudent}]]</h3>
+            <p>Total Students</p>
+        </div>
+    </div>  
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <h3>All Departments</h3>
+    </div>
+
+    <table>
+        <thead>
+            <tr class="text-center">
+                <th>#</th>
+                <th>Department Name</th>
+                <th>Code</th>
+                <th>Department Head</th>
+                <th>Contact</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <th:block th:each="dept, loop : ${departmentList}">
+                <tr>
+                    <td>[[${loop.count}]]</td>
+                    <td>
+                        <div class="dept-info">
+                            <div class="dept-icon" style="background-color: #64748b;">
+                                <span>[[${dept.name != null and !#strings.isEmpty(dept.name) ? #strings.substring(dept.name, 0, 1) : '?'}]]</span>
+                            </div>
+
+                            <div class="dept-name">
+                                <p>[[${dept.name}]]</p>
+                                <small>Established 2006</small> 
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <p>[[${dept.code}]]</p>
+                    </td>
+                    <td>
+                        <div class="head-info">
+                            <div class="avatar">
+                                <span>[[${dept.departmentHead != null and !#strings.isEmpty(dept.departmentHead) ? #strings.substring(dept.departmentHead, 0, 1) : '?'}]]</span>
+                            </div>
+                            <div class="head-name">
+                                <p>[[${dept.departmentHead}]]</p>
+                                <small>[[${dept.email}]]</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="contact-info">
+                            <p>[[${dept.email}]]</p>
+                            <small>[[${dept.phone}]]</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{/department/edit(depCode=${dept.code})}" class="btn-action edit">
+                                <i class='bx bx-edit'></i>
+                            </a>
+                            <a th:href="@{/department/delete(depCode=${dept.code})}" class="btn-action delete">
+                                <i class='bx bx-trash'></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+        </tbody>
+    </table>
+</div>
+</th:block>

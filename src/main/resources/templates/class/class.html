@@ -1,0 +1,137 @@
+<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header" th:with="r=${session.user != null ? #strings.toLowerCase(#strings.replace(session.user.role,' ','_')) : ''}">
+    <div>
+        <h1 class="title">Classes Management</h1>
+        <p class="subtitle">Manage all classes, schedules, and assignments.</p>
+    </div>
+    <div class="header-buttons" th:if="${r == 'admin' or r == 'academic_staff'}">
+        <a th:href="@{/classes/add}" class="btn-add-new">
+            <i class='bx bx-plus'></i> Add New Class
+        </a>
+    </div>
+</div>
+
+<th:block th:if="${message != null}">
+    <div id="class-alert" class="alert" th:classappend="' alert-' + ${messageType}">
+        [[${message}]]
+    </div>
+</th:block>
+
+<div class="stat-card-grid">
+    <div class="stat-card">
+        <div class="icon-wrapper blue">
+            <i class='bx bxs-calendar-event'></i>
+        </div>
+        <div class="stat-info">
+            <h3 id="displayedCount">[[${totalClasses}]]</h3>
+            <p>Total Classes</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper cyan">
+            <i class='bx bxs-calendar'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalSemesters}]]</h3>
+            <p>Total Semesters</p>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <h3>All Classes</h3>
+        <div class="table-filters">
+            <div class="search-wrapper">
+                <i class='bx bx-search'></i>
+                <input type="text" id="searchInput" placeholder="Search by course, code, or lecturer...">
+            </div>
+            <select id="semesterFilter">
+                <option value="">All Semesters</option>
+                <th:block th:each="sem : ${listSemesters}">
+                    <option th:value="${sem.code + ' - ' + sem.year}">[[${sem.code}]] - [[${sem.year}]]</option>
+                </th:block>
+            </select>
+            <select id="lecturerFilter">
+                <option value="">All Lecturers</option>
+                <th:block th:each="lec : ${listLecturers}">
+                    <option value="" th:value="${lec.name}">[[${lec.name}]]</option>
+                </th:block>
+            </select>
+            <button type="button" id="classFilterReset" class="btn-secondary" style="padding: 8px 16px;">
+                <i class='bx bx-refresh'></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Course Title</th>
+                <th>Class Code</th>
+                <th>Lecturer</th>
+                <th>Semester</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="classTableBody">
+            <th:block th:each="cls, loop : ${listClasses}">
+                <tr class="class-row"
+                    th:attr="data-course=${cls.course != null ? cls.course.title : ''},
+                             data-code=${cls.code},
+                             data-lecturer=${cls.lecturer != null ? cls.lecturer.name : ''},
+                             data-semester=${cls.semester != null ? (cls.semester.code + ' - ' + cls.semester.year) : ''},
+                             data-department=${(cls.course != null and cls.course.department != null) ? cls.course.department.name : ''}">
+                    <td>[[${loop.count}]]</td>
+                    <td>
+                        <div class="dept-info">
+                            <div class="dept-icon" th:style="${cls.code != null ? 'background-color: #' + T(java.lang.Math).abs(cls.code.hashCode() % 999999) : 'background-color: #64748b'}">
+                                <span th:text="${cls.code != null and cls.code.length() >= 2 ? #strings.substring(cls.code,0,2) : 'CL'}"></span>
+                            </div>
+
+                            <div class="dept-name">
+                                <p>[[${cls.course != null ? cls.course.title : '(No Course)'}]]</p>
+                                <small>[[${(cls.course != null and cls.course.department != null) ? cls.course.department.name : '(No Department)'}]]</small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        <p style="font-weight: 600; color: #333;">[[${cls.code}]]</p>
+                    </td>
+
+                    <td>
+                        <div class="head-info">
+                            [[${cls.lecturer.name}]]
+                        </div>
+                    </td>
+                    <td>
+                        [[${cls.semester.code}]] - [[${cls.semester.year}]]
+                    </td>
+
+                    <td>
+                        <div class="action-buttons" th:with="r=${session.user != null ? #strings.toLowerCase(#strings.replace(session.user.role,' ','_')) : ''}">
+                            <a th:href="@{|/classes/view?id=${cls.id}|}" class="btn-action edit" title="View Details">
+                                <i class='bx bx-show'></i>
+                            </a>
+                            <a th:if="${r == 'admin' or r == 'academic_staff'}" th:href="@{|/classes/edit?id=${cls.id}|}" class="btn-action edit" title="Edit">
+                                <i class='bx bx-edit'></i>
+                            </a>
+                            <a th:if="${r == 'admin' or r == 'academic_staff'}" th:href="@{|/classes/delete?id=${cls.id}|}" class="btn-action delete" title="Delete">
+                                <i class='bx bx-trash'></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+        </tbody>
+    </table>
+
+    <div id="noResultsMessage" style="display: none; text-align: center; padding: 40px; color: #7f8c8d;">
+        <i class='bx bx-search-alt' style='font-size: 48px; opacity: 0.3;'></i>
+        <p style="margin-top: 10px; font-size: 16px;">No classes found matching your filters.</p>
+    </div>
+</div>
+</th:block>

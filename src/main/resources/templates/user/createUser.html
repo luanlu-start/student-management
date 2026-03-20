@@ -1,0 +1,80 @@
+﻿﻿<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Add New User</h1>
+        <ul class="breadcrumbs">
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="user">Users</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Add New User</a></li>
+        </ul>
+    </div>
+    <a href="user" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Users
+    </a>
+</div>
+
+<div class="form-container">
+    <p class="form-title">User Account Information</p>
+
+    <form action="user/add" method="POST" class="form-body">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="username">Username <span>*</span></label>
+                <input type="text" name="username" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="roleSelect" class="form-label">Role <span>*</span></label>
+                <select class="form-select" name="role" id="roleSelect" required>
+                    <option value="lecturer" selected>Lecturer</option>
+                    <option value="academic_staff">Academic Staff</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="password">Password <span>*</span></label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password <span>*</span></label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" id="lecturerFormGroup">
+                <label for="lecturerSelect" class="form-label">Link to Lecturer <span>*</span></label>
+                <select class="form-select" name="lecturerId" id="lecturerSelect" required>
+                    <option value="0" id="na_option">-- Select Lecturer --</option> 
+                    <th:block th:each="lec : ${listLecturers}">
+                        <option value="" th:value="${lec.id}">[[${lec.title}]] [[${lec.name}]] ([[${lec.email}]])</option>
+                    </th:block>
+                </select>
+            </div>
+            <div class="form-group">
+                </div>
+        </div>
+
+        <div class="form-buttons">
+            <a href="user" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Add New User
+            </button>
+        </div>
+    </form>
+</div>
+</th:block>
+
+
+
+
+
+
+

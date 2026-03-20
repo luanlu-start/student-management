@@ -1,0 +1,72 @@
+﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Add New Department</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a th:href="@{/department}">Departments</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Add New Department</a></li>
+        </ul>
+    </div>
+    <a th:href="@{/department}" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Departments
+    </a>
+</div>
+
+<th:block th:if="${message != null and !#strings.isEmpty(message)}">
+    <div class="alert" th:classappend="' alert-' + ${messageType}">
+        [[${message}]]
+    </div>
+</th:block>
+
+<div class="form-container">
+
+    <p class="form-title">Department Information</p>
+
+    <form th:action="@{/department/add}" method="post" class="form-body">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="departmentCode">Department Code</label>
+                <input type="text" name="departmentCode" id="departmentCode" required>
+            </div>
+
+            <div class="form-group">
+                <label for="departmentName">Department Name</label>
+                <input type="text" name="departmentName" id="departmentName" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="departmentHead">Department Head</label>
+                <input type="text" id="departmentHead" name="departmentHead">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email">
+            </div>
+        </div>
+
+        <div class="form-row">              
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone"> 
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a th:href="@{/department}" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Add New Department
+            </button>
+        </div>
+
+    </form>
+</div>
+</th:block>

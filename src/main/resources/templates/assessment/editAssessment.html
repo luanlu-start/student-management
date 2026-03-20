@@ -1,0 +1,75 @@
+﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Edit Assessment</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a th:href="@{/assessment}">Assessment</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">Edit Assessment</a></li>
+        </ul>
+    </div>
+    <a th:href="@{/assessment}" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Assessment
+    </a>
+</div>
+
+<div class="form-container">
+    <p class="form-title">Assessment Information</p>
+
+    <form th:action="@{/assessment/edit}" method="post" class="form-body">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="id">Assessment ID (Read-only)</label>
+                <input type="text" id="id" name="id" 
+                       value="" th:value="${assessment.id}" readonly 
+                       style="background-color: #f8f8f8;">
+            </div>
+            <div class="form-group">
+                <label for="type">Assessment Type</label>
+                <select name="type" id="type" required>
+                    <option value="">-- Select Type --</option>
+                    <option value="Assignment" th:selected="${assessment.type == 'Assignment'}">Assignment</option>
+                    <option value="Quiz" th:selected="${assessment.type == 'Quiz'}">Quiz</option>
+                    <option value="Midterm Exam" th:selected="${assessment.type == 'Midterm Exam'}">Midterm Exam</option>
+                    <option value="Final Exam" th:selected="${assessment.type == 'Final Exam'}">Final Exam</option>
+                    <option value="Project" th:selected="${assessment.type == 'Project'}">Project</option>
+                    <option value="Presentation" th:selected="${assessment.type == 'Presentation'}">Presentation</option>
+                    <option value="Lab Work" th:selected="${assessment.type == 'Lab Work'}">Lab Work</option>
+                    <option value="Practical Exam" th:selected="${assessment.type == 'Practical Exam'}">Practical Exam</option>
+                    <option value="Other" th:selected="${assessment.type == 'Other'}">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="weight">Assessment Weight (%)</label>
+                <input type="number" min="0" max="100" id="weight" name="weight" value="" th:value="${assessment.weight}" required>
+            </div>
+            <div class="form-group">
+                <label for="courseId" class="form-label">Course</label>
+                <select name="courseId" id="courseId" required>
+                    <th:block th:each="c : ${allCourse}">
+                        <option th:value="${c.id}" th:selected="${assessment.course != null and c.id == assessment.course.id}">
+                            [[${c.code}]]
+                        </option>
+                    </th:block>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a th:href="@{/assessment}" class="btn btn-cancel">Cancel</a>
+            <button type="submit" class="btn btn-save">
+                <i class='bx bx-save'></i> Update Assessment
+            </button>
+        </div>
+    </form>
+</div>
+</th:block>
