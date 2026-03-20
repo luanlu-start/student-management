@@ -17,6 +17,12 @@
     </a>
 </div>
 
+<th:block th:if="${message != null and !#strings.isEmpty(message)}">
+    <div class="alert" th:classappend="' alert-' + ${messageType}">
+        [[${message}]]
+    </div>
+</th:block>
+
 <div class="form-container">
     <p class="form-title">Assessment Information</p>
 
