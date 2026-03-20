@@ -425,23 +425,41 @@ nav .profile .profile-link.show {
     top: 100%;
 }
 
-nav .profile .profile-link li a {
+nav .profile .profile-link li a,
+nav .profile .profile-link li .logout-btn {
+    width: 100%;
     padding: 10px 16px;
     display: flex;
     gap: 12px;
     font-size: 14px;
     color: var(--dark);
     align-items: center;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
     transition: all .3s ease;
 }
 
-nav .profile .profile-link li a .icon {
+nav .profile .profile-link li a .icon,
+nav .profile .profile-link li .logout-btn .icon {
     font-size: 18px;
     color: var(--dark-grey);
 }
 
-nav .profile .profile-link li a:hover {
+nav .profile .profile-link li a:hover,
+nav .profile .profile-link li .logout-btn:hover {
     background: var(--grey);
+}
+
+nav .profile .profile-link li a.logout,
+nav .profile .profile-link li .logout-btn.logout {
+    color: var(--red);
+}
+
+nav .profile .profile-link li a.logout:hover,
+nav .profile .profile-link li .logout-btn.logout:hover {
+    background: #FEE2E2;
 }
 
 nav .profile .profile-link li.divider {
