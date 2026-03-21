@@ -126,6 +126,16 @@ public class AssessmentController {
             return "redirect:/assessment/create";
         }
 
+        double currentTotal = assessService.getAssessmentsByCourseId(form.getCourseId())
+                .stream()
+                .mapToDouble(Assessment::getWeight)
+                .sum();
+        if (currentTotal + form.getWeight() > 100.0) {
+            session.setAttribute("message", "Total assessment weight for this course cannot exceed 100%.");
+            session.setAttribute("messageType", "error");
+            return "redirect:/assessment/create?courseId=" + form.getCourseId();
+        }
+
         boolean created = assessService.createAssessment(form.getType(), form.getWeight(), form.getCourseId());
         if (created) {
             session.setAttribute("message", "Assessment created successfully!");
@@ -144,6 +154,24 @@ public class AssessmentController {
             session.setAttribute("message", "Please fill all required fields.");
             session.setAttribute("messageType", "error");
             return "redirect:/assessment";
+        }
+
+        Assessment current = assessService.getAssessmentById(form.getId());
+        if (current == null) {
+            session.setAttribute("message", "Assessment not found!");
+            session.setAttribute("messageType", "error");
+            return "redirect:/assessment";
+        }
+
+        double recalculatedTotal = assessService.getAssessmentsByCourseId(form.getCourseId())
+                .stream()
+                .filter(a -> a.getId() != form.getId())
+                .mapToDouble(Assessment::getWeight)
+                .sum() + form.getWeight();
+        if (recalculatedTotal > 100.0) {
+            session.setAttribute("message", "Total assessment weight for this course cannot exceed 100%.");
+            session.setAttribute("messageType", "error");
+            return "redirect:/assessment/edit?id=" + form.getId();
         }
 
         boolean updated = assessService.updateAssessment(form.getId(), form.getType(), form.getWeight(), form.getCourseId());

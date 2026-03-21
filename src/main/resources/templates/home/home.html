@@ -1,6 +1,6 @@
 ﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
 <link th:href="@{/assets/css/home.css}" rel="stylesheet" type="text/css"/>
-<th:block th:fragment="content">
+<th:block th:fragment="content" th:with="r=${session.user != null ? #strings.toLowerCase(#strings.replace(session.user.role,' ','_')) : ''}">
 <div class="page-header">
     <div>
         <h1 class="title">Academic Management Dashboard</h1>
@@ -10,12 +10,13 @@
         <a href="#" class="btn-secondary">
             <i class='bx bx-calendar'></i> Academic Calendar
         </a>
-        <a href="../semester/add" class="btn-add-new">
+        <a th:if="${r != 'lecturer' and r != 'teacher'}" th:href="@{/semester/add}" href="/semester/add" class="btn-add-new">
             <i class='bx bx-plus'></i> New Semester
         </a>
     </div>
 </div>
 
+<th:block th:if="${r != 'lecturer' and r != 'teacher'}">
 <div class="stat-card-grid">
     <div class="stat-card">
         <div class="icon-wrapper green">
@@ -62,13 +63,13 @@
             <h3>Quick Actions</h3>
         </div>
         <div class="widget-body">
-            <a href="../course/create" class="quick-action-btn blue">
+            <a th:href="@{/course/create}" href="/course/create" class="quick-action-btn blue">
                 <i class='bx bx-plus-circle'></i> Create Course
             </a>
-            <a href="../student/add" class="quick-action-btn green">
+            <a th:href="@{/student/add}" href="/student/add" class="quick-action-btn green">
                 <i class='bx bx-user-plus'></i> Add New Student
             </a>
-            <a href="../lecturer/add" class="quick-action-btn orange">
+            <a th:href="@{/lecturer/add}" href="/lecturer/add" class="quick-action-btn orange">
                 <i class='bx bxs-user-plus'></i> Add New Lecturer
             </a>
         </div>
@@ -77,7 +78,7 @@
     <div class="widget-card">
         <div class="widget-header">
             <h3>Academic Calendar</h3>
-            <a href="../semester" class="widget-link">View All</a>
+            <a th:href="@{/semester}" href="/semester" class="widget-link">View All</a>
         </div>
         <div class="widget-body">
             <ul class="calendar-list">
@@ -102,7 +103,7 @@
     <div class="widget-card">
         <div class="widget-header">
             <h3>Recent Students</h3>
-            <a href="../student" class="widget-link">View All</a>
+            <a th:href="@{/student}" href="/student" class="widget-link">View All</a>
         </div>
         <div class="widget-body">
             <ul class="widget-list">
@@ -129,7 +130,7 @@
     <div class="widget-card">
         <div class="widget-header">
             <h3>Popular Courses</h3>
-            <a href="../course" class="widget-link">View All</a>
+            <a th:href="@{/course}" href="/course" class="widget-link">View All</a>
         </div>
         <div class="widget-body">
             <ul class="widget-list">
@@ -159,3 +160,86 @@
     </div>
 </div>
 </th:block>
+
+<th:block th:if="${r == 'lecturer' or r == 'teacher'}">
+    <div class="stat-card-grid">
+        <div class="stat-card">
+            <div class="icon-wrapper green">
+                <i class='bx bxs-book-content'></i>
+            </div>
+            <div class="stat-info">
+                <h3>[[${totalCourses}]]</h3>
+                <p>Courses In System</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-wrapper cyan">
+                <i class='bx bxs-group'></i>
+            </div>
+            <div class="stat-info">
+                <h3>[[${totalStudents}]]</h3>
+                <p>Students In System</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-wrapper orange">
+                <i class='bx bx-list-ul'></i>
+            </div>
+            <div class="stat-info">
+                <h3>[[${totalEnrolls}]]</h3>
+                <p>Total Enrollments</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-wrapper red">
+                <i class='bx bxs-calendar'></i>
+            </div>
+            <div class="stat-info">
+                <h3>[[${#lists.size(semesterList)}]]</h3>
+                <p>Semesters</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="widget-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
+        <div class="widget-card">
+            <div class="widget-header">
+                <h3>Teaching Actions</h3>
+            </div>
+            <div class="widget-body">
+                <a th:href="@{/classes}" href="/classes" class="quick-action-btn blue">
+                    <i class='bx bx-chalkboard'></i> View My Classes
+                </a>
+                <a th:href="@{/mark}" href="/mark" class="quick-action-btn green">
+                    <i class='bx bx-edit-alt'></i> Manage Marks
+                </a>
+            </div>
+        </div>
+
+        <div class="widget-card">
+            <div class="widget-header">
+                <h3>Upcoming Semesters</h3>
+                <a th:href="@{/semester}" href="/semester" class="widget-link">View All</a>
+            </div>
+            <div class="widget-body">
+                <ul class="calendar-list">
+                    <th:block th:each="sem, loop : ${semesterList}">
+                        <th:block th:if="${loop.count <= 4}">
+                            <li>
+                                <div class="calendar-icon yellow">
+                                    <i class='bx bx-calendar-event'></i>
+                                </div>
+                                <div class="calendar-info">
+                                    <p>[[${sem.code}]] - [[${sem.year}]]</p>
+                                    <small>Starts: [[${sem.beginDate}]]</small>
+                                </div>
+                            </li>
+                        </th:block>
+                    </th:block>
+                </ul>
+            </div>
+        </div>
+    </div>
+</th:block>
+</th:block>
+
