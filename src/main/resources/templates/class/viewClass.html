@@ -156,8 +156,8 @@
                         <div class="action-buttons">
                             <form method="POST" th:action="@{/enrollment/deleteStudent}" style="display: inline;">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                <input type="hidden" name="studentId" value="" th:value="${student.id}">
-                                <input type="hidden" name="classId" value="" th:value="${classInfo.id}">
+                                <input type="hidden" name="student.id" value="" th:value="${student.id}">
+                                <input type="hidden" name="cls.id" value="" th:value="${classInfo.id}">
                                 <button type="submit" class="btn-action delete" title="Remove Student">
                                     <i class='bx bx-user-minus'></i>
                                 </button>

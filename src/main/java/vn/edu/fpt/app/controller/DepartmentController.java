@@ -71,13 +71,13 @@ public class DepartmentController {
     }
 
     @PostMapping("/edit")
-    public String edit(@ModelAttribute("departmentForm") DepartmentForm form, Model model) {
-        if (form.getDepartmentCode() == null) {
+    public String edit(@ModelAttribute("departmentForm") Department form, Model model) {
+        if (form.getCode() == null) {
             return "redirect:/department";
         }
         boolean update = depService.updateDepartmentByCode(
-                form.getDepartmentCode(),
-                form.getDepartmentName(),
+                form.getCode(),
+                form.getName(),
                 form.getDepartmentHead(),
                 form.getEmail(),
                 form.getPhone());
@@ -85,14 +85,14 @@ public class DepartmentController {
             return "redirect:/department";
         }
         model.addAttribute("ErrorMsg", "Fail to update department!");
-        model.addAttribute("editDepartment", depService.getDepartmentByCode(form.getDepartmentCode()));
+        model.addAttribute("editDepartment", depService.getDepartmentByCode(form.getCode()));
         model.addAttribute("home_view", "department/department.html");
         return "dashboard";
     }
 
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
-        boolean deleteSuccess = form.getDepCode() != null && depService.deleteDepartmentByCode(form.getDepCode());
+    public String delete(@ModelAttribute("departmentForm") Department form, HttpSession session) {
+        boolean deleteSuccess = form.getCode() != null && depService.deleteDepartmentByCode(form.getCode());
         if (deleteSuccess) {
             session.setAttribute("message", "Department deleted successfully!");
             session.setAttribute("messageType", "success");
@@ -104,9 +104,9 @@ public class DepartmentController {
     }
 
     @PostMapping("/add")
-    public String add(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
-        String code = form.getDepartmentCode() == null ? "" : form.getDepartmentCode().trim();
-        String name = form.getDepartmentName() == null ? "" : form.getDepartmentName().trim();
+    public String add(@ModelAttribute("departmentForm") Department form, HttpSession session) {
+        String code = form.getCode() == null ? "" : form.getCode().trim();
+        String name = form.getName() == null ? "" : form.getName().trim();
 
         if (code.isEmpty() || name.isEmpty()) {
             session.setAttribute("message", "Department code and name are required!");
@@ -145,26 +145,5 @@ public class DepartmentController {
         return "redirect:/department/add";
     }
 
-    public static class DepartmentForm {
-        private String depCode;
-        private String departmentCode;
-        private String departmentName;
-        private String departmentHead;
-        private String email;
-        private String phone;
-
-        public String getDepCode() { return depCode; }
-        public void setDepCode(String depCode) { this.depCode = depCode; }
-        public String getDepartmentCode() { return departmentCode; }
-        public void setDepartmentCode(String departmentCode) { this.departmentCode = departmentCode; }
-        public String getDepartmentName() { return departmentName; }
-        public void setDepartmentName(String departmentName) { this.departmentName = departmentName; }
-        public String getDepartmentHead() { return departmentHead; }
-        public void setDepartmentHead(String departmentHead) { this.departmentHead = departmentHead; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-    }
 
 }

@@ -10,7 +10,6 @@ import vn.edu.fpt.app.entities.Student;
 import vn.edu.fpt.app.service.DepartmentService;
 import vn.edu.fpt.app.service.StudentService;
 import jakarta.servlet.http.HttpSession;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,24 +143,16 @@ public class StudentController {
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/edit")
-    public String edit(@ModelAttribute("studentForm") StudentForm form, HttpSession session) {
-        if (form.getStudentId() == null || form.getBirthday() == null) {
+    public String edit(@ModelAttribute("studentForm") Student form, HttpSession session) {
+        if (form.getId() <= 0 || form.getBirthdate() == null) {
             session.setAttribute("message", "Failed to update student!");
             session.setAttribute("messageType", "error");
             return "redirect:/student";
         }
-        Department department = depService.getDepartmentByCode(form.getDepCode());
-        Student updatedStudent = new Student(
-                form.getStudentId(),
-                form.getStudentName(),
-                Date.valueOf(form.getBirthday()),
-                form.getGender(),
-                form.getAddress(),
-                form.getCity(),
-                department,
-                form.getEmail(),
-                form.getPhone());
-        boolean update = studentService.updateStudent(updatedStudent);
+        String departmentCode = form.getDepartment() != null ? form.getDepartment().getCode() : null;
+        Department department = depService.getDepartmentByCode(departmentCode);
+        form.setDepartment(department);
+        boolean update = studentService.updateStudent(form);
 
         if (update) {
             session.setAttribute("message", "Student updated successfully!");
@@ -175,11 +166,11 @@ public class StudentController {
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("studentForm") StudentForm form, HttpSession session) {
-        if (form.getStudentId() == null) {
+    public String delete(@ModelAttribute("studentForm") Student form, HttpSession session) {
+        if (form.getId() <= 0) {
             return "redirect:/student";
         }
-        Boolean deleteSuccess = studentService.deleteStudentById(form.getStudentId());
+        Boolean deleteSuccess = studentService.deleteStudentById(form.getId());
         if (deleteSuccess) {
             session.setAttribute("message", "Student deleted successfully!");
             session.setAttribute("messageType", "success");
@@ -192,25 +183,14 @@ public class StudentController {
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/add")
-    public String add(@ModelAttribute("studentForm") StudentForm form, HttpSession session) {
+    public String add(@ModelAttribute("studentForm") Student form, HttpSession session) {
         if (form.getBirthdate() == null) {
             return "redirect:/student";
         }
-        String departmentCode = form.getDepCode();
-        if (departmentCode == null || departmentCode.trim().isEmpty()) {
-            departmentCode = form.getDepartment();
-        }
+        String departmentCode = form.getDepartment() != null ? form.getDepartment().getCode() : null;
         Department department = depService.getDepartmentByCode(departmentCode);
-        Student newStudent = new Student(
-                form.getStudentName(),
-                Date.valueOf(form.getBirthdate()),
-                form.getGender(),
-                form.getAddress(),
-                form.getCity(),
-                department,
-                form.getEmail(),
-                form.getPhone());
-        boolean addSuccess = studentService.insertNewStudent(newStudent);
+        form.setDepartment(department);
+        boolean addSuccess = studentService.insertNewStudent(form);
 
         if (addSuccess) {
             session.setAttribute("message", "Student add successfully!");
@@ -234,42 +214,6 @@ public class StudentController {
         }
     }
 
-    public static class StudentForm {
-        private Integer studentId;
-        private String studentName;
-        private String birthday;
-        private String birthdate;
-        private String gender;
-        private String address;
-        private String city;
-        private String depCode;
-        private String department;
-        private String email;
-        private String phone;
-
-        public Integer getStudentId() { return studentId; }
-        public void setStudentId(Integer studentId) { this.studentId = studentId; }
-        public String getStudentName() { return studentName; }
-        public void setStudentName(String studentName) { this.studentName = studentName; }
-        public String getBirthday() { return birthday; }
-        public void setBirthday(String birthday) { this.birthday = birthday; }
-        public String getBirthdate() { return birthdate; }
-        public void setBirthdate(String birthdate) { this.birthdate = birthdate; }
-        public String getGender() { return gender; }
-        public void setGender(String gender) { this.gender = gender; }
-        public String getAddress() { return address; }
-        public void setAddress(String address) { this.address = address; }
-        public String getCity() { return city; }
-        public void setCity(String city) { this.city = city; }
-        public String getDepCode() { return depCode; }
-        public void setDepCode(String depCode) { this.depCode = depCode; }
-        public String getDepartment() { return department; }
-        public void setDepartment(String department) { this.department = department; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-    }
 
     public List<Student> pagination(List<Student> list, int pageIndex, int pageSize) {
         if (list == null || list.isEmpty()) {

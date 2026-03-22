@@ -41,7 +41,7 @@
             </div>
             <div class="form-group">
                 <label for="departmentCode">Department <span>*</span></label>
-                <select id="departmentCode" name="departmentCode" required>
+                <select id="departmentCode" name="department.code" required>
                     <option value="" disabled selected>Choose department</option>
                     <option th:each="dep : ${listDepartment}"
                             th:value="${dep.code}"

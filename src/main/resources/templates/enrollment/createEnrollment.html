@@ -158,12 +158,12 @@
                 <div id="selectedStudentDisplay" class="selected-student-display"></div>
                 
                 <!-- Hidden input để submit -->
-                <input type="hidden" name="studentId" id="studentIdHidden" required>
+                <input type="hidden" name="student.id" id="studentIdHidden" required>
             </div>
 
             <div class="form-group">
                 <label for="classId" class="form-label">Class</label>
-                <select name="classId" id="classId" required th:style="${preSelectedClassId != null} ? 'background-color: #e3e7ff;' : ''">
+                <select name="cls.id" id="classId" required th:style="${preSelectedClassId != null} ? 'background-color: #e3e7ff;' : ''">
                     <option value="">-- Select Class --</option>
                     <th:block th:each="c : ${allClass}">
                         <option th:value="${c.id}" th:selected="${preSelectedClassId != null and c.id == preSelectedClassId}">

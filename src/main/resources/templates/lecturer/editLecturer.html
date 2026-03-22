@@ -27,22 +27,22 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="lecturerID">Lecturer ID <span>*</span></label>
-                <input type="text" id="lecturerID" name="lecturerID" value="" th:value="${lecturer.id}" readonly>
+                <input type="text" id="lecturerID" name="id" value="" th:value="${lecturer.id}" readonly>
             </div>
             <div class="form-group">
                 <label for="lecturerName">Lecturer Name</label>
-                <input type="text" id="lecturerName" name="lecturerName" value="" th:value="${lecturer.name}" required>
+                <input type="text" id="lecturerName" name="name" value="" th:value="${lecturer.name}" required>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="departmentHead">Email</label>
+                <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="" th:value="${lecturer.email}">
             </div>
               <div class="form-group">
                 <label for="depCode" class="form-label">Department</label>
-                <select id="depCode" class="form-select" aria-label="Default select example" name="depCode">
+                <select id="depCode" class="form-select" aria-label="Default select example" name="department.code">
                     <th:block th:each="dep : ${departmentList}">
                         <option th:value="${dep.code}" th:text="${dep.name}" th:selected="${lecturer.department != null and lecturer.department.code == dep.code}"></option>
                     </th:block>
