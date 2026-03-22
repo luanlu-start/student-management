@@ -116,6 +116,9 @@
                             <a th:href="@{|/classes/view?id=${cls.id}|}" class="btn-action edit" title="View Details">
                                 <i class='bx bx-show'></i>
                             </a>
+                            <a th:if="${r == 'admin' or r == 'academic_staff'}" th:href="@{|/enrollment/addStudent?classId=${cls.id}|}" class="btn-action add" title="Add Student">
+                                <i class='bx bx-user-plus'></i>
+                            </a>
                             <a th:if="${r == 'admin' or r == 'academic_staff'}" th:href="@{|/classes/edit?id=${cls.id}|}" class="btn-action edit" title="Edit">
                                 <i class='bx bx-edit'></i>
                             </a>
