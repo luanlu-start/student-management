@@ -1,0 +1,88 @@
+﻿<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">All Users</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}" href="/home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">All Users</a></li>
+        </ul>
+    </div>
+
+    <th:block th:if="${session.user != null and (session.user.role == 'admin' or session.user.role == 'academic_staff')}">
+        <a th:href="@{/user/add}" href="/user" class="btn-add-new">
+            <i class='bx bx-plus'></i> Add New User
+        </a>
+    </th:block>
+</div>
+
+<div class="filter-bar" id="userFilterBar">
+    <input type="text" id="userSearchInput" placeholder="Search users...">
+    <select id="userRoleFilter">
+        <option value="">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="academic_staff">Academic Staff</option>
+        <option value="lecturer">Lecturer</option>
+    </select>
+    <select id="userDepartmentFilter">
+        <option value="">All Departments</option>
+    </select>
+</div>
+
+<div class="user-grid" id="userGrid">
+
+    <th:block th:each="user : ${listUser}">
+
+        <div class="user-card"
+             th:attr="data-username=${user.username},data-role=${user.role},data-department=${user.lecturer != null and user.lecturer.department != null and user.lecturer.department.name != null ? user.lecturer.department.name : ''}">
+
+            <div class="card-avatar" th:style="'background-color: #' + ${T(java.lang.Math).abs(user.username.hashCode() % 999999)}">
+                <span><span th:text="${user.username.substring(0, 1).toUpperCase()}"></span></span>
+            </div>
+
+            <div class="card-info">
+                
+                    <th:block th:if="${user.lecturer != null}">
+                        <h3 class="card-name">[[${user.lecturer.name}]]</h3>
+                    </th:block>
+                    <th:block>
+                        <h3 class="card-name">[[${user.username}]]</h3>
+                    </th:block>
+                
+
+                
+                    <th:block th:if="${user.lecturer != null and user.lecturer.department != null and user.lecturer.department.name != null}">
+                        <p class="card-detail">[[${user.lecturer.department.name}]]</p>
+                    </th:block>
+                    <th:block>
+                        <p class="card-detail">[[${user.role}]]</p>
+                    </th:block>
+                
+
+                <p class="card-detail-role">Role: [[${user.role}]]</p>
+            </div>
+
+            <div class="card-buttons">
+
+                
+                <th:block th:if="${session.user != null and session.user.role == 'admin'}">
+
+                    
+                    <th:block th:if="${session.user.id != user.id}">
+                        <a th:href="@{|/user/delete?id=${user.id}|}" href="/user" class="btn-card btn-view">
+                            <i class='bx bx-trash'></i> Delete
+                        </a>
+                    </th:block>
+                </th:block>
+            </div>
+        </div>
+
+    </th:block>
+
+    <p id="userNoResult" style="display:none; text-align: center; grid-column: 1 / -1; padding: 20px;">
+        No users found matching your criteria.
+    </p>
+
+</div>
+</th:block>

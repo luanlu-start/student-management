@@ -1,0 +1,77 @@
+﻿
+<link th:href="@{/assets/css/viewStudent.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">Lecturer Information</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a th:href="@{/lecturer}">Lecturer</a></li>
+            <li class="divider">/</li>
+            <li><a href="#" class="active">[[${lecturer.name}]]</a></li>
+        </ul>
+    </div>
+    <a th:href="@{/lecturer}" class="btn-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Lecturers
+    </a>
+</div>
+
+<div class="profile-header-card">
+
+    <div class="profile-avatar-lg" style="background-color: #${colorCode}">
+        [[${#strings.substring(lecturer.name, 0, 1)}]]
+    </div>
+
+    <div class="profile-header-info">
+        <h2 class="profile-name">[[${lecturer.title}]] [[${lecturer.name}]]</h2>
+
+        <p class="profile-department">[[${lecturer.department.name}]]</p>
+    </div>
+
+    <div class="profile-header-actions">
+        <a th:href="@{|/lecturer/edit?id=${lecturer.id}|}" class="btn btn-edit-profile">
+            <i class='bx bx-edit'></i> Edit Profile
+        </a>
+    </div>
+</div>
+
+<div class="profile-content-card">
+    <div class="profile-tabs">
+        <a href="#" class="tab-item active"><i class='bx bxs-user'></i> Overview</a>
+    </div>
+
+    <div class="tab-content" id="overview">
+        <div class="info-section">
+            <h4 class="section-title">Personal Information</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <p>Full Name</p>
+                    <span>[[${lecturer.name}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Lecturer ID</p>
+                    <span>[[${lecturer.id}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Department</p>
+                    <span>[[${lecturer.department.name}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Title</p>
+                    <span>[[${lecturer.title}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Phone</p>
+                    <span>[[${lecturer.phone}]]</span>
+                </div>
+                <div class="info-item">
+                    <p>Email</p>
+                    <span>[[${lecturer.email}]]</span>
+                </div>            
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>

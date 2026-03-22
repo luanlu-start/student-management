@@ -1,0 +1,120 @@
+﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content" th:with="r=${session.user != null ? #strings.toLowerCase(#strings.replace(session.user.role,' ','_')) : ''}">
+<div class="page-header">
+    <div>
+        <h1 class="title">Gradebook: [[${classInfo.code}]]</h1>
+        <ul class="breadcrumbs">
+            <li><a th:href="@{/home}">Home</a></li>
+            <li class="divider">/</li>
+            <li><a th:href="@{/classes}">Classes</a></li>
+            <li class="divider">/</li>
+            <li><a th:href="@{|/classes/view?id=${classInfo.id}|}">View Class</a></li>
+            <li class="divider">/</li>
+            <li class="active">Manage Grades</li>
+        </ul>
+    </div>
+    <div class="header-buttons">
+        <a th:if="${r == 'admin' or r == 'lecturer' or r == 'teacher'}" th:href="@{|/mark/create?classId=${classInfo.id}|}" class="btn-add-new">
+            <i class='bx bx-plus'></i> Add New Mark
+        </a>
+        <a th:href="@{|/classes/view?id=${classInfo.id}|}" class="btn-secondary">
+            <i class='bx bx-arrow-back'></i> Back to Class Details
+        </a>
+    </div>
+</div>
+
+<th:block th:if="${success != null}">
+    <div id="mark-success" class="alert alert-success">[[${success}]]</div>
+</th:block>
+<th:block th:if="${error != null}">
+    <div id="mark-error" class="alert alert-error">[[${error}]]</div>
+</th:block>
+
+<div class="table-container">
+    <div class="table-header">
+        <h3>Grades for [[${classInfo.course.title}]]</h3>
+        <div class="table-filters">
+            <div class="search-wrapper">
+                <i class='bx bx-search'></i>
+                <input type="text" id="gradebookSearch" placeholder="Search students...">
+            </div>
+        </div>
+    </div>
+
+    <table style="table-layout: auto; width: 100%;">
+        <thead>
+            <tr>
+                <th style="width: 50px;">#</th>
+                <th style="width: 250px;">Student Name</th>
+                <th:block th:each="ass : ${assessmentList}">
+                    <th style="text-align: center;">
+                        [[${ass.type}]]
+                        <small style="display: block; font-weight: normal;">([[${ass.weight}]]%)</small>
+                    </th>
+                </th:block>
+            </tr>
+        </thead>
+        <tbody id="gradebookTableBody">
+            <th:block th:each="student, loop : ${studentList}"
+                      th:with="enrollId=${studentEnrollMap[student.id]}, studentMarks=${marksByStudentAssessment[student.id]}">
+                <tr class="grade-row" th:attr="data-name=${student.name}">
+                    <td style="text-align: center;">[[${loop.count}]]</td>
+                    <td>
+                        <div class="head-info">
+                            <div class="avatar">
+                                <span>[[${#strings.substring(student.name, 0, 1)}]]</span>
+                            </div>
+                            <div class="head-name">
+                                <p>[[${student.name}]]</p>
+                                <small>ID: [[${student.id}]]</small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <th:block th:each="ass : ${assessmentList}"
+                              th:with="markObj=${studentMarks != null ? studentMarks[ass.id] : null}">
+                        <td style="text-align: center; font-weight: 600;">
+                            <th:block th:if="${markObj != null}">
+                                <div style="margin-bottom: 6px;">
+                                    <span th:text="${#numbers.formatDecimal(markObj.mark, 1, 1)}"></span>
+                                </div>
+                                <div class="action-buttonss" th:if="${r == 'admin' or r == 'lecturer' or r == 'teacher'}" style="justify-content: center;">
+                                    <a th:href="@{|/mark/edit?enrollId=${enrollId}&assessmentId=${ass.id}&classId=${classInfo.id}|}" class="btn-action edit" title="Edit Mark" style="width: 24px; height: 24px; font-size: 14px;">
+                                        <i class='bx bx-edit-alt'></i>
+                                    </a>
+                                    <a th:href="@{|/mark/delete?enrollId=${enrollId}&assessmentId=${ass.id}&classId=${classInfo.id}|}" class="btn-action delete" title="Delete Mark" onclick="return confirm('Delete this mark?');" style="width: 24px; height: 24px; font-size: 14px;">
+                                        <i class='bx bx-trash'></i>
+                                    </a>
+                                </div>
+                            </th:block>
+                            <th:block th:if="${markObj == null and enrollId != null}">
+                                <a th:if="${r == 'admin' or r == 'lecturer' or r == 'teacher'}" th:href="@{|/mark/create?enrollId=${enrollId}&assessmentId=${ass.id}&classId=${classInfo.id}|}" class="btn-action edit" title="Add Mark" style="width: 28px; height: 28px; font-size: 16px; background: #e0e0e0; margin: 0 auto;">
+                                    <i class='bx bx-plus'></i>
+                                </a>
+                                <span th:if="${!(r == 'admin' or r == 'lecturer' or r == 'teacher')}">-</span>
+                            </th:block>
+                            <th:block th:if="${enrollId == null}">-</th:block>
+                        </td>
+                    </th:block>
+                </tr>
+            </th:block>
+
+            <th:block th:if="${#lists.isEmpty(studentList)}">
+                <tr>
+                    <td th:attr="colspan=${2 + #lists.size(assessmentList)}" style="text-align: center; padding: 20px;">
+                        No students are enrolled in this class.
+                    </td>
+                </tr>
+            </th:block>
+
+            <tr id="noResultsRow" style="display: none;">
+                <td th:attr="colspan=${2 + #lists.size(assessmentList)}" style="text-align: center; padding: 20px;">
+                    No students found matching your search.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</th:block>

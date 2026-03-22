@@ -1,0 +1,143 @@
+<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/assessment.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+
+<div class="page-header">
+    <div>
+        <h1 class="title">Assessments Management</h1>
+    </div>
+    <div class="header-buttons">
+        <a href="#" class="btn-secondary">
+            <i class='bx bx-export'></i> Export Data
+        </a>
+        <a th:href="@{/assessment/create}" class="btn-add-header">
+            <i class='bx bx-plus'></i> Add Assessment
+        </a>
+    </div>
+</div>
+
+<th:block th:if="${message != null and !#strings.isEmpty(message)}">
+    <div class="alert" th:classappend="' alert-' + ${messageType}">
+        [[${message}]]
+    </div>
+</th:block>
+
+<div class="stat-card-grid">
+    <div class="stat-card">
+        <div class="icon-wrapper blue">
+            <i class='bx bxs-school'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalAssessment}]]</h3>
+            <p>Total Assessments</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper green">
+            <i class='bx bx-check-circle'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalCourse}]]</h3>
+            <p>Total Courses</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper cyan">
+            <i class='bx bxs-group'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalStudent}]]</h3>
+            <p>Total Students</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper orange">
+            <i class='bx bxs-user-badge'></i>
+        </div>
+        <div class="stat-info">          
+            <h3>[[${totalDepartment}]]</h3>
+            <p>Total Departments</p>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <h3>Assessments by Course</h3>
+        <div class="table-filters">
+            <div class="search-wrapper">
+                <i class='bx bx-search'></i>
+                <input type="text" id="searchInput" placeholder="Search courses...">
+            </div>
+        </div>
+    </div>
+
+    <th:block th:each="course : ${allCourse}" th:with="courseAssessments=${assessmentsByCourse[course.id]}">
+        <div class="course-accordion" th:attr="data-course-name=${course.code}">
+            <div class="course-header">
+                <div class="course-info">
+                    <div class="course-icon">
+                        <i class='bx bxs-book'></i>
+                    </div>
+                    <div class="course-details">
+                        <h4>[[${course.code}]]</h4>
+                        <p>Department: [[${course.department != null ? course.department.name : 'N/A'}]]</p>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <span class="assessment-count">
+                        [[${courseAssessments != null ? #lists.size(courseAssessments) : 0}]] Assessment(s)
+                    </span>
+                    <a th:href="@{/assessment/create(courseId=${course.id})}"
+                       class="btn-add-assessment">
+                        <i class='bx bx-plus'></i> Add
+                    </a>
+                    <i class='bx bx-chevron-down toggle-icon'></i>
+                </div>
+            </div>
+
+            <div class="course-content">
+                <div class="assessments-table">
+                    <th:block th:if="${courseAssessments != null and !#lists.isEmpty(courseAssessments)}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Weight</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="assess : ${courseAssessments}">
+                                    <td>[[${assess.id}]]</td>
+                                    <td>[[${assess.type}]]</td>
+                                    <td><span th:text="${#numbers.formatDecimal(assess.weight, 1, 0)}"></span>%</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a th:href="@{/assessment/edit(id=${assess.id})}" class="btn-action edit">
+                                                <i class='bx bx-edit'></i>
+                                            </a>
+                                            <a th:href="@{/assessment/delete(id=${assess.id})}" class="btn-action delete">
+                                                <i class='bx bx-trash'></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </th:block>
+
+                    <th:block th:if="${courseAssessments == null or #lists.isEmpty(courseAssessments)}">
+                        <div class="no-assessments">
+                            <i class='bx bx-folder-open no-assessments-icon'></i>
+                            <p>No assessments yet. Click the "+ Add" button to create one.</p>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</div>
+
+</th:block>

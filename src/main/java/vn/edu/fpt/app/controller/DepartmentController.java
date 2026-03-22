@@ -4,11 +4,16 @@
  */
 package vn.edu.fpt.app.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.fpt.app.dto.DepartmentDTO;
 import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.entities.Student;
 import vn.edu.fpt.app.service.DepartmentService;
 import vn.edu.fpt.app.service.StudentService;
 import jakarta.servlet.http.HttpSession;
+
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,9 +56,20 @@ public class DepartmentController {
 
 
     @GetMapping("/edit")
-    public String showEdit(@RequestParam(name = "depCode") String depCode, Model model) {
-        model.addAttribute("editDepartment", depService.getDepartmentByCode(depCode));
+    public String showEdit(@RequestParam("depCode") String depCode, Model model) {
+
+        Department dep = depService.getDepartmentByCode(depCode);
+
+        DepartmentDTO dto = new DepartmentDTO();
+        dto.setCode(dep.getCode());
+        dto.setName(dep.getName());
+        dto.setHead(dep.getDepartmentHead());
+        dto.setEmail(dep.getEmail());
+        dto.setPhone(dep.getPhone());
+
+        model.addAttribute("department", dto);
         model.addAttribute("home_view", "department/editDepartment.html");
+
         return "dashboard";
     }
 
@@ -66,105 +82,93 @@ public class DepartmentController {
 
     @GetMapping("/add")
     public String showCreate(Model model) {
+        model.addAttribute("department", new DepartmentDTO());
         model.addAttribute("home_view", "department/createDepartment.html");
         return "dashboard";
     }
 
     @PostMapping("/edit")
-    public String edit(@ModelAttribute("departmentForm") DepartmentForm form, Model model) {
-        if (form.getDepartmentCode() == null) {
-            return "redirect:/department";
-        }
-        boolean update = depService.updateDepartmentByCode(
-                form.getDepartmentCode(),
-                form.getDepartmentName(),
-                form.getDepartmentHead(),
-                form.getEmail(),
-                form.getPhone());
-        if (update) {
-            return "redirect:/department";
-        }
-        model.addAttribute("ErrorMsg", "Fail to update department!");
-        model.addAttribute("editDepartment", depService.getDepartmentByCode(form.getDepartmentCode()));
-        model.addAttribute("home_view", "department/department.html");
-        return "dashboard";
-    }
+    public String edit(@Valid @ModelAttribute("department") DepartmentDTO dto,
+                       BindingResult result,
+                       Model model,
+                       RedirectAttributes redirect) {
 
-    @PostMapping("/delete")
-    public String delete(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
-        boolean deleteSuccess = form.getDepCode() != null && depService.deleteDepartmentByCode(form.getDepCode());
-        if (deleteSuccess) {
-            session.setAttribute("message", "Department deleted successfully!");
-            session.setAttribute("messageType", "success");
-        } else {
-            session.setAttribute("message", "Failed to delete department!");
-            session.setAttribute("messageType", "error");
+        if (result.hasErrors()) {
+            model.addAttribute("home_view", "department/editDepartment.html");
+            return "dashboard";
         }
-        return "redirect:/department";
+
+        try {
+            depService.update(dto);
+
+            redirect.addFlashAttribute("message", "Update successful!");
+            redirect.addFlashAttribute("messageType", "success");
+            return "redirect:/department";
+
+        } catch (RuntimeException e) {
+
+            String msg = e.getMessage();
+
+            if ("NAME_EXISTS".equals(msg)) {
+                result.rejectValue("name", "error.name", "Department name already exists");
+            }
+            else if ("NOT_FOUND".equals(msg)) {
+                redirect.addFlashAttribute("message", "Department not found!");
+                redirect.addFlashAttribute("messageType", "error");
+                return "redirect:/department";
+            } else {
+                model.addAttribute("ErrorMsg", "Update failed!");
+            }
+
+            model.addAttribute("department", dto); // 🔥 giữ data
+            model.addAttribute("home_view", "department/editDepartment.html");
+            return "dashboard";
+        }
     }
+//
+//    @PostMapping("/delete")
+//    public String delete(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
+//        boolean deleteSuccess = form.getDepCode() != null && depService.deleteDepartmentByCode(form.getDepCode());
+//        if (deleteSuccess) {
+//            session.setAttribute("message", "Department deleted successfully!");
+//            session.setAttribute("messageType", "success");
+//        } else {
+//            session.setAttribute("message", "Failed to delete department!");
+//            session.setAttribute("messageType", "error");
+//        }
+//        return "redirect:/department";
+//    }
 
     @PostMapping("/add")
-    public String add(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
-        String code = form.getDepartmentCode() == null ? "" : form.getDepartmentCode().trim();
-        String name = form.getDepartmentName() == null ? "" : form.getDepartmentName().trim();
+    public String add(@Valid @ModelAttribute("department") DepartmentDTO dto,
+                      BindingResult result,
+                      RedirectAttributes redirect,
+                      Model model) {
 
-        if (code.isEmpty() || name.isEmpty()) {
-            session.setAttribute("message", "Department code and name are required!");
-            session.setAttribute("messageType", "error");
-            return "redirect:/department/add";
+        // validate form
+        if (result.hasErrors()) {
+            model.addAttribute("home_view", "department/createDepartment.html");  // ✅ Set view
+            return "dashboard";  // ✅ Return dashboard với home_view
         }
 
-        if (depService.existsByCode(code)) {
-            session.setAttribute("message", "Department code already exists!");
-            session.setAttribute("messageType", "error");
-            return "redirect:/department/add";
-        }
+        try {
+            depService.add(dto);
 
-        if (depService.existsByName(name)) {
-            session.setAttribute("message", "Department name already exists!");
-            session.setAttribute("messageType", "error");
-            return "redirect:/department/add";
-        }
-
-        Department department = new Department(
-                code,
-                name,
-                form.getDepartmentHead(),
-                form.getPhone(),
-                form.getEmail());
-
-        boolean addSuccess = depService.addNewDepartment(department);
-        if (addSuccess) {
-            session.setAttribute("message", "Department added successfully!");
-            session.setAttribute("messageType", "success");
+            redirect.addFlashAttribute("message", "Department added successfully!");
+            redirect.addFlashAttribute("messageType", "success");
             return "redirect:/department";
+
+        } catch (RuntimeException e) {
+
+            if ("CODE_EXISTS".equals(e.getMessage())) {
+                result.rejectValue("code", "error.code", "Code already exists");
+            } else if ("NAME_EXISTS".equals(e.getMessage())) {
+                result.rejectValue("name", "error.name", "Name already exists");
+            }
+
+            return "department/createDepartment";
         }
-
-        session.setAttribute("message", "Failed to add department. Please check duplicate data and try again.");
-        session.setAttribute("messageType", "error");
-        return "redirect:/department/add";
     }
 
-    public static class DepartmentForm {
-        private String depCode;
-        private String departmentCode;
-        private String departmentName;
-        private String departmentHead;
-        private String email;
-        private String phone;
-
-        public String getDepCode() { return depCode; }
-        public void setDepCode(String depCode) { this.depCode = depCode; }
-        public String getDepartmentCode() { return departmentCode; }
-        public void setDepartmentCode(String departmentCode) { this.departmentCode = departmentCode; }
-        public String getDepartmentName() { return departmentName; }
-        public void setDepartmentName(String departmentName) { this.departmentName = departmentName; }
-        public String getDepartmentHead() { return departmentHead; }
-        public void setDepartmentHead(String departmentHead) { this.departmentHead = departmentHead; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-    }
 
 }

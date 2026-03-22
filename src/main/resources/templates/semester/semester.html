@@ -1,0 +1,118 @@
+<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+<link th:href="@{/assets/css/semester.css}" rel="stylesheet" type="text/css"/>
+<th:block th:fragment="content">
+<div class="page-header">
+    <div>
+        <h1 class="title">All Semester</h1>
+        <p class="subtitle">Manage your institution's semester catalog.</p>
+    </div>
+    <div class="header-buttons">
+<!--        <a href="#" class="btn-secondary">
+            <i class='bx bx-export'></i> Export
+        </a>-->
+        <a th:href="@{/semester/add}" class="btn-add-new">
+            <i class='bx bx-plus'></i> Add New Semester
+        </a>
+    </div>
+</div>
+
+<th:block th:if="${message != null and !#strings.isEmpty(message)}">
+    <div class="alert" th:classappend="' alert-' + ${messageType}">
+        [[${message}]]
+    </div>
+</th:block>
+
+<div class="stat-card-grid">
+    <div class="stat-card">
+        <div class="icon-wrapper blue">
+            <i class='bx bxs-book-open'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalSemester}]]</h3>
+            <p>Total Semester</p>
+        </div>
+    </div>
+<!--    <div class="stat-card">
+        <div class="icon-wrapper green">
+            <i class='bx bx-check-circle'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalCourses}]]</h3> 
+            <p>Active Courses</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper cyan">
+            <i class='bx bxs-group'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalStudents}]]</h3>
+            <p>Total Students</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon-wrapper orange">
+            <i class='bx bx-user-voice'></i>
+        </div>
+        <div class="stat-info">
+            <h3>[[${totalEnrolls}]]</h3>
+            <p>Avg. Enrollment</p>
+        </div>
+    </div>-->
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <h3>All Semester</h3>
+        <div class="table-filters">
+            <div class="search-wrapper">
+                <i class='bx bx-search'></i>
+                <input type="text" id="semesterSearchInput" placeholder="Search semester by code, year, date...">
+            </div>
+            <select id="semesterStatusFilter">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="disabled">Disabled</option>
+            </select>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Code</th>
+                <th>Year</th>
+                <th>Begin Date</th>
+                <th>End Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="semesterTableBody">
+            <th:block th:each="semester : ${semesterList}">
+                <tr th:attr="data-code=${semester.code},data-year=${semester.year},data-begin=${semester.beginDate},data-end=${semester.endDate}">
+                    <td class="table-semester">[[${semester.id}]]</td>
+                    <td class="table-semester">[[${semester.code}]]</td>
+                    <td class="table-semester">[[${semester.year}]]</td>
+                    <td class="table-semester">[[${semester.beginDate}]]</td>
+                    <td class="table-semester">[[${semester.endDate}]]</td>
+
+                    <td>
+                        <div class="action-buttons semester-actions">
+                            <a th:href="@{/semester/edit(sesID=${semester.id})}" class="btn-action edit">
+                                <i class='bx bx-edit'></i>
+                            </a>
+                            <a th:href="@{/semester/delete(sesID=${semester.id})}" class="btn-action delete">
+                                <i class='bx bx-trash'></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+            <tr id="semesterNoResultRow" style="display: none;">
+                <td colspan="6" style="text-align: center;">No semester found.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</th:block>
