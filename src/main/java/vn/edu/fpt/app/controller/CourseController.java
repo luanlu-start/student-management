@@ -133,12 +133,12 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/create")
-    public String create(@ModelAttribute("course") CourseForm form) {
-        if (form.getCode() == null || form.getTitle() == null || form.getCredits() == null || form.getDepartmentCode() == null) {
+    public String create(@ModelAttribute("course") Course form) {
+        if (form.getCode() == null || form.getTitle() == null || form.getDepartment() == null || form.getDepartment().getCode() == null) {
             return "redirect:/course";
         }
         Department d = new Department();
-        d.setCode(form.getDepartmentCode());
+        d.setCode(form.getDepartment().getCode());
         Course newCourse = new Course(0, form.getCode(), form.getTitle(), form.getCredits(), d);
         courseService.insertCourse(newCourse);
         return "redirect:/course";
@@ -146,12 +146,12 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/update")
-    public String update(@ModelAttribute("course") CourseForm form) {
-        if (form.getId() == null || form.getCode() == null || form.getTitle() == null || form.getCredits() == null || form.getDepartmentCode() == null) {
+    public String update(@ModelAttribute("course") Course form) {
+        if (form.getId() <= 0 || form.getCode() == null || form.getTitle() == null || form.getDepartment() == null || form.getDepartment().getCode() == null) {
             return "redirect:/course";
         }
 
-        String departmentCode = form.getDepartmentCode().trim();
+        String departmentCode = form.getDepartment().getCode().trim();
         Department d = depService.getDepartmentByCode(departmentCode);
         if (d == null) {
             return "redirect:/course/update?id=" + form.getId() + "&error=department";
@@ -170,29 +170,10 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("course") CourseForm form) {
-        if (form.getId() != null) {
+    public String delete(@ModelAttribute("course") Course form) {
+        if (form.getId() > 0) {
             courseService.deleteCourse(form.getId());
         }
         return "redirect:/course";
-    }
-
-    public static class CourseForm {
-        private Integer id;
-        private String code;
-        private String title;
-        private Integer credits;
-        private String departmentCode;
-
-        public Integer getId() { return id; }
-        public void setId(Integer id) { this.id = id; }
-        public String getCode() { return code; }
-        public void setCode(String code) { this.code = code; }
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public Integer getCredits() { return credits; }
-        public void setCredits(Integer credits) { this.credits = credits; }
-        public String getDepartmentCode() { return departmentCode; }
-        public void setDepartmentCode(String departmentCode) { this.departmentCode = departmentCode; }
     }
 }

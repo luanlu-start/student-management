@@ -84,15 +84,15 @@ public class EnrollmentController {
     }
 
     @PostMapping("/addStudent")
-    public String addStudent(@ModelAttribute("enrollmentForm") EnrollmentForm form, HttpSession session) {
-        if (form.getStudentId() == null || form.getClassId() == null) {
+    public String addStudent(@ModelAttribute("enrollmentForm") vn.edu.fpt.app.entities.Enrollment form, HttpSession session) {
+        if (form.getStudent() == null || form.getCls() == null || form.getStudent().getId() <= 0 || form.getCls().getId() <= 0) {
             session.setAttribute("message", "Invalid data. Please select both student and class.");
             session.setAttribute("messageType", "error");
             return "redirect:/classes";
         }
 
-        int studentId = form.getStudentId();
-        int classId = form.getClassId();
+        int studentId = form.getStudent().getId();
+        int classId = form.getCls().getId();
 
         if (enrollService.isAlreadyEnrolled(studentId, classId)) {
             Student student = stuService.getStudentById(studentId);
@@ -116,12 +116,12 @@ public class EnrollmentController {
     }
 
     @PostMapping("/deleteStudent")
-    public String showDeleteStudent(@ModelAttribute("enrollmentForm") EnrollmentForm form, Model model) {
-        if (form.getStudentId() == null || form.getClassId() == null) {
+    public String showDeleteStudent(@ModelAttribute("enrollmentForm") vn.edu.fpt.app.entities.Enrollment form, Model model) {
+        if (form.getStudent() == null || form.getCls() == null || form.getStudent().getId() <= 0 || form.getCls().getId() <= 0) {
             return "redirect:/classes";
         }
-        Student student = stuService.getStudentById(form.getStudentId());
-        Classes classes = classService.getClassById(form.getClassId());
+        Student student = stuService.getStudentById(form.getStudent().getId());
+        Classes classes = classService.getClassById(form.getCls().getId());
         model.addAttribute("classes", classes);
         model.addAttribute("student", student);
         model.addAttribute("home_view", "enrollment/deleteEnrollment.html");
@@ -129,13 +129,13 @@ public class EnrollmentController {
     }
 
     @PostMapping("/confirmDeleteStudent")
-    public String confirmDeleteStudent(@ModelAttribute("enrollmentForm") EnrollmentForm form, HttpSession session) {
-        if (form.getStudentId() == null || form.getClassId() == null) {
+    public String confirmDeleteStudent(@ModelAttribute("enrollmentForm") vn.edu.fpt.app.entities.Enrollment form, HttpSession session) {
+        if (form.getStudent() == null || form.getCls() == null || form.getStudent().getId() <= 0 || form.getCls().getId() <= 0) {
             return "redirect:/classes";
         }
 
-        int studentId = form.getStudentId();
-        int classId = form.getClassId();
+        int studentId = form.getStudent().getId();
+        int classId = form.getCls().getId();
 
         Student student = stuService.getStudentById(studentId);
         String studentName = student != null ? student.getName() : "Student #" + studentId;
@@ -151,14 +151,5 @@ public class EnrollmentController {
         return "redirect:/classes/view?id=" + classId;
     }
 
-    public static class EnrollmentForm {
-        private Integer studentId;
-        private Integer classId;
-
-        public Integer getStudentId() { return studentId; }
-        public void setStudentId(Integer studentId) { this.studentId = studentId; }
-        public Integer getClassId() { return classId; }
-        public void setClassId(Integer classId) { this.classId = classId; }
-    }
 }
 

@@ -119,24 +119,26 @@ public class AssessmentController {
     }
 
     @PostMapping("/create")
-    public String create(@ModelAttribute("assessment") AssessmentForm form, HttpSession session) {
-        if (form.getType() == null || form.getWeight() == null || form.getCourseId() == null) {
+    public String create(@ModelAttribute("assessment") Assessment assessment, HttpSession session) {
+        if (assessment.getType() == null || assessment.getCourse() == null || assessment.getCourse().getId() <= 0) {
             session.setAttribute("message", "Please fill all required fields.");
             session.setAttribute("messageType", "error");
             return "redirect:/assessment/create";
         }
 
-        double currentTotal = assessService.getAssessmentsByCourseId(form.getCourseId())
+        int courseId = assessment.getCourse().getId();
+
+        double currentTotal = assessService.getAssessmentsByCourseId(courseId)
                 .stream()
                 .mapToDouble(Assessment::getWeight)
                 .sum();
-        if (currentTotal + form.getWeight() > 100.0) {
+        if (currentTotal + assessment.getWeight() > 100.0) {
             session.setAttribute("message", "Total assessment weight for this course cannot exceed 100%.");
             session.setAttribute("messageType", "error");
-            return "redirect:/assessment/create?courseId=" + form.getCourseId();
+            return "redirect:/assessment/create?courseId=" + courseId;
         }
 
-        boolean created = assessService.createAssessment(form.getType(), form.getWeight(), form.getCourseId());
+        boolean created = assessService.createAssessment(assessment.getType(), assessment.getWeight(), courseId);
         if (created) {
             session.setAttribute("message", "Assessment created successfully!");
             session.setAttribute("messageType", "success");
@@ -149,32 +151,35 @@ public class AssessmentController {
     }
 
     @PostMapping("/edit")
-    public String update(@ModelAttribute("assessment") AssessmentForm form, HttpSession session) {
-        if (form.getId() == null || form.getType() == null || form.getWeight() == null || form.getCourseId() == null) {
+    public String update(@ModelAttribute("assessment") Assessment assessment, HttpSession session) {
+        if (assessment.getId() <= 0 || assessment.getType() == null || assessment.getCourse() == null || assessment.getCourse().getId() <= 0) {
             session.setAttribute("message", "Please fill all required fields.");
             session.setAttribute("messageType", "error");
             return "redirect:/assessment";
         }
 
-        Assessment current = assessService.getAssessmentById(form.getId());
+        int assessmentId = assessment.getId();
+        int courseId = assessment.getCourse().getId();
+
+        Assessment current = assessService.getAssessmentById(assessmentId);
         if (current == null) {
             session.setAttribute("message", "Assessment not found!");
             session.setAttribute("messageType", "error");
             return "redirect:/assessment";
         }
 
-        double recalculatedTotal = assessService.getAssessmentsByCourseId(form.getCourseId())
+        double recalculatedTotal = assessService.getAssessmentsByCourseId(courseId)
                 .stream()
-                .filter(a -> a.getId() != form.getId())
+                .filter(a -> a.getId() != assessmentId)
                 .mapToDouble(Assessment::getWeight)
-                .sum() + form.getWeight();
+                .sum() + assessment.getWeight();
         if (recalculatedTotal > 100.0) {
             session.setAttribute("message", "Total assessment weight for this course cannot exceed 100%.");
             session.setAttribute("messageType", "error");
-            return "redirect:/assessment/edit?id=" + form.getId();
+            return "redirect:/assessment/edit?id=" + assessmentId;
         }
 
-        boolean updated = assessService.updateAssessment(form.getId(), form.getType(), form.getWeight(), form.getCourseId());
+        boolean updated = assessService.updateAssessment(assessmentId, assessment.getType(), assessment.getWeight(), courseId);
         if (updated) {
             session.setAttribute("message", "Assessment updated successfully!");
             session.setAttribute("messageType", "success");
@@ -186,14 +191,14 @@ public class AssessmentController {
     }
 
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("assessment") AssessmentForm form, HttpSession session) {
-        if (form.getId() == null) {
+    public String delete(@ModelAttribute("assessment") Assessment assessment, HttpSession session) {
+        if (assessment.getId() <= 0) {
             session.setAttribute("message", "Assessment id is required.");
             session.setAttribute("messageType", "error");
             return "redirect:/assessment";
         }
 
-        boolean deleted = assessService.deleteAssessmentById(form.getId());
+        boolean deleted = assessService.deleteAssessmentById(assessment.getId());
         if (deleted) {
             session.setAttribute("message", "Assessment deleted successfully!");
             session.setAttribute("messageType", "success");
@@ -204,20 +209,5 @@ public class AssessmentController {
         return "redirect:/assessment";
     }
 
-    public static class AssessmentForm {
-        private Integer id;
-        private String type;
-        private Double weight;
-        private Integer courseId;
-
-        public Integer getId() { return id; }
-        public void setId(Integer id) { this.id = id; }
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
-        public Double getWeight() { return weight; }
-        public void setWeight(Double weight) { this.weight = weight; }
-        public Integer getCourseId() { return courseId; }
-        public void setCourseId(Integer courseId) { this.courseId = courseId; }
-    }
 }
 

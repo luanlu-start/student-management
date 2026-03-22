@@ -27,13 +27,13 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="departmentName">Department Name <span>*</span></label>
-                <input type="text" id="departmentName" name="departmentName" 
+                <input type="text" id="departmentName" name="name"
                        value="" th:value="${editDepartment.name}" required>
             </div>
             <div class="form-group">
                 <label for="departmentCode">Department Code (Read-only)</label>
-                <input type="text" id="departmentCode" name="departmentCode" 
-                       value="" th:value="${editDepartment.code}" readonly 
+                <input type="text" id="departmentCode" name="code"
+                       value="" th:value="${editDepartment.code}" readonly
                        style="background-color: #f8f8f8;">
             </div>
         </div>

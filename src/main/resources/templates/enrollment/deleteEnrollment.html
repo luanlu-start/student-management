@@ -28,17 +28,15 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="idShow">Student ID</label>
-                <input hidden="true" type="text" id="studentId" name="studentId" 
-                       value="" th:value="${student.id}" readonly="true"
-                       style="background-color: #f8f8f8;">
-                <input type="text" id="idShow" name="idShow" 
-                       value="" th:value="${student.id}" disabled="true"
+                <input type="hidden" name="student.id" th:value="${student.id}">
+                <input type="text" id="idShow" name="idShow"
+                       value="" th:value="${student.id}" disabled
                        style="background-color: #f8f8f8;">
             </div>
             <div class="form-group">
                 <label for="name">Student Name </label>
                 <input type="text" id="name" name="name" 
-                       value="" th:value="${student.name}" disabled="true">
+                       value="" th:value="${student.name}" disabled>
             </div>
         </div>
 
@@ -46,14 +44,13 @@
             <div class="form-group">
                 <label for="ClassIdShow">Class ID</label>
                 <input type="text" id="ClassIdShow" name="ClassIdShow" 
-                       value="" th:value="${classes.id}" disabled="true">
-                <input type="text" id="classId" name="classId" 
-                       value="" th:value="${classes.id}" hidden="true" readonly="true">
+                       value="" th:value="${classes.id}" disabled>
+                <input type="hidden" name="cls.id" th:value="${classes.id}">
             </div>
             <div class="form-group">
                 <label for="code">Class Code </label>
                 <input type="text" id="code" name="code" 
-                       value="" th:value="${classes.code}" disabled="true">
+                       value="" th:value="${classes.code}" disabled>
             </div>
         </div>
 
