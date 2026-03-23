@@ -24,7 +24,7 @@
 
                 <li class="divider" data-text="Academic"></li>
 
-                <li sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')">
+                <li sec:authorize="hasAnyRole('admin','academic_staff')">
                     <a href="#">
                         <i class='bx bxs-user-account icon'></i> 
                         Lecturers
@@ -36,7 +36,7 @@
                     </ul>
                 </li>
 
-                <li sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')">
+                <li sec:authorize="hasAnyRole('admin','academic_staff')">
                     <a href="#">
                         <i class='bx bxs-group icon'></i> Students
                         <i class="bx bx-chevron-right icon-right"></i>
@@ -47,7 +47,7 @@
                     </ul>
                 </li>
 
-                <li sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')">
+                <li sec:authorize="hasAnyRole('admin','academic_staff')">
                     <a href="#">
                         <i class='bx bxs-book-open icon'></i> Courses
                         <i class="bx bx-chevron-right icon-right"></i>
@@ -57,7 +57,7 @@
                     </ul>
                 </li>
 
-                <li sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF','LECTURER','TEACHER')">
+                <li sec:authorize="hasAnyRole('admin','academic_staff','lecturer')">
                     <a href="#">
                         <i class='bx bxs-calendar-event icon'></i>Class
                         <i class="bx bx-chevron-right icon-right"></i>
@@ -67,7 +67,7 @@
                     </ul>
                 </li>
 
-                <li sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')">
+                <li sec:authorize="hasAnyRole('admin','academic_staff')">
                     <a href="#">
                         <i class='bx bxs-building-house icon'></i> Departments
                         <i class="bx bx-chevron-right icon-right"></i>
@@ -77,7 +77,7 @@
                     </ul>
                 </li>
 
-                <li sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')">
+                <li sec:authorize="hasAnyRole('admin','academic_staff')">
                     <a href="#">
                         <i class='bx bxs-notepad icon'></i> Assessments
                         <i class="bx bx-chevron-right icon-right"></i>
@@ -87,7 +87,7 @@
                     </ul>
                 </li>
 
-                <li sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')">
+                <li sec:authorize="hasAnyRole('admin','academic_staff')">
                     <a href="#">
                         <i class='bx bxs-calendar icon'></i> Semesters
                         <i class="bx bx-chevron-right icon-right"></i>
@@ -98,9 +98,9 @@
                 </li>
 
 
-                <li class="divider" data-text="Administrator" sec:authorize="hasRole('ADMIN')"></li>
+                <li class="divider" data-text="Administrator" sec:authorize="hasRole('admin')"></li>
 
-                <li sec:authorize="hasRole('ADMIN')">
+                <li sec:authorize="hasRole('admin')">
                     <a>
                         <i class='bx bx-user icon'></i> User
                         <i class="bx bx-chevron-right icon-right"></i>

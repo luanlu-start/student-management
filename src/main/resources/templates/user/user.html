@@ -10,7 +10,7 @@
         </ul>
     </div>
 
-    <a sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')" th:href="@{/user/add}" href="/user" class="btn-add-new">
+    <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{/user/add}" href="/user" class="btn-add-new">
         <i class='bx bx-plus'></i> Add New User
     </a>
 </div>
@@ -62,7 +62,7 @@
             </div>
 
             <div class="card-buttons">
-                <th:block sec:authorize="hasRole('ADMIN')">
+                <th:block sec:authorize="hasRole('admin')">
                     <th:block th:if="${session.user.id != user.id}">
                         <a th:href="@{|/user/delete?id=${user.id}|}" href="/user" class="btn-card btn-view">
                             <i class='bx bx-trash'></i> Delete

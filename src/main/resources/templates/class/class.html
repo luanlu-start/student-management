@@ -5,7 +5,7 @@
         <h1 class="title">Classes Management</h1>
         <p class="subtitle">Manage all classes, schedules, and assignments.</p>
     </div>
-    <div class="header-buttons" sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')">
+    <div class="header-buttons" sec:authorize="hasAnyRole('admin','academic_staff')">
         <a th:href="@{/classes/add}" class="btn-add-new">
             <i class='bx bx-plus'></i> Add New Class
         </a>
@@ -116,13 +116,13 @@
                             <a th:href="@{|/classes/view?id=${cls.id}|}" class="btn-action edit" title="View Details">
                                 <i class='bx bx-show'></i>
                             </a>
-                            <a sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')" th:href="@{|/enrollment/addStudent?classId=${cls.id}|}" class="btn-action add" title="Add Student">
+                            <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{|/enrollment/addStudent?classId=${cls.id}|}" class="btn-action add" title="Add Student">
                                 <i class='bx bx-user-plus'></i>
                             </a>
-                            <a sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')" th:href="@{|/classes/edit?id=${cls.id}|}" class="btn-action edit" title="Edit">
+                            <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{|/classes/edit?id=${cls.id}|}" class="btn-action edit" title="Edit">
                                 <i class='bx bx-edit'></i>
                             </a>
-                            <a sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')" th:href="@{|/classes/delete?id=${cls.id}|}" class="btn-action delete" title="Delete">
+                            <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{|/classes/delete?id=${cls.id}|}" class="btn-action delete" title="Delete">
                                 <i class='bx bx-trash'></i>
                             </a>
                         </div>
