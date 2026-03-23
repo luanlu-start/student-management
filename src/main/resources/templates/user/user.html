@@ -1,5 +1,5 @@
 ﻿<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
-<th:block th:fragment="content">
+<th:block th:fragment="content" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <div class="page-header">
     <div>
         <h1 class="title">All Users</h1>
@@ -10,11 +10,9 @@
         </ul>
     </div>
 
-    <th:block th:if="${session.user != null and (session.user.role == 'admin' or session.user.role == 'academic_staff')}">
-        <a th:href="@{/user/add}" href="/user" class="btn-add-new">
-            <i class='bx bx-plus'></i> Add New User
-        </a>
-    </th:block>
+    <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{/user/add}" href="/user" class="btn-add-new">
+        <i class='bx bx-plus'></i> Add New User
+    </a>
 </div>
 
 <div class="filter-bar" id="userFilterBar">
@@ -64,11 +62,7 @@
             </div>
 
             <div class="card-buttons">
-
-                
-                <th:block th:if="${session.user != null and session.user.role == 'admin'}">
-
-                    
+                <th:block sec:authorize="hasRole('admin')">
                     <th:block th:if="${session.user.id != user.id}">
                         <a th:href="@{|/user/delete?id=${user.id}|}" href="/user" class="btn-card btn-view">
                             <i class='bx bx-trash'></i> Delete
