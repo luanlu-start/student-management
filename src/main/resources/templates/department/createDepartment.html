@@ -65,7 +65,8 @@
             <div>
                 <div class="form-group">
                     <label for="phone">Phone</label>
-                    <input type="text" id="phone" th:field="*{phone}">
+                    <input type="text" id="phone" th:field="*{phone}"
+                           pattern="^\d{10,11}$" title="Please enter 10 or 11 digits.">
                     <small class="text-danger" th:errors="*{phone}"></small>
                 </div>
             </div>
