@@ -116,7 +116,7 @@
                             <a th:href="@{|/classes/view?id=${cls.id}|}" class="btn-action edit" title="View Details">
                                 <i class='bx bx-show'></i>
                             </a>
-                            <a th:if="${r == 'admin' or r == 'academic_staff'}" th:href="@{|/classes/edit?id=${cls.id}|}" class="btn-action edit" title="Edit">
+                            <a th:if="${r == 'admin' or r == 'academic_staff'}" th:href="@{/classes/edit/{id}(id=${cls.id})}" class="btn-action edit" title="Edit">
                                 <i class='bx bx-edit'></i>
                             </a>
                             <a th:if="${r == 'admin' or r == 'academic_staff'}" th:href="@{|/classes/delete?id=${cls.id}|}" class="btn-action delete" title="Delete">

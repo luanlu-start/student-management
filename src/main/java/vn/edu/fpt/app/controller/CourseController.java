@@ -4,7 +4,11 @@
  */
 package vn.edu.fpt.app.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.fpt.app.dto.CourseDTO;
 import vn.edu.fpt.app.entities.Course;
 import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.entities.Enrollment;
@@ -13,7 +17,9 @@ import vn.edu.fpt.app.service.CourseService;
 import vn.edu.fpt.app.service.DepartmentService;
 import vn.edu.fpt.app.service.EnrollmentService;
 import vn.edu.fpt.app.service.StudentService;
+
 import java.util.List;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -99,8 +105,12 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @GetMapping("/create")
     public String showCreate(Model model) {
+
+        model.addAttribute("course", new CourseDTO());
+
         model.addAttribute("listDepartment", depService.getAllDepartments());
         model.addAttribute("home_view", "course/createCourse.html");
+
         return "dashboard";
     }
 
@@ -110,7 +120,14 @@ public class CourseController {
             @RequestParam(name = "id") Integer id,
             @RequestParam(name = "error", required = false) String error,
             Model model) {
-        model.addAttribute("course", courseService.getCourseById(id));
+        Course course = courseService.getCourseById(id);
+        CourseDTO dto = new CourseDTO();
+        dto.setId(course.getId());
+        dto.setCode(course.getCode());
+        dto.setTitle(course.getTitle());
+        dto.setCredits(course.getCredits());
+        dto.setDepartmentCode(course.getDepartment().getCode());
+        model.addAttribute("course", dto);
         model.addAttribute("listDepartment", depService.getAllDepartments());
 
         if ("department".equalsIgnoreCase(error)) {
@@ -133,66 +150,101 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/create")
-    public String create(@ModelAttribute("course") CourseForm form) {
-        if (form.getCode() == null || form.getTitle() == null || form.getCredits() == null || form.getDepartmentCode() == null) {
-            return "redirect:/course";
+    public String create(@Valid @ModelAttribute("course") CourseDTO dto,
+                         BindingResult result,
+                         Model model,
+                         RedirectAttributes redirect) {
+
+        // validate annotation
+        if (result.hasErrors()) {
+            model.addAttribute("home_view", "course/createCourse.html");
+            return "dashboard";
         }
-        Department d = new Department();
-        d.setCode(form.getDepartmentCode());
-        Course newCourse = new Course(0, form.getCode(), form.getTitle(), form.getCredits(), d);
-        courseService.insertCourse(newCourse);
-        return "redirect:/course";
+
+        try {
+            courseService.insertCourse(dto);
+
+            redirect.addFlashAttribute("message", "Create successful!");
+            redirect.addFlashAttribute("messageType", "success");
+            return "redirect:/course";
+
+        } catch (RuntimeException e) {
+
+            if ("CODE_EXISTS".equals(e.getMessage())) {
+                result.rejectValue("code", "error.code", "Course code already exists");
+            } else if ("DEPARTMENT_NOT_FOUND".equals(e.getMessage())) {
+                result.rejectValue("departmentCode", "error.departmentCode", "Department not found");
+            } else {
+                model.addAttribute("ErrorMsg", "Create failed!");
+            }
+            model.addAttribute("listDepartment", depService.getAllDepartments());
+            model.addAttribute("home_view", "course/createCourse.html");
+            return "dashboard";
+        }
     }
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/update")
-    public String update(@ModelAttribute("course") CourseForm form) {
-        if (form.getId() == null || form.getCode() == null || form.getTitle() == null || form.getCredits() == null || form.getDepartmentCode() == null) {
-            return "redirect:/course";
+    public String update(@Valid @ModelAttribute("course") CourseDTO dto,
+                         BindingResult result,
+                         Model model,
+                         RedirectAttributes redirect) {
+
+        // validate annotation
+        if (result.hasErrors()) {
+            model.addAttribute("home_view", "course/editCourse.html");
+            return "dashboard";
         }
 
-        String departmentCode = form.getDepartmentCode().trim();
-        Department d = depService.getDepartmentByCode(departmentCode);
-        if (d == null) {
-            return "redirect:/course/update?id=" + form.getId() + "&error=department";
-        }
-
-        Course updated = new Course(form.getId(), form.getCode(), form.getTitle(), form.getCredits(), d);
         try {
-            courseService.updateCourse(updated);
+            courseService.updateCourse(dto);
+
+            redirect.addFlashAttribute("message", "Update successful!");
+            redirect.addFlashAttribute("messageType", "success");
             return "redirect:/course";
-        } catch (DataIntegrityViolationException e) {
-            return "redirect:/course/update?id=" + form.getId() + "&error=department";
-        } catch (Exception e) {
-            return "redirect:/course/update?id=" + form.getId() + "&error=update";
+
+        } catch (RuntimeException e) {
+
+            if ("CODE_EXISTS".equals(e.getMessage())) {
+                result.rejectValue("code", "error.code", "Course code already exists");
+            } else if ("DEPARTMENT_NOT_FOUND".equals(e.getMessage())) {
+                result.rejectValue("departmentCode", "error.departmentCode", "Department not found");
+            } else if ("NOT_FOUND".equals(e.getMessage())) {
+                redirect.addFlashAttribute("message", "Course not found!");
+                redirect.addFlashAttribute("messageType", "error");
+                return "redirect:/course";
+            } else {
+                model.addAttribute("ErrorMsg", "Update failed!");
+            }
+            model.addAttribute("listDepartment", depService.getAllDepartments());
+            model.addAttribute("home_view", "course/editCourse.html");
+            return "dashboard";
         }
     }
 
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("course") CourseForm form) {
-        if (form.getId() != null) {
-            courseService.deleteCourse(form.getId());
+    public String delete(@RequestParam("id") int id,
+                         RedirectAttributes redirect) {
+
+        try {
+            courseService.deleteCourse(id);
+
+            redirect.addFlashAttribute("message", "Delete successful!");
+            redirect.addFlashAttribute("messageType", "success");
+
+        } catch (RuntimeException e) {
+
+            if ("NOT_FOUND".equals(e.getMessage())) {
+                redirect.addFlashAttribute("message", "Course not found!");
+            } else {
+                redirect.addFlashAttribute("message", "Delete failed!");
+            }
+
+            redirect.addFlashAttribute("messageType", "error");
         }
+
         return "redirect:/course";
     }
 
-    public static class CourseForm {
-        private Integer id;
-        private String code;
-        private String title;
-        private Integer credits;
-        private String departmentCode;
-
-        public Integer getId() { return id; }
-        public void setId(Integer id) { this.id = id; }
-        public String getCode() { return code; }
-        public void setCode(String code) { this.code = code; }
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public Integer getCredits() { return credits; }
-        public void setCredits(Integer credits) { this.credits = credits; }
-        public String getDepartmentCode() { return departmentCode; }
-        public void setDepartmentCode(String departmentCode) { this.departmentCode = departmentCode; }
-    }
 }

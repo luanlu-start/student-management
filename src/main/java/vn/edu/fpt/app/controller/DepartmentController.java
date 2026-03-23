@@ -111,8 +111,7 @@ public class DepartmentController {
 
             if ("NAME_EXISTS".equals(msg)) {
                 result.rejectValue("name", "error.name", "Department name already exists");
-            }
-            else if ("NOT_FOUND".equals(msg)) {
+            } else if ("NOT_FOUND".equals(msg)) {
                 redirect.addFlashAttribute("message", "Department not found!");
                 redirect.addFlashAttribute("messageType", "error");
                 return "redirect:/department";
@@ -125,7 +124,8 @@ public class DepartmentController {
             return "dashboard";
         }
     }
-//
+
+    //
 //    @PostMapping("/delete")
 //    public String delete(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
 //        boolean deleteSuccess = form.getDepCode() != null && depService.deleteDepartmentByCode(form.getDepCode());
@@ -138,6 +138,29 @@ public class DepartmentController {
 //        }
 //        return "redirect:/department";
 //    }
+    @PostMapping("/delete")
+    public String delete(@RequestParam("depCode") String code,
+                         RedirectAttributes redirect) {
+
+        try {
+            depService.deleteByCode(code);
+
+            redirect.addFlashAttribute("message", "Delete successful!");
+            redirect.addFlashAttribute("messageType", "success");
+
+        } catch (RuntimeException e) {
+
+            if ("NOT_FOUND".equals(e.getMessage())) {
+                redirect.addFlashAttribute("message", "Department not found!");
+            } else {
+                redirect.addFlashAttribute("message", "Delete failed!");
+            }
+
+            redirect.addFlashAttribute("messageType", "error");
+        }
+
+        return "redirect:/department";
+    }
 
     @PostMapping("/add")
     public String add(@Valid @ModelAttribute("department") DepartmentDTO dto,
@@ -166,7 +189,8 @@ public class DepartmentController {
                 result.rejectValue("name", "error.name", "Name already exists");
             }
 
-            return "department/createDepartment";
+            model.addAttribute("home_view", "department/createDepartment.html");  // ✅ Set view
+            return "dashboard";  // ✅ Return dashboard với home_view
         }
     }
 

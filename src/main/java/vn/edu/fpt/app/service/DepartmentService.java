@@ -1,5 +1,6 @@
 package vn.edu.fpt.app.service;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import vn.edu.fpt.app.dto.DepartmentDTO;
 import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.repository.DepartmentRepository;
@@ -80,14 +81,11 @@ public class DepartmentService {
     }
 
     @Transactional
-    public boolean deleteDepartmentByCode(String code) {
-        if (!departmentRepository.existsById(code)) return false;
+    public void deleteByCode(String code) {
         try {
             departmentRepository.deleteById(code);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Fail to delete department: " + e.getMessage());
-            return false;
+        } catch (EmptyResultDataAccessException e) {
+            throw new RuntimeException("NOT_FOUND");
         }
     }
 }
