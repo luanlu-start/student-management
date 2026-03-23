@@ -1,6 +1,6 @@
-﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
+﻿﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
 <link th:href="@{/assets/css/home.css}" rel="stylesheet" type="text/css"/>
-<th:block th:fragment="content" th:with="r=${session.user != null ? #strings.toLowerCase(#strings.replace(session.user.role,' ','_')) : ''}">
+<th:block th:fragment="content" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <div class="page-header">
     <div>
         <h1 class="title">Academic Management Dashboard</h1>
@@ -10,13 +10,13 @@
         <a href="#" class="btn-secondary">
             <i class='bx bx-calendar'></i> Academic Calendar
         </a>
-        <a th:if="${r != 'lecturer' and r != 'teacher'}" th:href="@{/semester/add}" href="/semester/add" class="btn-add-new">
+        <a sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')" th:href="@{/semester/add}" href="/semester/add" class="btn-add-new">
             <i class='bx bx-plus'></i> New Semester
         </a>
     </div>
 </div>
 
-<th:block th:if="${r != 'lecturer' and r != 'teacher'}">
+<th:block sec:authorize="hasAnyRole('ADMIN','ACADEMIC_STAFF')">
 <div class="stat-card-grid">
     <div class="stat-card">
         <div class="icon-wrapper green">
@@ -161,7 +161,7 @@
 </div>
 </th:block>
 
-<th:block th:if="${r == 'lecturer' or r == 'teacher'}">
+<th:block sec:authorize="hasAnyRole('LECTURER','TEACHER')">
     <div class="stat-card-grid">
         <div class="stat-card">
             <div class="icon-wrapper green">
@@ -242,4 +242,3 @@
     </div>
 </th:block>
 </th:block>
-
