@@ -1,22 +1,19 @@
-﻿﻿<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
+﻿<link th:href="@{/assets/css/user.css}" rel="stylesheet" type="text/css"/>
 <link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
 <th:block th:fragment="content">
 <div class="page-header">
     <div>
         <h1 class="title">Add New User</h1>
         <ul class="breadcrumbs">
-            <li><a href="home">Home</a></li>
+            <li><a th:href="@{/home}" href="/home">Home</a></li>
             <li class="divider">/</li>
-            <li><a href="user">Users</a></li>
+            <li><a th:href="@{/user}" href="/user">Users</a></li>
             <li class="divider">/</li>
             <li><a href="#" class="active">Add New User</a></li>
         </ul>
     </div>
-<<<<<<< HEAD
-    <a href="user" class="btn-secondary">
-=======
-    <a href="/user" class="btn-secondary">
->>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
+
+    <a th:href="@{/user}" href="/user" class="btn-secondary">
         <i class='bx bx-arrow-back'></i> Back to Users
     </a>
 </div>
@@ -24,54 +21,55 @@
 <div class="form-container">
     <p class="form-title">User Account Information</p>
 
-    <form action="user/add" method="POST" class="form-body">
+    <form th:action="@{/user/add}" th:object="${userForm}" action="/user/add" method="POST" class="form-body">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
         <div class="form-row">
             <div class="form-group">
                 <label for="username">Username <span>*</span></label>
-                <input type="text" name="username" id="username" required>
+                <input type="text" id="username" th:field="*{username}" required>
+                <small class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
             </div>
             <div class="form-group">
                 <label for="roleSelect" class="form-label">Role <span>*</span></label>
-                <select class="form-select" name="role" id="roleSelect" required>
-                    <option value="lecturer" selected>Lecturer</option>
+                <select class="form-select" id="roleSelect" th:field="*{role}" required>
+                    <option value="lecturer">Lecturer</option>
                     <option value="academic_staff">Academic Staff</option>
                     <option value="admin">Admin</option>
                 </select>
+                <small class="text-danger" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="password">Password <span>*</span></label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" th:field="*{password}" required>
+                <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
             </div>
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password <span>*</span></label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required>
+                <small class="text-danger" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group" id="lecturerFormGroup">
                 <label for="lecturerSelect" class="form-label">Link to Lecturer <span>*</span></label>
-                <select class="form-select" name="lecturerId" id="lecturerSelect" required>
-                    <option value="0" id="na_option">-- Select Lecturer --</option> 
+                <select class="form-select" id="lecturerSelect" th:field="*{lecturerId}">
+                    <option value="0" id="na_option">-- Select Lecturer --</option>
                     <th:block th:each="lec : ${listLecturers}">
-                        <option value="" th:value="${lec.id}">[[${lec.title}]] [[${lec.name}]] ([[${lec.email}]])</option>
+                        <option th:value="${lec.id}">[[${lec.title}]] [[${lec.name}]] ([[${lec.email}]])</option>
                     </th:block>
                 </select>
+                <small class="text-danger" th:if="${#fields.hasErrors('lecturerId')}" th:errors="*{lecturerId}"></small>
             </div>
-            <div class="form-group">
-                </div>
+            <div class="form-group"></div>
         </div>
 
         <div class="form-buttons">
-<<<<<<< HEAD
-            <a href="user" class="btn btn-cancel">Cancel</a>
-=======
-            <a href="/user" class="btn btn-cancel">Cancel</a>
->>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
+            <a th:href="@{/user}" href="/user" class="btn btn-cancel">Cancel</a>
             <button type="submit" class="btn btn-save">
                 <i class='bx bx-save'></i> Add New User
             </button>
@@ -79,10 +77,3 @@
     </form>
 </div>
 </th:block>
-
-
-
-
-
-
-
