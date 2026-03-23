@@ -13,18 +13,5 @@ public class UniversityApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(UniversityApplication.class, args);
-//        ApplicationContext context =
-//                SpringApplication.run(UniversityApplication.class, args);
-//
-//        DepartmentService service = context.getBean(DepartmentService.class);
-//
-//        List<Department> list = service.getAllDepartments();
-//
-//        System.out.println("Departments: " + list.size());
-//
-//        for (Department d : list) {
-//            System.out.println(d.getCode() + " - " + d.getName());
-//        }
-
     }
 }

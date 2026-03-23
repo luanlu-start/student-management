@@ -145,12 +145,12 @@ public class LecturerController {
     }
 
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
-        if (form.getLecturerId() == null) {
+    public String delete(@ModelAttribute("lecturerForm") Lecturer form, HttpSession session) {
+        if (form.getId() <= 0) {
             return "redirect:/lecturer";
         }
         try {
-            boolean deleteSuccess = lecturerService.deleteLecturerById(form.getLecturerId());
+            boolean deleteSuccess = lecturerService.deleteLecturerById(form.getId());
             if (deleteSuccess) {
                 session.setAttribute("message", "Lecturer deleted successfully!");
                 session.setAttribute("messageType", "success");
@@ -170,12 +170,13 @@ public class LecturerController {
     }
 
     @PostMapping("/edit")
-    public String edit(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
-        if (form.getLecturerID() == null) {
+    public String edit(@ModelAttribute("lecturerForm") Lecturer form, HttpSession session) {
+        if (form.getId() <= 0) {
             return "redirect:/lecturer";
         }
-        Department dep = departmentService.getDepartmentByCode(form.getDepCode());
-        Lecturer eLecturer = new Lecturer(form.getLecturerID(), form.getLecturerName(), form.getEmail(), form.getPhone(), form.getTitle(), dep);
+        String depCode = form.getDepartment() != null ? form.getDepartment().getCode() : null;
+        Department dep = departmentService.getDepartmentByCode(depCode);
+        Lecturer eLecturer = new Lecturer(form.getId(), form.getName(), form.getEmail(), form.getPhone(), form.getTitle(), dep);
         boolean updateSuccess = lecturerService.updateLecturer(eLecturer);
         if (updateSuccess) {
             session.setAttribute("message", "Lecturer update successfully!");
@@ -188,9 +189,10 @@ public class LecturerController {
     }
 
     @PostMapping("/add")
-    public String add(@ModelAttribute("lecturerForm") LecturerForm form, HttpSession session) {
-        Department dep = departmentService.getDepartmentByCode(form.getDepartment());
-        Lecturer newLecturer = new Lecturer(form.getLecturerName(), form.getEmail(), form.getPhone(), form.getTitle(), dep);
+    public String add(@ModelAttribute("lecturerForm") Lecturer form, HttpSession session) {
+        String depCode = form.getDepartment() != null ? form.getDepartment().getCode() : null;
+        Department dep = departmentService.getDepartmentByCode(depCode);
+        Lecturer newLecturer = new Lecturer(form.getName(), form.getEmail(), form.getPhone(), form.getTitle(), dep);
         boolean addSuccess = lecturerService.addNewLecturer(newLecturer);
         if (addSuccess) {
             session.setAttribute("message", "Lecturer added successfully!");
@@ -202,33 +204,6 @@ public class LecturerController {
         return "redirect:/lecturer";
     }
 
-    public static class LecturerForm {
-        private Integer lecturerId;
-        private Integer lecturerID;
-        private String lecturerName;
-        private String email;
-        private String depCode;
-        private String department;
-        private String title;
-        private String phone;
-
-        public Integer getLecturerId() { return lecturerId; }
-        public void setLecturerId(Integer lecturerId) { this.lecturerId = lecturerId; }
-        public Integer getLecturerID() { return lecturerID; }
-        public void setLecturerID(Integer lecturerID) { this.lecturerID = lecturerID; }
-        public String getLecturerName() { return lecturerName; }
-        public void setLecturerName(String lecturerName) { this.lecturerName = lecturerName; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getDepCode() { return depCode; }
-        public void setDepCode(String depCode) { this.depCode = depCode; }
-        public String getDepartment() { return department; }
-        public void setDepartment(String department) { this.department = department; }
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-    }
 
     public List<Lecturer> pagnigation(List<Lecturer> list, int pageIndex, int pagsize) {
         if (list == null || list.isEmpty()) {

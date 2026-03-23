@@ -55,6 +55,7 @@
                 <label for="departmentCode">Department <span>*</span></label>
                 <select id="departmentCode" th:field="*{departmentCode}" required>
                     <option value="">Choose department</option>
+
                     <option th:each="dep : ${listDepartment}"
                             th:value="${dep.code}"
                             th:text="${dep.name + ' (' + dep.code + ')'}">

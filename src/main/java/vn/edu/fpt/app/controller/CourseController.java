@@ -195,7 +195,6 @@ public class CourseController {
             model.addAttribute("home_view", "course/editCourse.html");
             return "dashboard";
         }
-
         try {
             courseService.updateCourse(dto);
 
@@ -243,8 +242,6 @@ public class CourseController {
 
             redirect.addFlashAttribute("messageType", "error");
         }
-
         return "redirect:/course";
     }
-
 }

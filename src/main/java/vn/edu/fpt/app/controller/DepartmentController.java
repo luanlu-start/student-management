@@ -125,19 +125,6 @@ public class DepartmentController {
         }
     }
 
-    //
-//    @PostMapping("/delete")
-//    public String delete(@ModelAttribute("departmentForm") DepartmentForm form, HttpSession session) {
-//        boolean deleteSuccess = form.getDepCode() != null && depService.deleteDepartmentByCode(form.getDepCode());
-//        if (deleteSuccess) {
-//            session.setAttribute("message", "Department deleted successfully!");
-//            session.setAttribute("messageType", "success");
-//        } else {
-//            session.setAttribute("message", "Failed to delete department!");
-//            session.setAttribute("messageType", "error");
-//        }
-//        return "redirect:/department";
-//    }
     @PostMapping("/delete")
     public String delete(@RequestParam("depCode") String code,
                          RedirectAttributes redirect) {

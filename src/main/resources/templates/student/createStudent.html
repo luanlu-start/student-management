@@ -12,7 +12,11 @@
             <li><a href="#" class="active">Add New Student</a></li>
         </ul>
     </div>
+<<<<<<< HEAD
     <a href="student" class="btn-secondary">
+=======
+    <a href="/student" class="btn-secondary">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
         <i class='bx bx-arrow-back'></i> Back to Students
     </a>
 </div>
@@ -28,12 +32,20 @@
 
             <div class="form-group">
                 <label for="studentName">Full Name</label>
+<<<<<<< HEAD
                 <input type="text" name="studentName" id="studentName" required>
+=======
+                <input type="text" name="name" id="studentName" required>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             </div>
 
             <div class="form-group">
                 <label for="department" class="form-label">Department</label>
+<<<<<<< HEAD
                 <select id="department" class="form-select" aria-label="Default select example" name="depCode" required>
+=======
+                <select id="department" class="form-select" aria-label="Default select example" name="department.code" required>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
                     <th:block th:each="dep : ${depList}">
                         <option th:value="${dep.code}" th:text="${dep.name}"></option>
                     </th:block>
@@ -84,7 +96,11 @@
         </div>
 
         <div class="form-buttons">
+<<<<<<< HEAD
             <a href="student" class="btn btn-cancel">Cancel</a>
+=======
+            <a href="/student" class="btn btn-cancel">Cancel</a>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             <button type="submit" class="btn btn-save">
                 <i class='bx bx-save'></i> Add New Student
             </button>
