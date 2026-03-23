@@ -5,56 +5,49 @@
     <div>
         <h1 class="title">Delete User</h1>
         <ul class="breadcrumbs">
-            <li><a href="home">Home</a></li>
+            <li><a th:href="@{/home}" href="/home">Home</a></li>
             <li class="divider">/</li>
-            <li><a href="user">Users</a></li>
+            <li><a th:href="@{/user}" href="/user">Users</a></li>
             <li class="divider">/</li>
             <li><a href="#" class="active">Delete User</a></li>
         </ul>
     </div>
-<<<<<<< HEAD
-    <a href="user" class="btn-secondary">
-=======
-    <a href="/user" class="btn-secondary">
->>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
+
+    <a th:href="@{/user}" href="/user" class="btn-secondary">
         <i class='bx bx-arrow-back'></i> Back to Users
     </a>
 </div>
 
 <div class="form-container">
 
-    <form action="user/delete" method="POST" class="form-body">
-
-        <input type="hidden" name="userId" value="" th:value="${userToDelete.id}">
+    <form th:action="@{/user/delete}" action="/user/delete" method="POST" class="form-body">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <input type="hidden" name="userId" th:value="${userToDelete.id}">
 
         <div class="form-row">
             <div class="form-group">
                 <label>User ID</label>
-                <input type="text" value="" th:value="${userToDelete.id}" readonly>
+                <input type="text" th:value="${userToDelete.id}" readonly>
             </div>
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" value="" th:value="${userToDelete.username}" readonly>
+                <input type="text" th:value="${userToDelete.username}" readonly>
             </div>
         </div>
-        
+
         <div class="form-row">
             <div class="form-group">
                 <label>Role</label>
-                <input type="text" value="" th:value="${userToDelete.role}" readonly>
+                <input type="text" th:value="${userToDelete.role}" readonly>
             </div>
             <div class="form-group">
                 <label>Linked Lecturer</label>
-                <input type="text" value="" th:value="${userToDelete.lecturer != null ? userToDelete.lecturer.name : 'N/A'}" readonly>
+                <input type="text" th:value="${userToDelete.lecturer != null ? userToDelete.lecturer.name : 'N/A'}" readonly>
             </div>
         </div>
 
         <div class="form-buttons">
-<<<<<<< HEAD
-            <a href="user" class="btn btn-cancel">Cancel</a>
-=======
-            <a href="/user" class="btn btn-cancel">Cancel</a>
->>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
+            <a th:href="@{/user}" href="/user" class="btn btn-cancel">Cancel</a>
             <button type="submit" class="btn btn-delete-confirm">
                 <i class='bx bx-trash'></i> Delete User
             </button>
@@ -62,4 +55,3 @@
     </form>
 </div>
 </th:block>
-
