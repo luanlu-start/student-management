@@ -1,6 +1,10 @@
 ﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
 <link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
+<<<<<<< HEAD
+<th:block th:fragment="content" th:with="r=${session.user != null ? #strings.toLowerCase(#strings.replace(session.user.role,' ','_')) : ''}">
+=======
 <th:block th:fragment="content" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
 <div class="page-header">
     <div>
         <h1 class="title">Gradebook: [[${classInfo.code}]]</h1>
@@ -15,7 +19,11 @@
         </ul>
     </div>
     <div class="header-buttons">
+<<<<<<< HEAD
+        <a th:if="${r == 'admin' or r == 'lecturer' or r == 'teacher'}" th:href="@{|/mark/create?classId=${classInfo.id}|}" class="btn-add-new">
+=======
         <a sec:authorize="hasAnyRole('admin','lecturer')" th:href="@{|/mark/create?classId=${classInfo.id}|}" class="btn-add-new">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             <i class='bx bx-plus'></i> Add New Mark
         </a>
         <a th:href="@{|/classes/view?id=${classInfo.id}|}" class="btn-secondary">
@@ -79,7 +87,11 @@
                                 <div style="margin-bottom: 6px;">
                                     <span th:text="${#numbers.formatDecimal(markObj.mark, 1, 1)}"></span>
                                 </div>
+<<<<<<< HEAD
+                                <div class="action-buttonss" th:if="${r == 'admin' or r == 'lecturer' or r == 'teacher'}" style="justify-content: center;">
+=======
                                 <div class="action-buttonss" sec:authorize="hasAnyRole('admin','lecturer')" style="justify-content: center;">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
                                     <a th:href="@{|/mark/edit?enrollId=${enrollId}&assessmentId=${ass.id}&classId=${classInfo.id}|}" class="btn-action edit" title="Edit Mark" style="width: 24px; height: 24px; font-size: 14px;">
                                         <i class='bx bx-edit-alt'></i>
                                     </a>
@@ -89,10 +101,17 @@
                                 </div>
                             </th:block>
                             <th:block th:if="${markObj == null and enrollId != null}">
+<<<<<<< HEAD
+                                <a th:if="${r == 'admin' or r == 'lecturer' or r == 'teacher'}" th:href="@{|/mark/create?enrollId=${enrollId}&assessmentId=${ass.id}&classId=${classInfo.id}|}" class="btn-action edit" title="Add Mark" style="width: 28px; height: 28px; font-size: 16px; background: #e0e0e0; margin: 0 auto;">
+                                    <i class='bx bx-plus'></i>
+                                </a>
+                                <span th:if="${!(r == 'admin' or r == 'lecturer' or r == 'teacher')}">-</span>
+=======
                                 <a sec:authorize="hasAnyRole('admin','lecturer')" th:href="@{|/mark/create?enrollId=${enrollId}&assessmentId=${ass.id}&classId=${classInfo.id}|}" class="btn-action edit" title="Add Mark" style="width: 28px; height: 28px; font-size: 16px; background: #e0e0e0; margin: 0 auto;">
                                     <i class='bx bx-plus'></i>
                                 </a>
                                 <span sec:authorize="!hasAnyRole('admin','lecturer')">-</span>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
                             </th:block>
                             <th:block th:if="${enrollId == null}">-</th:block>
                         </td>

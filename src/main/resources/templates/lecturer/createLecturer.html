@@ -28,12 +28,20 @@
 
             <div class="form-group">
                 <label for="lecturerName">Full Name</label>
+<<<<<<< HEAD
+                <input type="text" name="lecturerName" id="lecturerName" required>
+=======
                 <input type="text" name="name" id="lecturerName" required>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             </div>
 
             <div class="form-group">
                 <label for="department" class="form-label">Department</label>
+<<<<<<< HEAD
+                <select id="department" class="form-select" aria-label="Default select example" name="department">
+=======
                 <select id="department" class="form-select" aria-label="Default select example" name="department.code">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
                     <th:block th:each="dep : ${departmentList}">
                         <option th:value="${dep.code}" th:text="${dep.name}"></option>
                     </th:block>

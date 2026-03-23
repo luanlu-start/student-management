@@ -17,12 +17,15 @@
     </a>
 </div>
 
+<<<<<<< HEAD
+=======
 <th:block th:if="${message != null and !#strings.isEmpty(message)}">
     <div class="alert" th:classappend="' alert-' + ${messageType}">
         [[${message}]]
     </div>
 </th:block>
 
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
 <div class="form-container">
 
     <p class="form-title">Assessment Information</p>
@@ -56,7 +59,11 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="courseId" class="form-label">Course</label>
+<<<<<<< HEAD
+                <select name="courseId" id="courseId" required>
+=======
                 <select name="course.id" id="courseId" required>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
                     <option value="">-- Select Course --</option>
                     <th:block th:each="c : ${allCourse}">
                         <option th:value="${c.id}" th:selected="${preSelectedCourseId != null and c.id == preSelectedCourseId}">

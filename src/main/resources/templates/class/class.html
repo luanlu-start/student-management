@@ -119,7 +119,7 @@
                             <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{|/enrollment/addStudent?classId=${cls.id}|}" class="btn-action add" title="Add Student">
                                 <i class='bx bx-user-plus'></i>
                             </a>
-                            <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{|/classes/edit?id=${cls.id}|}" class="btn-action edit" title="Edit">
+                            <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{/classes/edit/{id}(id=${cls.id})}"class="btn-action edit" title="Edit">
                                 <i class='bx bx-edit'></i>
                             </a>
                             <a sec:authorize="hasAnyRole('admin','academic_staff')" th:href="@{|/classes/delete?id=${cls.id}|}" class="btn-action delete" title="Delete">
@@ -131,7 +131,6 @@
             </th:block>
         </tbody>
     </table>
-
     <div id="noResultsMessage" style="display: none; text-align: center; padding: 40px; color: #7f8c8d;">
         <i class='bx bx-search-alt' style='font-size: 48px; opacity: 0.3;'></i>
         <p style="margin-top: 10px; font-size: 16px;">No classes found matching your filters.</p>

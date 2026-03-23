@@ -2,9 +2,9 @@ package vn.edu.fpt.app.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.app.dto.ClassDTO;
 import vn.edu.fpt.app.entities.*;
-import vn.edu.fpt.app.repository.ClassesRepository;
-import vn.edu.fpt.app.repository.EnrollmentRepository;
+import vn.edu.fpt.app.repository.*;
 
 import java.util.List;
 
@@ -13,27 +13,31 @@ public class ClassService {
 
     private final ClassesRepository classesRepository;
     private final EnrollmentRepository enrollmentRepository;
-    private final CourseService courseService;
-    private final LecturerService lecturerService;
-    private final SemesterService semesterService;
+    private final CourseRepository courseRepository;
+    private final LecturerRepository lecturerRepository;
+    private final SemesterRepository semesterRepository;
 
-    public ClassService(ClassesRepository classesRepository, EnrollmentRepository enrollmentRepository,
-                        CourseService courseService, LecturerService lecturerService, SemesterService semesterService) {
+    public ClassService(ClassesRepository classesRepository, EnrollmentRepository enrollmentRepository, CourseRepository courseRepository,
+                        LecturerRepository lecturerRepository, SemesterRepository semesterRepository) {
         this.classesRepository = classesRepository;
         this.enrollmentRepository = enrollmentRepository;
-        this.courseService = courseService;
-        this.lecturerService = lecturerService;
-        this.semesterService = semesterService;
+        this.courseRepository = courseRepository;
+        this.lecturerRepository = lecturerRepository;
+        this.semesterRepository = semesterRepository;
     }
 
-    /** Lấy tất cả lớp học kèm số sinh viên (studentCount là @Transient) */
+    /**
+     * Lấy tất cả lớp học kèm số sinh viên (studentCount là @Transient)
+     */
     public List<Classes> getAllClasses() {
         List<Classes> list = classesRepository.findAll();
         list.forEach(cls -> cls.setStudentCount((int) enrollmentRepository.countByCls_Id(cls.getId())));
         return list;
     }
 
-    /** Lấy lớp theo giảng viên để lecturer chỉ thấy lớp mình dạy. */
+    /**
+     * Lấy lớp theo giảng viên để lecturer chỉ thấy lớp mình dạy.
+     */
     public List<Classes> getClassesByLecturerId(int lecturerId) {
         List<Classes> list = classesRepository.findByLecturer_Id(lecturerId);
         list.forEach(cls -> cls.setStudentCount((int) enrollmentRepository.countByCls_Id(cls.getId())));
@@ -53,48 +57,79 @@ public class ClassService {
     }
 
     @Transactional
-    public boolean addNewClass(String code, int courseId, int lecturerId, int semesterId, String room, String schedule) {
-        Course course = courseService.getCourseById(courseId);
-        Lecturer lecturer = lecturerService.getLecturerById(lecturerId);
-        Semester semester = semesterService.getSemesterById(semesterId);
-        if (course == null || semester == null) return false;
-        try {
-            classesRepository.save(new Classes(0, code, room, schedule, course, lecturer, semester, 0));
-            return true;
-        } catch (Exception e) {
-            System.out.println("Fail to add new class: " + e.getMessage());
-            return false;
+    public void insertClass(ClassDTO dto) {
+
+        // Validate duplicate code (nếu cần)
+        if (classesRepository.existsByCode(dto.getCode().trim())) {
+            throw new RuntimeException("CLASS_CODE_EXISTS");
         }
+
+        Classes classes = new Classes();
+
+        // Map từ DTO → Entity
+        classes.setCode(dto.getCode().trim());
+        classes.setRoom(dto.getRoom().trim());
+        classes.setSchedule(dto.getSchedule().trim());
+
+        // Lấy entity liên quan
+        Course course = courseRepository.findById(dto.getCourseId())
+                .orElseThrow(() -> new RuntimeException("COURSE_NOT_FOUND"));
+
+        Lecturer lecturer = lecturerRepository.findById(dto.getLecturerId())
+                .orElseThrow(() -> new RuntimeException("LECTURER_NOT_FOUND"));
+
+        Semester semester = semesterRepository.findById(dto.getSemesterId())
+                .orElseThrow(() -> new RuntimeException("SEMESTER_NOT_FOUND"));
+
+        // Set relationship
+        classes.setCourse(course);
+        classes.setLecturer(lecturer);
+        classes.setSemester(semester);
+
+        // Save
+        classesRepository.save(classes);
     }
 
     @Transactional
-    public boolean updateClass(int classId, int lecturerId, int semesterId, String room, String schedule) {
-        Classes cls = classesRepository.findById(classId).orElse(null);
-        if (cls == null) return false;
-        Lecturer lecturer = lecturerService.getLecturerById(lecturerId);
-        Semester semester = semesterService.getSemesterById(semesterId);
+    public void updateClass(int classId, ClassDTO dto) {
+
+        // 1️⃣ Lấy lớp từ DB
+        Classes cls = classesRepository.findById(classId)
+                .orElseThrow(() -> new RuntimeException("CLASS_NOT_FOUND"));
+
+        // 2️⃣ Lấy các entity liên quan
+        Lecturer lecturer = lecturerRepository.findById(dto.getLecturerId())
+                .orElseThrow(() -> new RuntimeException("LECTURER_NOT_FOUND"));
+
+        Semester semester = semesterRepository.findById(dto.getSemesterId())
+                .orElseThrow(() -> new RuntimeException("SEMESTER_NOT_FOUND"));
+
+        Course course = courseRepository.findById(dto.getCourseId())
+                .orElseThrow(() -> new RuntimeException("COURSE_NOT_FOUND"));
+
+        // 3️⃣ Check duplicate class code (chỉ khi code thay đổi)
+        String newCode = dto.getCode().trim();
+        if (!cls.getCode().equals(newCode) && classesRepository.existsByCode(newCode)) {
+            throw new RuntimeException("CLASS_CODE_EXISTS");
+        }
+
+        // 4️⃣ Map fields từ DTO → Entity
+        cls.setCode(newCode);
+        cls.setRoom(dto.getRoom().trim());
+        cls.setSchedule(dto.getSchedule().trim());
         cls.setLecturer(lecturer);
         cls.setSemester(semester);
-        cls.setRoom(room);
-        cls.setSchedule(schedule);
-        try {
-            classesRepository.save(cls);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Fail to update class: " + e.getMessage());
-            return false;
-        }
+        cls.setCourse(course);
+
+        // 5️⃣ Save
+        classesRepository.save(cls);
     }
 
     @Transactional
-    public boolean deleteClassById(int id) {
-        if (!classesRepository.existsById(id)) return false;
-        try {
-            classesRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Fail to delete class: " + e.getMessage());
-            return false;
-        }
+    public void deleteClassById(int classId) {
+        Classes cls = classesRepository.findById(classId)
+                .orElseThrow(() -> new RuntimeException("CLASS_NOT_FOUND"));
+
+        classesRepository.delete(cls);
     }
 }

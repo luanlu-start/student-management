@@ -5,20 +5,34 @@
     <div>
         <h1 class="title">Student Profile</h1>
         <ul class="breadcrumbs">
+<<<<<<< HEAD
+            <li><a href="home">Home</a></li>
+            <li class="divider">/</li>
+            <li><a href="student">Students</a></li>
+=======
             <li><a th:href="@{/home}" href="/home">Home</a></li>
             <li class="divider">/</li>
             <li><a th:href="@{/student}" href="/student">Students</a></li>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             <li class="divider">/</li>
             <li><a href="#" class="active">[[${student.name}]]</a></li>
         </ul>
     </div>
+<<<<<<< HEAD
+    <a href="student" class="btn-secondary">
+=======
     <a th:href="@{/student}" href="/student" class="btn-secondary">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
         <i class='bx bx-arrow-back'></i> Back to Students
     </a>
 </div>
 
 <div class="profile-header-card">
+<<<<<<< HEAD
+    <div class="profile-avatar-lg" th:style="|background-color: #${T(java.lang.Math).abs(student.name.hashCode() % 999999)}|">
+=======
     <div class="profile-avatar-lg" th:style="|background-color: ${T(java.lang.Math).abs(student.name.hashCode() % 999999)}|">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
         [[${#strings.substring(student.name, 0, 1)}]]
     </div>
     <div class="profile-header-info">
@@ -26,7 +40,11 @@
         <p class="profile-department">[[${student.department.name}]]</p>
     </div>
     <div class="profile-header-actions">
+<<<<<<< HEAD
+        <a href="student/edit?id=${student.id}" th:href="@{|student/edit?id=${student.id}|}" class="btn btn-edit-profile">
+=======
         <a th:href="@{|/student/edit?id=${student.id}|}" href="/student" class="btn btn-edit-profile">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             <i class='bx bx-edit'></i> Edit Profile
         </a>
     </div>

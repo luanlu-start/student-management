@@ -27,12 +27,20 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="studentID">Student ID <span>*</span></label>
+<<<<<<< HEAD
+                <input type="text" name="studentId" id="studentID" value="" th:value="${student.id}" readonly>
+=======
                 <input type="text" name="id" id="studentID" value="" th:value="${student.id}" readonly>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             </div>
 
             <div class="form-group">
                 <label for="studentName">Full Name</label>
+<<<<<<< HEAD
+                <input type="text" name="studentName" id="studentName" value="" th:value="${student.name}" required>
+=======
                 <input type="text" name="name" id="studentName" value="" th:value="${student.name}" required>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             </div>
 
         </div>
@@ -40,7 +48,11 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="birthdate">Date of birth</label>
+<<<<<<< HEAD
+                <input type="text" id="birthdate" name="birthday" value="" th:value="${student.birthdate}"   pattern="^\d{4}-\d{2}-\d{2}$"> 
+=======
                 <input type="text" id="birthdate" name="birthdate" value="" th:value="${student.birthdate}"   pattern="^\d{4}-\d{2}-\d{2}$">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
             </div>
 
             <div class="form-group">
@@ -56,7 +68,11 @@
             </div>
 
             <div class="form-group">
+<<<<<<< HEAD
+                <label for="address">City</label>
+=======
                 <label for="city">City</label>
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
                 <input type="text" id="city" name="city" value="" th:value="${student.city}">
             </div>
         </div>
@@ -81,7 +97,11 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="department" class="form-label">Department</label>
+<<<<<<< HEAD
+                <select id="department" class="form-select" aria-label="Default select example" name="depCode">
+=======
                 <select id="department" class="form-select" aria-label="Default select example" name="department.code">
+>>>>>>> 5804e4ae42b56500298ac66104f55d1ea9090562
                     <th:block th:each="dep : ${departmentList}">
                         <option th:value="${dep.code}" th:text="${dep.name}" th:selected="${student.department != null and student.department.code == dep.code}"></option>
                     </th:block>

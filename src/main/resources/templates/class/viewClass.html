@@ -152,6 +152,7 @@
                             <p>[[${student.phone}]]</p>
                         </div>
                     </td>
+
                     <td sec:authorize="hasAnyRole('admin','academic_staff')">
                         <div class="action-buttons">
                             <form method="POST" th:action="@{/enrollment/deleteStudent}" style="display: inline;">
