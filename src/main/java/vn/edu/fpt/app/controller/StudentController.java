@@ -21,6 +21,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Controller that handles student-related views and actions.
+ *
+ * Responsibilities:
+ * - List, filter and paginate students
+ * - Show add / edit / delete / view student pages
+ * - Handle form submissions for creating, updating and deleting students
+ *
+ * Access:
+ * - Restricted to users with roles 'admin' or 'academic_staff' via @PreAuthorize
+ */
 @Controller
 @RequestMapping("/student")
 @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
@@ -35,6 +46,11 @@ public class StudentController {
         this.depService = depService;
     }
 
+    /**
+     * GET /student
+     * Display paginated list of students.
+     * Optional query param: i - page index (1-based). If missing or invalid defaults to 1.
+     */
     @GetMapping
     public String list(@RequestParam(name = "i", required = false) String i, Model model, HttpSession session) {
         int pagSize = 10;
@@ -61,6 +77,10 @@ public class StudentController {
         return "dashboard";
     }
 
+    /**
+     * GET /student/edit?id={id}
+     * Show edit form for a student. Expects a valid student id.
+     */
     @GetMapping("/edit")
     public String showEdit(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("departmentList", depService.getAllDepartments());
@@ -69,6 +89,10 @@ public class StudentController {
         return "dashboard";
     }
 
+    /**
+     * GET /student/delete?id={id}
+     * Show confirmation page to delete a student.
+     */
     @GetMapping("/delete")
     public String showDelete(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("student", studentService.getStudentById(id));
@@ -76,6 +100,10 @@ public class StudentController {
         return "dashboard";
     }
 
+    /**
+     * GET /student/add
+     * Show form to create a new student.
+     */
     @GetMapping("/add")
     public String showAdd(Model model) {
         model.addAttribute("depList", depService.getAllDepartments());
@@ -83,6 +111,10 @@ public class StudentController {
         return "dashboard";
     }
 
+    /**
+     * GET /student/view?id={id}
+     * Show detailed view of a student.
+     */
     @GetMapping("/view")
     public String showView(@RequestParam(name = "id") Integer id, Model model) {
         model.addAttribute("student", studentService.getStudentById(id));
@@ -90,6 +122,11 @@ public class StudentController {
         return "dashboard";
     }
 
+    /**
+     * GET /student/fillter
+     * Filter students by name and/or department.
+     * Query params: i (page index), nameStudent, departmentname.
+     */
     @GetMapping("/fillter")
     public String filter(
             @RequestParam(name = "i", required = false) String i,
@@ -141,6 +178,10 @@ public class StudentController {
         return "dashboard";
     }
 
+    /**
+     * POST /student/edit
+     * Process edit form submission. Validates required fields and updates the student.
+     */
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/edit")
     public String edit(@ModelAttribute("studentForm") Student form, HttpSession session) {
@@ -164,6 +205,10 @@ public class StudentController {
         return "redirect:/student";
     }
 
+    /**
+     * POST /student/delete
+     * Delete a student by id provided in the bound form.
+     */
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/delete")
     public String delete(@ModelAttribute("studentForm") Student form, HttpSession session) {
@@ -181,6 +226,10 @@ public class StudentController {
         return "redirect:/student";
     }
 
+    /**
+     * POST /student/add
+     * Create a new student from form data. Validates required fields.
+     */
     @PreAuthorize("hasAnyRole('admin', 'academic_staff')")
     @PostMapping("/add")
     public String add(@ModelAttribute("studentForm") Student form, HttpSession session) {
@@ -202,6 +251,9 @@ public class StudentController {
         return "redirect:/student";
     }
 
+    /**
+     * Helper to move flash messages from session to model and clear them.
+     */
     private void consumeMessage(HttpSession session, Model model) {
         Object message = session.getAttribute("message");
         Object messageType = session.getAttribute("messageType");
@@ -215,6 +267,10 @@ public class StudentController {
     }
 
 
+    /**
+     * Simple in-memory pagination helper used by list and filter actions.
+     * Returns sublist for the given pageIndex (1-based) and pageSize.
+     */
     public List<Student> pagination(List<Student> list, int pageIndex, int pageSize) {
         if (list == null || list.isEmpty()) {
             return new ArrayList<>();

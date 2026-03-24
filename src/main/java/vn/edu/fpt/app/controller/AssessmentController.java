@@ -27,8 +27,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
+ * Controller responsible for managing Assessments.
  *
- * @author Legion
+ * Responsibilities:
+ * - List assessments and provide summary counts
+ * - Show create/edit/delete pages
+ * - Validate total assessment weight per course (must not exceed 100%) when creating or updating
+ *
+ * Access:
+ * - Restricted to 'admin' and 'academic_staff' roles.
  */
 @Controller
 @RequestMapping("/assessment")
@@ -52,6 +59,10 @@ public class AssessmentController {
         this.courseService = courseService;
     }
 
+    /**
+     * GET /assessment
+     * Show overview dashboard for assessments including counts and lists.
+     */
     @GetMapping
     public String list(Model model) {
         List<Assessment> assessList = assessService.getAllAssessments();
@@ -77,6 +88,11 @@ public class AssessmentController {
         return "dashboard";
     }
 
+    /**
+     * GET /assessment/create
+     * Show form to create a new assessment.
+     * Optional query param: courseId - pre-select course on the create form.
+     */
     @GetMapping("/create")
     public String showCreate(@RequestParam(name = "courseId", required = false) String courseIdParam, Model model) {
         model.addAttribute("allCourse", courseService.getAllCourses());
@@ -90,6 +106,11 @@ public class AssessmentController {
         return "dashboard";
     }
 
+    /**
+     * GET /assessment/edit?id={id}
+     * Show edit page for an existing assessment. If the assessment is not found,
+     * redirects back to /assessment with an error message.
+     */
     @GetMapping("/edit")
     public String showEdit(@RequestParam(name = "id") Integer id, Model model, HttpSession session) {
         Assessment assessment = assessService.getAssessmentById(id);
@@ -104,6 +125,10 @@ public class AssessmentController {
         return "dashboard";
     }
 
+    /**
+     * GET /assessment/delete?id={id}
+     * Show confirmation page to delete an assessment.
+     */
     @GetMapping("/delete")
     public String showDelete(@RequestParam(name = "id") Integer id, Model model, HttpSession session) {
         Assessment assessment = assessService.getAssessmentById(id);
@@ -118,6 +143,11 @@ public class AssessmentController {
         return "dashboard";
     }
 
+    /**
+     * POST /assessment/create
+     * Create a new assessment after validating required fields and ensuring
+     * the total weight for the course does not exceed 100%.
+     */
     @PostMapping("/create")
     public String create(@ModelAttribute("assessment") Assessment assessment, HttpSession session) {
         if (assessment.getType() == null || assessment.getCourse() == null || assessment.getCourse().getId() <= 0) {
@@ -150,6 +180,11 @@ public class AssessmentController {
         return "redirect:/assessment/create";
     }
 
+    /**
+     * POST /assessment/edit
+     * Update an existing assessment after validating fields and ensuring the
+     * recalculated total weight does not exceed 100%.
+     */
     @PostMapping("/edit")
     public String update(@ModelAttribute("assessment") Assessment assessment, HttpSession session) {
         if (assessment.getId() <= 0 || assessment.getType() == null || assessment.getCourse() == null || assessment.getCourse().getId() <= 0) {
@@ -190,6 +225,10 @@ public class AssessmentController {
         return "redirect:/assessment";
     }
 
+    /**
+     * POST /assessment/delete
+     * Delete an assessment by id provided in the bound form.
+     */
     @PostMapping("/delete")
     public String delete(@ModelAttribute("assessment") Assessment assessment, HttpSession session) {
         if (assessment.getId() <= 0) {
