@@ -1,86 +1,120 @@
 ﻿<link th:href="@{/assets/css/department.css}" rel="stylesheet" type="text/css"/>
 <link th:href="@{/assets/css/form.css}" rel="stylesheet" type="text/css"/>
 <th:block th:fragment="content">
-<div class="page-header">
-    <div>
-        <h1 class="title">Edit Class</h1>
-        <ul class="breadcrumbs">
-            <li><a th:href="@{/home}">Home</a></li>
-            <li class="divider">/</li>
-            <li><a th:href="@{/classes}">Classes</a></li>
-            <li class="divider">/</li>
-            <li><a href="#" class="active">Edit Class</a></li>
-        </ul>
+    <div class="page-header">
+        <div>
+            <h1 class="title">Edit Class</h1>
+            <ul class="breadcrumbs">
+                <li><a th:href="@{/home}">Home</a></li>
+                <li class="divider">/</li>
+                <li><a th:href="@{/classes}">Classes</a></li>
+                <li class="divider">/</li>
+                <li><a href="#" class="active">Edit Class</a></li>
+            </ul>
+        </div>
+        <a th:href="@{/classes}" class="btn-secondary">
+            <i class='bx bx-arrow-back'></i> Back to Classes
+        </a>
     </div>
-    <a th:href="@{/classes}" class="btn-secondary">
-        <i class='bx bx-arrow-back'></i> Back to Classes
-    </a>
-</div>
 
-<div class="form-container">
-    <p class="form-title">Edit Class Information</p>
-    
-    <form th:action="@{/classes/edit}" method="POST" class="form-body">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-        <input type="hidden" name="classId" value="" th:value="${classInfo.id}">
+    <div class="form-container">
+        <p class="form-title">Edit Class Information</p>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Class Code</label>
-                <input type="text" value="" th:value="${classInfo.code}" readonly>
-            </div>
-            <div class="form-group">
-                <label>Course</label>
-                <input type="text" value="" th:value="${classInfo.course.title}" readonly>
-            </div>
-        </div>
+        <form th:action="@{/classes/edit}"
+              th:object="${classDTO}"
+              method="POST"
+              class="form-body">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" th:field="*{classId}">
 
-        <div class="form-row">
-            <div class="form-group">
-                <label for="lecturerId">Lecturer <span>*</span></label>
-                <select id="lecturerId" name="lecturerId" class="form-select" required>
-                    <th:block th:each="lec : ${lecturerList}">
-                        <option th:value="${lec.id}" th:text="${lec.name}" th:selected="${lec.id == classInfo.lecturer.id}"></option>
-                    </th:block>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Class Code</label>
+                    <input type="text" th:field="*{code}" placeholder="E.g: PRO192.FA24.SE1801"
+                           pattern="[A-Z]{3}[0-9]{3}\.[A-Z]{2}[0-9]{2}\.[A-Z]{2}[0-9]{4}"
+                           title="Must match format: XXX123.XX12.XX1234">
+                    <small class="text-danger"
+                           th:if="${#fields.hasErrors('code')}"
+                           th:errors="*{code}"></small>
+                </div>
+                <div class="form-group">
+                    <label>Course</label>
+                    <select th:field="*{courseId}">
+                        <option value="" disabled>-- Select Course --</option>
+                        <option th:each="c : ${listCourses}"
+                                th:value="${c.id}"
+                                th:text="${c.title}">
+                        </option>
+                    </select>
+                    <small class="text-danger"
+                           th:if="${#fields.hasErrors('courseId')}"
+                           th:errors="*{courseId}"></small>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="semesterId">Semester <span>*</span></label>
-                <select id="semesterId" name="semesterId" class="form-select" required>
-                    <th:block th:each="sem : ${semesterList}">
-                        <option th:value="${sem.id}" th:text="${sem.code + ' - ' + sem.year}" th:selected="${sem.id == classInfo.semester.id}"></option>
-                    </th:block>
-                </select>
-            </div>
-        </div>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label for="room">Room <span>*</span></label>
-                
-                <input type="text" id="room" name="room" value="" th:value="${classInfo.room}" 
-                       placeholder="E.g: BE.301"
-                       pattern="[A-Z]{2}\.[0-9]{3}"
-                       title="Must match format: XX.123 (e.g., BE.301)"
-                       required>
-            </div>
-            <div class="form-group">
-                <label for="schedule">Schedule <span>*</span></label>
-                
-                <input type="text" id="schedule" name="schedule" value="" th:value="${classInfo.schedule}" 
-                       placeholder="E.g: Mon(7-9), Wed(7-9)"
-                       pattern="[A-Za-z0-9(),\- ]+"
-                       title="Can only contain letters, numbers, commas, hyphens, and parentheses ( )"
-                       required>
-            </div>
-        </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="lecturerId">Lecturer <span>*</span></label>
+                    <select id="lecturerId" class="form-select"
+                            th:field="*{lecturerId}" required>
+                        <option th:each="lec : ${listLecturers}"
+                                th:value="${lec.id}"
+                                th:text="${lec.name}">
+                        </option>
+                    </select>
+                    <small class="text-danger"
+                           th:if="${#fields.hasErrors('lecturerId')}"
+                           th:errors="*{lecturerId}"></small>
+                </div>
+                <div class="form-group">
+                    <label for="semesterId">Semester <span>*</span></label>
+                    <select id="semesterId" class="form-select"
+                            th:field="*{semesterId}" required>
 
-        <div class="form-buttons">
-            <a th:href="@{/classes}" class="btn btn-cancel">Cancel</a>
-            <button type="submit" class="btn btn-save">
-                <i class='bx bx-save'></i> Update Class
-            </button>
-        </div>
-    </form>
-</div>
+                        <option th:each="sem : ${listSemesters}"
+                                th:value="${sem.id}"
+                                th:text="${sem.code + ' - ' + sem.year}">
+                        </option>
+                    </select>
+                    <small class="text-danger"
+                           th:if="${#fields.hasErrors('semesterId')}"
+                           th:errors="*{semesterId}"></small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="room">Room <span>*</span></label>
+
+                    <input type="text" id="room" th:field="*{room}"
+                           placeholder="E.g: BE.301"
+                           pattern="[A-Z]{2}\.[0-9]{3}"
+                           title="Must match format: XX.123 (e.g., BE.301)"
+                           required>
+                    <small class="text-danger"
+                           th:if="${#fields.hasErrors('room')}"
+                           th:errors="*{room}"></small>
+                </div>
+                <div class="form-group">
+                    <label for="schedule">Schedule <span>*</span></label>
+
+                    <input type="text" id="schedule" th:field="*{schedule}"
+                           placeholder="E.g: Mon(7-9), Wed(7-9)"
+                           pattern="[A-Za-z0-9(),\- ]+"
+                           title="Can only contain letters, numbers, commas, hyphens, and parentheses ( )"
+                           required>
+                    <small class="text-danger"
+                           th:if="${#fields.hasErrors('schedule')}"
+                           th:errors="*{schedule}"></small>
+                </div>
+            </div>
+
+            <div class="form-buttons">
+                <a th:href="@{/classes}" class="btn btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-save">
+                    <i class='bx bx-save'></i> Update Class
+                </button>
+            </div>
+        </form>
+    </div>
 </th:block>

@@ -39,6 +39,14 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
+    public boolean existsByUsername(String username) {
+        return username != null && userRepository.existsByUsername(username.trim());
+    }
+
+    public boolean existsByLecturerId(Integer lecturerId) {
+        return lecturerId != null && lecturerId > 0 && userRepository.existsByLecturer_Id(lecturerId);
+    }
+
     /**
      * Kiá»ƒm tra Ä‘Äƒng nháº­p: so sÃ¡nh username vá»›i passwordHash (MD5).
      * @return User náº¿u há»£p lá»‡, null náº¿u sai
@@ -50,10 +58,10 @@ public class UserService {
 
     @Transactional
     public boolean addNewUser(User user) {
-        // BÄƒm máº­t kháº©u trÆ°á»›c khi lÆ°u
+        // Bam mat khau truoc khi luu
         user.setPassword(hashMD5(user.getPassword()));
-        // Admin khÃ´ng cáº§n liÃªn káº¿t lecturer
-        if (!"teacher".equals(user.getRole())) {
+        // Chi role lecturer/teacher moi duoc lien ket giang vien
+        if (!("lecturer".equals(user.getRole()) || "teacher".equals(user.getRole()))) {
             user.setLecturer(null);
         }
         try {

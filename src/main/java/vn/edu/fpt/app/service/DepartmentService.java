@@ -1,5 +1,7 @@
 package vn.edu.fpt.app.service;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+import vn.edu.fpt.app.dto.DepartmentDTO;
 import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.repository.DepartmentRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,50 +36,56 @@ public class DepartmentService {
         return name != null && departmentRepository.existsByNameIgnoreCase(name.trim());
     }
 
+    // thêm mới department
     @Transactional
-    public boolean addNewDepartment(Department department) {
-        try {
-            // saveAndFlush forces SQL execution here so constraint violations are catchable.
-            departmentRepository.saveAndFlush(department);
-            return true;
-        } catch (DataIntegrityViolationException e) {
-            System.out.println("Fail to add new department: " + e.getMessage());
-            return false;
+    public void add(DepartmentDTO dto) {
+
+        if (departmentRepository.existsByCode(dto.getCode())) {
+            throw new RuntimeException("CODE_EXISTS");
         }
+
+        if (departmentRepository.existsByNameIgnoreCase(dto.getName())) {
+            throw new RuntimeException("NAME_EXISTS");
+        }
+
+        Department dep = new Department(
+                dto.getCode(),
+                dto.getName(),
+                dto.getHead(),
+                dto.getPhone(),
+                dto.getEmail()
+        );
+
+        departmentRepository.save(dep);
+    }
+
+
+    @Transactional
+    public void update(DepartmentDTO dto) {
+
+        Department department = departmentRepository.findById(dto.getCode())
+                .orElseThrow(() -> new RuntimeException("NOT_FOUND"));
+
+        String name = dto.getName().trim();
+
+        if (departmentRepository.existsByNameIgnoreCaseAndCodeNot(name, dto.getCode())) {
+            throw new RuntimeException("NAME_EXISTS");
+        }
+
+        department.setName(name);
+        department.setDepartmentHead(dto.getHead());
+        department.setEmail(dto.getEmail());
+        department.setPhone(dto.getPhone());
+
+        departmentRepository.save(department);
     }
 
     @Transactional
-    public boolean updateDepartmentByCode(String code, String name, String departmentHead, String email, String phone) {
-        Optional<Department> opt = departmentRepository.findById(code);
-        if (opt.isEmpty()) return false;
-
-        String normalizedName = name == null ? null : name.trim();
-        if (normalizedName == null || normalizedName.isEmpty()) return false;
-        if (departmentRepository.existsByNameIgnoreCaseAndCodeNot(normalizedName, code)) return false;
-
-        Department department = opt.get();
-        department.setName(normalizedName);
-        department.setDepartmentHead(departmentHead);
-        department.setEmail(email);
-        department.setPhone(phone);
-        try {
-            departmentRepository.saveAndFlush(department);
-            return true;
-        } catch (DataIntegrityViolationException e) {
-            System.out.println("Fail to update department: " + e.getMessage());
-            return false;
-        }
-    }
-
-    @Transactional
-    public boolean deleteDepartmentByCode(String code) {
-        if (!departmentRepository.existsById(code)) return false;
+    public void deleteByCode(String code) {
         try {
             departmentRepository.deleteById(code);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Fail to delete department: " + e.getMessage());
-            return false;
+        } catch (EmptyResultDataAccessException e) {
+            throw new RuntimeException("NOT_FOUND");
         }
     }
 }

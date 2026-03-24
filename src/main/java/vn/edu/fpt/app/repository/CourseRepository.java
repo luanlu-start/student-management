@@ -10,5 +10,9 @@ import java.util.List;
 public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     List<Course> findByDepartment_Code(String departmentCode);
+
+    boolean existsByCode(String code);
+
+    boolean existsByCodeAndIdNot(String code, int id);
 }
 

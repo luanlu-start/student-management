@@ -18,7 +18,7 @@
 </div>
 
 <div class="profile-header-card">
-    <div class="profile-avatar-lg" th:style="|background-color: ${T(java.lang.Math).abs(student.name.hashCode() % 999999)}|">
+    <div class="profile-avatar-lg" th:style="'background-color: #' + ${T(java.lang.Math).abs(student.name.hashCode() % 999999)}">
         [[${#strings.substring(student.name, 0, 1)}]]
     </div>
     <div class="profile-header-info">
@@ -115,10 +115,3 @@
     </div>
 </div>
 </th:block>
-
-
-
-
-
-
-

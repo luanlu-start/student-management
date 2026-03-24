@@ -1,9 +1,12 @@
 package vn.edu.fpt.app.service;
 
+import vn.edu.fpt.app.dto.CourseDTO;
 import vn.edu.fpt.app.entities.Course;
+import vn.edu.fpt.app.entities.Department;
 import vn.edu.fpt.app.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.app.repository.DepartmentRepository;
 
 import java.util.List;
 
@@ -11,9 +14,11 @@ import java.util.List;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final DepartmentRepository departmentRepository;
 
-    public CourseService(CourseRepository courseRepository) {
+    public CourseService(CourseRepository courseRepository, DepartmentRepository departmentRepository) {
         this.courseRepository = courseRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     public List<Course> getAllCourses() {
@@ -29,37 +34,54 @@ public class CourseService {
     }
 
     @Transactional
-    public boolean insertCourse(Course course) {
-        try {
-            courseRepository.save(course);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Fail to insert course: " + e.getMessage());
-            return false;
+    public void insertCourse(CourseDTO dto) {
+
+        if (courseRepository.existsByCode(dto.getCode())) {
+            throw new RuntimeException("CODE_EXISTS");
         }
+
+        Course course = new Course();
+
+        course.setCode(dto.getCode().trim());
+        course.setTitle(dto.getTitle().trim());
+        course.setCredits(dto.getCredits());
+
+        Department dep = departmentRepository.findById(dto.getDepartmentCode())
+                .orElseThrow(() -> new RuntimeException("DEPARTMENT_NOT_FOUND"));
+
+        course.setDepartment(dep);
+
+        courseRepository.save(course);
     }
 
     @Transactional
-    public boolean updateCourse(Course course) {
-        if (!courseRepository.existsById(course.getId())) return false;
-        try {
-            courseRepository.save(course);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Fail to update course: " + e.getMessage());
-            return false;
+    public void updateCourse(CourseDTO dto) {
+
+        Course course = courseRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("NOT_FOUND"));
+
+        if (courseRepository.existsByCodeAndIdNot(dto.getCode(), dto.getId())) {
+            throw new RuntimeException("CODE_EXISTS");
         }
+
+        course.setCode(dto.getCode().trim());
+        course.setTitle(dto.getTitle().trim());
+        course.setCredits(dto.getCredits());
+
+        Department dep = departmentRepository.findById(dto.getDepartmentCode())
+                .orElseThrow(() -> new RuntimeException("DEPARTMENT_NOT_FOUND"));
+
+        course.setDepartment(dep);
+
+        courseRepository.save(course);
     }
 
     @Transactional
-    public boolean deleteCourse(int id) {
-        if (!courseRepository.existsById(id)) return false;
-        try {
-            courseRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Fail to delete course: " + e.getMessage());
-            return false;
-        }
+    public void deleteCourse(int id) {
+
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("NOT_FOUND"));
+
+        courseRepository.delete(course);
     }
 }
